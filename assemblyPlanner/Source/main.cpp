@@ -3,41 +3,47 @@
 #include <vector>
 #include <string>
 
-class Node
-{
-   public:
 
-      Node *parent; // used during the search to record the parent of successor nodes
-      std::vector< std::vector<Node*>> children; // used after the search for the application to view the search in reverse
+template <class TypeId, class TypeData> 
+class Connector{
+public:
+    Connector(Node * source, Node * sink);
+    Connector(Node * source, std::vector<);
+    Connector(Node * from, Node * to, TypeData value);
 
-      std::string subassembly;
+    TypeData getData(void);
+    std::vector<Node*> & getSuccessors(void);
 
-      float g; // cost of this node + it's predecessors
-      float h; // heuristic estimate of distance to goal
-      float f; // sum of cumulative cost of predecessors and self and heuristic
-
-      // UserState m_UserState;
+private:
+    TypeData data_;
 };
 
-Node * construct_tree(void){
 
-   Node * root = new Node();
-   Node * previous_node = root;
-   
-   
-   std::vector<Node*> graph;
-   for(int j=0; j<18; j++){
-      Node * temp = new Node();
-      graph.push_back(temp);
-   }
+template <class TypeId, class TypeData> 
+class Node{
+public:
+    Node(void);
+    Node(TypeId identifier);
+    Node(TypeId identifier, TypeData data);
 
-   graph[0]->
-
-
+    bool hasSuccessor(void);
+    bool hasPredecessor(void);
+    int addPredecessor(Connector * predecessor);
+    int addSuccessor(Connector * successor);
+    Edge * removeSuccessor(TypeId identifier);
 
 
-   return root;
-}
+    std::vector< Edge* > getSuccessors(void);
+    std::vector< Edge* > getPredecessors(void);
+
+    bool visited = false;
+
+private:
+    std::vector<Connector*> parents_;
+    std::vector<Connector*> children_; 
+    TypeId id_;
+    TypeData data_;
+};
 
 int main(void){
 
