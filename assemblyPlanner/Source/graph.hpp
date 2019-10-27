@@ -1,7 +1,6 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-
 #include <cassert>
 #include <cstddef>
 #include <iterator> // std::random_access_iterator
@@ -19,50 +18,33 @@
 template<typename connectorData, typename nodeData, typename Visitor = IdleGraphVisitor<std::string> >
 class Graph{
 public:
-    //Construction
+    // Construction
     Graph(const Visitor& = Visitor());
     Graph(const std::size_t, const std::size_t, const Visitor& = Visitor());
-    void reserveVertices(const std::size_t);
-    void reserveEdges(const std::size_t);
 
-    // VertexIterator verticesFromVertexBegin(const std::size_t) const;
-    // VertexIterator verticesFromVertexEnd(const std::size_t) const;
-    // VertexIterator verticesToVertexBegin(const std::size_t) const;
-    // VertexIterator verticesToVertexEnd(const std::size_t) const;
-    // EdgeIterator edgesFromVertexBegin(const std::size_t) const;
-    // EdgeIterator edgesFromVertexEnd(const std::size_t) const;
-    // EdgeIterator edgesToVertexBegin(const std::size_t) const;
-    // EdgeIterator edgesToVertexEnd(const std::size_t) const;
-    // AdjacencyIterator adjacenciesFromVertexBegin(const std::size_t) const;
-    // AdjacencyIterator adjacenciesFromVertexEnd(const std::size_t) const;
-    // AdjacencyIterator adjacenciesToVertexBegin(const std::size_t) const;
-    // AdjacencyIterator adjacenciesToVertexEnd(const std::size_t) const;
-
+    // General Information
     std::size_t numberOfNodes() const;
     std::size_t numberOfConnectors() const;
     std::size_t numberOfConnectorsFromNode(const std::string) const;
     std::size_t numberOfConnectorsToNode(const std::string) const;
 
+    // Access specific nodes/vertices.
     Connector<nodeData, connectorData> * connectorFromNode(const std::string, const std::size_t) const;
-    Connector<nodeData, connectorData> * connectorToNode(const std::string, const std::size_t) const
-
-    std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
-    std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
-    const AdjacencyType& adjacencyFromVertex(const std::size_t, const std::size_t) const;
-    const AdjacencyType& adjacencyToVertex(const std::size_t, const std::size_t) const;
-    std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
-    bool multipleEdgesEnabled() const;
+    Connector<nodeData, connectorData> * connectorToNode(const std::string, const std::size_t) const;
+    std::vector<Node<nodeData, connectorData>*>& nodesFromNode(const std::string, const std::size_t) const;
+    std::vector<Node<nodeData, connectorData>*>& nodesToNode(const std::string, const std::size_t) const;
+    // std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
 
     // manipulation
-    std::size_t insertVertex();
-    std::size_t insertVertices(const std::size_t);
+    std::size_t insertNode(std::string, nodeData);
+    std::size_t insertNodes(std::vector<Node<nodeData, connectorData>>& nodes);
+
     std::size_t insertEdge(const std::size_t, const std::size_t);
     void eraseVertex(const std::size_t);
     void eraseEdge(const std::size_t);
 
     // Review
 private:
-
     void insertAdjacenciesForEdge(const std::size_t);
     void eraseAdjacenciesForEdge(const std::size_t);
 
@@ -146,7 +128,7 @@ Graph<connectorData, nodeData, Visitor>::numberOfConnectorsToNode(
 
 /* Get the pointer to the j`th connector that originates from a given node.
     @node: string-id of a node.
-    @j; number of Connector. Between 0 and numberOfEdgesFromNode(node) - 1.
+    @j; number of Connector. Between 0 and numberOfConnectorsFromNode(node) - 1.
 **/
 template<typename connectorData, typename nodeData, typename Visitor>
 inline Connector<nodeData, connectorData>*
@@ -159,7 +141,7 @@ Graph<connectorData, nodeData, Visitor>::connectorFromNode(
 
 /* Get the pointer to the j`th connector that is incident to a given node.
     @node: string-id of a node.
-    @j: index of Connector. Between 0 and numberOfEdgesToNode(node) - 1.
+    @j: index of Connector. Between 0 and numberOfConnectorsToNode(node) - 1.
 **/
 template<typename connectorData, typename nodeData, typename Visitor>
 inline Connector<nodeData, connectorData>*
@@ -170,73 +152,66 @@ Graph<connectorData, nodeData, Visitor>::connectorToNode(
     return nodes_[node].parents[j];
 }
 
-/* Get pointers to the nodes reachable from a given vertex via a given connector.
+/* Get pointers to the nodes reachable from a given node via a specified connector.
     @node: string-id of a node.
-    @j: Index of the connector. Between 0 and numberOfEdgesFromVertex(vertex) - 1.
+    @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
 **/
 template<typename connectorData, typename nodeData, typename Visitor>
-inline std::vector<Node<nodeData>*> &
-Graph<connectorData, nodeData, Visitor>::nodeFromNode(
+inline std::vector<Node<nodeData, connectorData>*> &
+Graph<connectorData, nodeData, Visitor>::nodesFromNode(
     const std::string node,
     const std::size_t j
 ) const {
-    return vertices_[node].children[j].successors();
+    return nodes_[node].children[j].getSuccessors();
 }
 
-/// Get the integer index of a vertex from which a given vertex is reachable via a single edge.
-///
-/// \param vertex Integer index of a vertex.
-/// \param j Number of the vertex; between 0 and numberOfEdgesFromVertex(vertex) - 1.
-///
-/// \sa numberOfEdgesFromVertex() 
-///
+/* Get pointers to the nodes incident to a given node via a specified connector.
+    @node: string-id of a node.
+    @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
+**/
 template<typename connectorData, typename nodeData, typename Visitor>
-inline std::size_t
-Graph<connectorData, nodeData, Visitor>::vertexToVertex(
-    const std::size_t vertex,
+inline std::vector<Node<nodeData, connectorData>*> &
+Graph<connectorData, nodeData, Visitor>::nodesToNode(
+    const std::string node,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].vertex();
+    return nodes_[node].parents[j].getPredecessors();
 }
 
-/// Insert an additional vertex.
-///
-/// \return Integer index of the newly inserted vertex.
-///
-/// \sa insertVertices()
-///
+
+/* Insert an additional Node.
+    @node: string-id of the newly inserted node.
+    @data: data asociated with the created node.
+    \return: number of nodes present in the graph.
+**/
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertVertex() {
-    vertices_.push_back(Vertex());
+Graph<connectorData, nodeData, Visitor>::insertNode(std::string node, nodeData data) {
+    nodes_.push_back(Node<nodeData,connectorData>(node, data));
     visitor_.insertVertex(vertices_.size() - 1);
-    return vertices_.size() - 1;
+    return nodes_.size() - 1;
 }
 
-/// Insert additional vertices.
-///
-/// \param number Number of new vertices to be inserted.
-/// \return Integer index of the first newly inserted vertex.
-///
-/// \sa insertVertex()
-///
+/* Insert multiple additional Nodes.
+    @nodes: vector containing nodes to be inserted into the graph.
+    \return: number of nodes present in the graph.
+**/
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertVertices(
-    const std::size_t number
+Graph<connectorData, nodeData, Visitor>::insertNodes(
+    std::vector<Node<nodeData, connectorData>>& nodes
 ) {
-    std::size_t position = vertices_.size();
-    vertices_.insert(vertices_.end(), number, Vertex());
+    nodes_.insert(nodes_.end(), nodes.begin(), nodes.end());
+    std::size_t position = ndoes_.size();
     visitor_.insertVertices(position, number);
     return position;
 }
 
-/// Insert an additional edge.
-///
-/// \param vertexIndex0 Integer index of the first vertex in the edge.
-/// \param vertexIndex1 Integer index of the second vertex in the edge.
-/// \return Integer index of the newly inserted edge.
-/// 
+/* Insert an additional edge.
+    @vertexIndex0 Integer index of the first vertex in the edge.
+    @vertexIndex1 Integer index of the second vertex in the edge.
+    \return Integer index of the newly inserted edge.
+**/ 
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<connectorData, nodeData, Visitor>::insertEdge(
@@ -356,238 +331,6 @@ Graph<connectorData, nodeData, Visitor>::eraseEdge(
     }
 }
 
-/// Get an iterator to the beginning of the sequence of vertices reachable from a given vertex via a single edge.
-///
-/// \param vertex Integer index of the vertex.
-/// \return VertexIterator.
-/// 
-/// \sa verticesFromVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
-Graph<connectorData, nodeData, Visitor>::verticesFromVertexBegin(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
-}
-
-/// Get an iterator to the end of the sequence of vertices reachable from a given vertex via a single edge.
-///
-/// \param vertex Integer index of the vertex.
-/// \return VertexIterator.
-/// 
-/// \sa verticesFromVertexBegin()
-/// 
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
-Graph<connectorData, nodeData, Visitor>::verticesFromVertexEnd(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
-}
-
-/// Get an iterator to the beginning of the sequence of vertices from which a given vertex is reachable via a single edge.
-///
-/// \param vertex Integer index of the vertex.
-/// \return VertexIterator.
-/// 
-/// \sa verticesToVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
-Graph<connectorData, nodeData, Visitor>::verticesToVertexBegin(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
-}
-
-/// Get an iterator to the end of the sequence of vertices from which a given vertex is reachable via a single edge.
-///
-/// \param vertex Integer index of the vertex.
-/// \return VertexIterator.
-/// 
-/// \sa verticesToVertexBegin()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
-Graph<connectorData, nodeData, Visitor>::verticesToVertexEnd(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
-}
-
-/// Get an iterator to the beginning of the sequence of edges that originate from a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return EdgeIterator.
-///
-/// \sa edgesFromVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
-Graph<connectorData, nodeData, Visitor>::edgesFromVertexBegin(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
-}
-
-/// Get an iterator to the end of the sequence of edges that originate from a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return EdgeIterator.
-///
-/// \sa edgesFromVertexBegin()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
-Graph<connectorData, nodeData, Visitor>::edgesFromVertexEnd(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
-}
-
-/// Get an iterator to the beginning of the sequence of edges that are incident to a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return EdgeIterator.
-///
-/// \sa edgesToVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
-Graph<connectorData, nodeData, Visitor>::edgesToVertexBegin(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].begin(); 
-}
-
-/// Get an iterator to the end of the sequence of edges that are incident to a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return EdgeIterator.
-///
-/// \sa edgesToVertexBegin()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
-Graph<connectorData, nodeData, Visitor>::edgesToVertexEnd(
-    const std::size_t vertex
-) const { 
-    return vertices_[vertex].end(); 
-}
-
-/// Get an iterator to the beginning of the sequence of adjacencies that originate from a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return AdjacencyIterator.
-///
-/// \sa adjacenciesFromVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
-Graph<connectorData, nodeData, Visitor>::adjacenciesFromVertexBegin(
-    const std::size_t vertex
-) const {
-    return vertices_[vertex].begin();
-}
-
-/// Get an iterator to the end of the sequence of adjacencies that originate from a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return AdjacencyIterator.
-///
-/// \sa adjacenciesFromVertexBegin()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
-Graph<connectorData, nodeData, Visitor>::adjacenciesFromVertexEnd(
-    const std::size_t vertex
-) const {
-    return vertices_[vertex].end();
-}
-
-/// Get an iterator to the beginning of the sequence of adjacencies incident to a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return AdjacencyIterator.
-///
-/// \sa adjacenciesToVertexEnd()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
-Graph<connectorData, nodeData, Visitor>::adjacenciesToVertexBegin(
-    const std::size_t vertex
-) const {
-    return vertices_[vertex].begin();
-}
-
-/// Get an iterator to the end of the sequence of adjacencies incident to a given vertex.
-///
-/// \param vertex Integer index of the vertex.
-/// \return AdjacencyIterator.
-///
-/// \sa adjacenciesToVertexBegin()
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
-Graph<connectorData, nodeData, Visitor>::adjacenciesToVertexEnd(
-    const std::size_t vertex
-) const {
-    return vertices_[vertex].end();
-}
-
-// /// Reserve memory for at least the given total number of vertices.
-// ///
-// /// \param number Total number of vertices.
-// ///
-// template<typename connectorData, typename nodeData, typename Visitor>
-// inline void 
-// Graph<connectorData, nodeData, Visitor>::reserveVertices(
-//     const std::size_t number
-// ) {
-//     vertices_.reserve(number);
-// }
-
-// /// Reserve memory for at least the given total number of edges.
-// ///
-// /// \param number Total number of edges.
-// ///
-// template<typename connectorData, typename nodeData, typename Visitor>
-// inline void 
-// Graph<connectorData, nodeData, Visitor>::reserveEdges(
-//     const std::size_t number
-// ) {
-//     edges_.reserve(number);
-// }
-
-/// Get the j-th adjacency from a vertex.
-///
-/// \param vertex Vertex.
-/// \param j Number of the adjacency.
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline const typename Graph<connectorData, nodeData, Visitor>::AdjacencyType&
-Graph<connectorData, nodeData, Visitor>::adjacencyFromVertex(
-    const std::size_t vertex,
-    const std::size_t j
-) const {
-    return vertices_[vertex][j];
-}
-
-/// Get the j-th adjacency to a vertex.
-///
-/// \param vertex Vertex.
-/// \param j Number of the adjacency.
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline const typename Graph<connectorData, nodeData, Visitor>::AdjacencyType&
-Graph<connectorData, nodeData, Visitor>::adjacencyToVertex(
-    const std::size_t vertex,
-    const std::size_t j
-) const {
-    return vertices_[vertex][j];
-}
-
 /// Search for an edge (in logarithmic time).
 ///
 /// \param vertex0 first vertex of the edge.
@@ -596,101 +339,34 @@ Graph<connectorData, nodeData, Visitor>::adjacencyToVertex(
 ///     and pair.second is the index of such an edge. if no edge from vertex0
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline std::pair<bool, std::size_t>
-Graph<connectorData, nodeData, Visitor>::findEdge(
-    const std::size_t vertex0,
-    const std::size_t vertex1
-) const {
-    assert(vertex0 < numberOfVertices());
-    assert(vertex1 < numberOfVertices());
+// template<typename connectorData, typename nodeData, typename Visitor>
+// inline std::pair<bool, std::size_t>
+// Graph<connectorData, nodeData, Visitor>::findEdge(
+//     const std::size_t vertex0,
+//     const std::size_t vertex1
+// ) const {
+//     assert(vertex0 < numberOfVertices());
+//     assert(vertex1 < numberOfVertices());
 
-    std::size_t v0 = vertex0;
-    std::size_t v1 = vertex1;
-    if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {
-        v0 = vertex1;
-        v1 = vertex0;
-    }
-    VertexIterator it = std::lower_bound(
-        verticesFromVertexBegin(v0),
-        verticesFromVertexEnd(v0),
-        v1
-    ); // binary search
-    if(it != verticesFromVertexEnd(v0) && *it == v1) {
-        // access the corresponding edge in constant time
-        const std::size_t j = std::distance(verticesFromVertexBegin(v0), it);
-        return std::make_pair(true, edgeFromVertex(v0, j));
-    }
-    else {
-        return std::make_pair(false, 0);
-    }
-}
+//     std::size_t v0 = vertex0;
+//     std::size_t v1 = vertex1;
+//     if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {
+//         v0 = vertex1;
+//         v1 = vertex0;
+//     }
+//     VertexIterator it = std::lower_bound(
+//         verticesFromVertexBegin(v0),
+//         verticesFromVertexEnd(v0),
+//         v1
+//     ); // binary search
+//     if(it != verticesFromVertexEnd(v0) && *it == v1) {
+//         // access the corresponding edge in constant time
+//         const std::size_t j = std::distance(verticesFromVertexBegin(v0), it);
+//         return std::make_pair(true, edgeFromVertex(v0, j));
+//     }
+//     else {
+//         return std::make_pair(false, 0);
+//     }
+// }
 
-/// Indicate if multiple edges are enabled.
-///
-/// \return true if multiple edges are enabled, false otherwise.
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline bool
-Graph<connectorData, nodeData, Visitor>::multipleEdgesEnabled() const {
-    return multipleEdgesEnabled_;
-}
-
-/// Indicate if multiple edges are enabled.
-///
-/// Enable multiple edges like this: graph.multipleEdgesEnabled() = true;
-///
-/// \return reference the a Boolean flag.
-///
-template<typename connectorData, typename nodeData, typename Visitor>
-inline bool&
-Graph<connectorData, nodeData, Visitor>::multipleEdgesEnabled() {
-    return multipleEdgesEnabled_;
-}
-
-template<typename connectorData, typename nodeData, typename Visitor>
-inline void 
-Graph<connectorData, nodeData, Visitor>::insertAdjacenciesForEdge(
-    const std::size_t edgeIndex
-) {
-    const Edge& edge = edges_[edgeIndex];
-    const std::size_t vertexIndex0 = edge[0];
-    const std::size_t vertexIndex1 = edge[1];
-    vertices_[vertexIndex0].insert(
-        AdjacencyType(vertexIndex1, edgeIndex)
-    );
-    if(vertexIndex1 != vertexIndex0) {
-        vertices_[vertexIndex1].insert(
-            AdjacencyType(vertexIndex0, edgeIndex)
-        );
-    }
-}
-
-template<typename connectorData, typename nodeData, typename Visitor>
-inline void 
-Graph<connectorData, nodeData, Visitor>::eraseAdjacenciesForEdge(
-    const std::size_t edgeIndex
-) {
-    const Edge& edge = edges_[edgeIndex];
-    const std::size_t vertexIndex0 = edge[0];
-    const std::size_t vertexIndex1 = edge[1];
-    Vertex& vertex0 = vertices_[vertexIndex0];
-    Vertex& vertex1 = vertices_[vertexIndex1];
-
-    AdjacencyType adj(vertexIndex1, edgeIndex);
-    RandomAccessSet<AdjacencyType>::iterator it = vertex0.find(adj);
-    assert(it != vertex0.end());
-    if (it != vertex0.end())
-        vertex0.erase(it);
-    
-    if(vertexIndex1 != vertexIndex0) { // if not a self-edge
-        adj.vertex() = vertexIndex0;
-        it = vertex1.find(adj);
-        assert(it != vertex1.end()); 
-        if (it != vertex1.end())
-            vertex1.erase(it);
-    }
-}
-
-} // namespace graph
-} // namespace andres
+#endif //GRAPH_HPP
