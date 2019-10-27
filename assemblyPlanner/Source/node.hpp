@@ -15,18 +15,26 @@ class Node;
 template <class TypeNode, class TypeConnector> 
 class Connector{
 public:
-    Connector(  Node<TypeNode, TypeConnector> *, 
+    Connector( TypeConnector );
+
+    Connector(  TypeConnector, 
+                Node<TypeNode, TypeConnector> *, 
                 Node<TypeNode, TypeConnector> *
                 );
     
-    Connector(  Node<TypeNode, TypeConnector> *, 
+    Connector(  TypeConnector, 
+                std::vector<Node<TypeNode, TypeConnector>*> &, 
                 std::vector<Node<TypeNode, TypeConnector>*> &
                 );
 
     std::vector< Node<TypeNode, TypeConnector>* > & getSuccessors() const;
     std::vector< Node<TypeNode, TypeConnector>* > & getPredecessors() const;
 
+    std::size_t addDestination(Node<TypeNode, TypeConnector>* );
+    std::size_t addSource(Node<TypeNode, TypeConnector>* );
+
 private:
+    TypeNode id_;
     TypeConnector data_;
     std::vector<Node<TypeNode, TypeConnector>*> to_;
     std::vector<Node<TypeNode, TypeConnector>*> from_;
@@ -34,21 +42,30 @@ private:
 
 template <class TypeNode, class TypeConnector>  
 Connector<TypeNode, TypeConnector>::Connector( 
+    TypeConnector data
+) {
+    data_ = data;
+}
+
+template <class TypeNode, class TypeConnector>  
+Connector<TypeNode, TypeConnector>::Connector(
+    TypeConnector data, 
     Node<TypeNode, TypeConnector> * source, 
     Node<TypeNode, TypeConnector> * sink
-)
-{
+) {
+    data_ = data;
     from_.push_back(source);
     to_.push_back(sink);
 }
 
 template <class TypeNode, class TypeConnector> 
-Connector<TypeNode, TypeConnector>::Connector( 
-    Node<TypeNode, TypeConnector> * source, 
+Connector<TypeNode, TypeConnector>::Connector(
+    TypeConnector data, 
+    std::vector<Node<TypeNode, TypeConnector>*> & source, 
     std::vector<Node<TypeNode, TypeConnector>*> & sink 
-)
-{
-    from_.push_back(source);
+) {
+    data_ = data;
+    to_ = source;
     to_ = sink;
 }
 
@@ -64,6 +81,19 @@ Connector<TypeNode,TypeConnector>::getPredecessors() const{
     return from_;
 }
 
+template <class TypeNode, class TypeConnector> 
+inline std::size_t 
+Connector<TypeNode,TypeConnector>::addDestination(Node<TypeNode, TypeConnector>* node){
+    to_.push_back(node);
+    return(to_.size());
+}
+
+template <class TypeNode, class TypeConnector> 
+inline std::size_t  
+Connector<TypeNode,TypeConnector>::addSource(Node<TypeNode, TypeConnector>* node){
+    from_.push_back(node);
+    return(from_.size());
+}
 
 /*
     Class representing the Nodes within the graph. 
