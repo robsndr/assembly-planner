@@ -16,7 +16,7 @@
 #include "node.hpp"
 #include "visitor.hpp"
 
-template<typename connectorData, typename nodeData, typename Visitor = IdleGraphVisitor<std::string> >
+template<typename connectorData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::string> >
 class Graph{
 public:
     // Construction
@@ -26,8 +26,8 @@ public:
     // General Information
     std::size_t numberOfNodes() const;
     std::size_t numberOfConnectors() const;
-    std::size_t numberOfConnectorsFromNode(const std::string) const;
-    std::size_t numberOfConnectorsToNode(const std::string) const;
+    std::size_t numberOfConnectorsFromNode(const std::string);
+    std::size_t numberOfConnectorsToNode(const std::string);
 
     // Access specific nodes/vertices.
     Connector<nodeData, connectorData> * connectorFromNode(const std::string, const std::size_t) const;
@@ -39,23 +39,19 @@ public:
     // manipulation
     // inserttion
     std::size_t insertNode(const std::string, const nodeData);
-    std::size_t insertNodes(const std::vector<Node<nodeData, connectorData>>& );
-    std::size_t insertEdge( const connectorData data, 
-                            const std::vector<std::string> & , 
-                            const std::vector<std::string> & );
+    std::size_t insertNodes(const std::vector<Node<nodeData, connectorData>*>& );
+    std::size_t insertConnector( const connectorData data, 
+                                 const std::vector<std::string> & , 
+                                 const std::vector<std::string> & );
     
     // manipulation
     // removal
     void eraseNode(const std::string nodeId); 
     // void eraseEdge(const std::size_t);
 
-    // Review
 private:
-    void insertAdjacenciesForEdge(const std::size_t);
-    void eraseAdjacenciesForEdge(const std::size_t);
-
-    std::unordered_map<std::string, Node> nodes_;
-    std::vector<Connector> connectors_;
+    std::unordered_map<std::string, Node<nodeData, connectorData>*> nodes_;
+    std::vector<Connector<nodeData, connectorData>> connectors_;
     Visitor visitor_;
 };
 
@@ -89,7 +85,7 @@ Graph<connectorData, nodeData, Visitor>::Graph(
     visitor_(visitor)
 {
     connectors_.reserve(numberOfConnectors);
-    visitor_.insertVertices(0, numberOfVertices);
+    // visitor_.insertVertices("0", );
 }
     
 /* Get the number of nodes.
@@ -115,8 +111,9 @@ template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<connectorData, nodeData, Visitor>::numberOfConnectorsFromNode(
     const std::string node
-) const { 
-    return nodes_[node].numberOfChildren();
+) { 
+    nodes_[node]->numberOfSuccessors();
+    return 1;
 }
 
 /* Get the number of edges that are incident to a given vertex.
@@ -126,8 +123,8 @@ template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<connectorData, nodeData, Visitor>::numberOfConnectorsToNode(
     const std::string node
-) const { 
-    return nodes_[node].numberOfParents();
+) { 
+    return nodes_[node]->numberOfPredecessors();
 }
 
 /* Get the pointer to the j`th connector that originates from a given node.
@@ -140,7 +137,7 @@ Graph<connectorData, nodeData, Visitor>::connectorFromNode(
     const std::string node,
     const std::size_t j
 ) const {
-    return nodes_[node].children[j];
+    return nodes_[node]->children[j];
 }
 
 /* Get the pointer to the j`th connector that is incident to a given node.
@@ -153,7 +150,7 @@ Graph<connectorData, nodeData, Visitor>::connectorToNode(
     const std::string node,
     const std::size_t j
 ) const {
-    return nodes_[node].parents[j];
+    return nodes_[node]->parents[j];
 }
 
 /* Get pointers to the nodes reachable from a given node via a specified connector.
@@ -166,7 +163,7 @@ Graph<connectorData, nodeData, Visitor>::nodesFromNode(
     const std::string node,
     const std::size_t j
 ) const {
-    return nodes_[node].children[j].getSuccessors();
+    return nodes_[node]->children[j].getSuccessors();
 }
 
 /* Get pointers to the nodes incident to a given node via a specified connector.
@@ -179,7 +176,7 @@ Graph<connectorData, nodeData, Visitor>::nodesToNode(
     const std::string node,
     const std::size_t j
 ) const {
-    return nodes_[node].parents[j].getPredecessors();
+    return nodes_[node]->parents[j].getPredecessors();
 }
 
 /* Insert an additional Node.
@@ -189,9 +186,10 @@ Graph<connectorData, nodeData, Visitor>::nodesToNode(
 **/
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertNode(std::string node, nodeData data) {
-    nodes_.push_back(Node<nodeData,connectorData>(node, data));
-    visitor_.insertVertex(vertices_.size() - 1);
+Graph<connectorData, nodeData, Visitor>::insertNode(std::string nodeId , nodeData data) {
+    Node<nodeData,connectorData> * tempNode = new Node<nodeData,connectorData>(nodeId, data);
+    nodes_.insert(std::make_pair(nodeId ,tempNode));
+    visitor_.insertVertex(nodeId);
     return nodes_.size() - 1;
 }
 
@@ -202,146 +200,149 @@ Graph<connectorData, nodeData, Visitor>::insertNode(std::string node, nodeData d
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<connectorData, nodeData, Visitor>::insertNodes(
-    const std::vector<Node<nodeData, connectorData>>& nodes
+    const std::vector<Node<nodeData, connectorData>*>& nodes
 ) {
-    nodes_.insert(nodes_.end(), nodes.begin(), nodes.end());
-    std::size_t position = ndoes_.size();
-    // visitor_.insertVertices(position, number);
+    for(auto const node: nodes){
+        nodes_.insert(std::make_pair(node->id_, node));
+    }
+    std::size_t position = nodes_.size();
+    for(const auto nd: nodes){
+        visitor_.insertVertices(nd->id_, nodes.size());
+    }
     return position;
 }
 
 /* Insert an additional connector.
-    @srcNodeId: string-id of the first vertex in the edge.
-    @destNodeId: string-id index of the second vertex in the edge.
+    @srcNodeId: string-ids of the source nodes of the connectors.
+    @destNodeId: string-ids of the destinaion nodes of the connectors.
     \return Integer index of the newly inserted edge.
 **/ 
 template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertEdge(
+Graph<connectorData, nodeData, Visitor>::insertConnector(
     const connectorData data,
     const std::vector<std::string> & srcNodeId,
     const std::vector<std::string> & destNodeId
 ) {
-    connectors_.push_back(Connector(data));
+    connectors_.push_back(Connector<connectorData, nodeData>(data));
     for(auto const& src: srcNodeId) {
         if ( nodes_.find(src) == nodes_.end() ) {
             std::cerr << "Unable to create connector. " 
-                      << "Node" << src << " not in graph." << std::endl;
+                      << "Node " << src << " not in graph." << std::endl;
             connectors_.pop_back();
-            throw std::range_error;
+            throw std::range_error("Unable to create connector.");
         } else {
-            connectors_.back().addSource(&nodes_[src]);
+            connectors_.back().addSource(nodes_[src]);
         }
-        src.addSuccessor(&connectors_.back());
+        nodes_[src]->addSuccessor(&connectors_.back());
     }
     for(auto const& dst: destNodeId) {
         if ( nodes_.find(dst) == nodes_.end() ) {
             std::cerr << "Unable to create connector. " 
                       << "Node" << dst << " not in graph." << std::endl;
             connectors_.pop_back();
-            throw std::range_error;
+            throw std::range_error("Unable to create connector.");
         } else {
-            connectors_.back().addDestination(&nodes_[dst]);
+            connectors_.back().addDestination(nodes_[dst]);
         }
-        dst.addSuccessor(&connectors_.back());
+        nodes_[dst]->addSuccessor(&connectors_.back());
     }
-    connectors_.push_back(connect);
     return connectors_.size();
 }
 
 /* Erase a Node and all Connectors concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
-template<typename connectorData, typename nodeData, typename Visitor>
-void 
-Graph<connectorData, nodeData, Visitor>::eraseNode(
-    const std::string nodeId
-) {
-    if ( nodes_.find(nodeId) == nodes_.end() ) {
-        std::cerr << "Unable to find node to remove. " 
-                  << "Node" << nodeId << " not in graph." << std::endl;
-        throw std::range_error;
-    }
+// template<typename connectorData, typename nodeData, typename Visitor>
+// void 
+// Graph<connectorData, nodeData, Visitor>::eraseNode(
+//     const std::string nodeId
+// ) {
+//     if ( nodes_.find(nodeId) == nodes_.end() ) {
+//         std::cerr << "Unable to find node to remove. " 
+//                   << "Node" << nodeId << " not in graph." << std::endl;
+//         throw std::range_error;
+//     }
 
-    // erase all edges connected to the vertex
-    while(vertices_[vertexIndex].size() != 0) {
-        eraseEdge(vertices_[vertexIndex].begin()->edge());
-    }
+//     // erase all edges connected to the vertex
+//     while(vertices_[vertexIndex].size() != 0) {
+//         eraseEdge(vertices_[vertexIndex].begin()->edge());
+//     }
 
-    if(vertexIndex == numberOfVertices()-1) { // if the last vertex is to be erased        
-        vertices_.pop_back(); // erase vertex
-        visitor_.eraseVertex(vertexIndex);
-    }
-    else { // if a vertex is to be erased which is not the last vertex
-        // move last vertex to the free position:
+//     if(vertexIndex == numberOfVertices()-1) { // if the last vertex is to be erased        
+//         vertices_.pop_back(); // erase vertex
+//         visitor_.eraseVertex(vertexIndex);
+//     }
+//     else { // if a vertex is to be erased which is not the last vertex
+//         // move last vertex to the free position:
 
-        // collect indices of edges affected by the move
-        std::size_t movingVertexIndex = numberOfVertices() - 1;
-        std::set<std::size_t> affectedEdgeIndices;
-        for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
-        it != vertices_[movingVertexIndex].end(); ++it) {
-            affectedEdgeIndices.insert(it->edge());
-        }
+//         // collect indices of edges affected by the move
+//         std::size_t movingVertexIndex = numberOfVertices() - 1;
+//         std::set<std::size_t> affectedEdgeIndices;
+//         for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
+//         it != vertices_[movingVertexIndex].end(); ++it) {
+//             affectedEdgeIndices.insert(it->edge());
+//         }
         
-        // for all affected edges:
-        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-        it != affectedEdgeIndices.end(); ++it) { 
-            // remove adjacencies
-            eraseAdjacenciesForEdge(*it);
+//         // for all affected edges:
+//         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
+//         it != affectedEdgeIndices.end(); ++it) { 
+//             // remove adjacencies
+//             eraseAdjacenciesForEdge(*it);
 
-            // adapt vertex labels
-            for(std::size_t j=0; j<2; ++j) {
-                if(edges_[*it][j] == movingVertexIndex) {
-                    edges_[*it][j] = vertexIndex;
-                }
-            }
-            // if(!(edges_[*it].directedness()) && edges_[*it][0] > edges_[*it][1]) {
-            if(edges_[*it][0] > edges_[*it][1]) {
-                std::swap(edges_[*it][0], edges_[*it][1]);
-            }
-        }
+//             // adapt vertex labels
+//             for(std::size_t j=0; j<2; ++j) {
+//                 if(edges_[*it][j] == movingVertexIndex) {
+//                     edges_[*it][j] = vertexIndex;
+//                 }
+//             }
+//             // if(!(edges_[*it].directedness()) && edges_[*it][0] > edges_[*it][1]) {
+//             if(edges_[*it][0] > edges_[*it][1]) {
+//                 std::swap(edges_[*it][0], edges_[*it][1]);
+//             }
+//         }
 
-        // move vertex
-        vertices_[vertexIndex] = vertices_[movingVertexIndex]; // copy
-        vertices_.pop_back(); // erase
+//         // move vertex
+//         vertices_[vertexIndex] = vertices_[movingVertexIndex]; // copy
+//         vertices_.pop_back(); // erase
 
-        // insert adjacencies for edges of moved vertex
-        for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-        it != affectedEdgeIndices.end(); ++it) { 
-            insertAdjacenciesForEdge(*it);
-        }
+//         // insert adjacencies for edges of moved vertex
+//         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
+//         it != affectedEdgeIndices.end(); ++it) { 
+//             insertAdjacenciesForEdge(*it);
+//         }
 
-        visitor_.eraseVertex(vertexIndex);
-        visitor_.relabelVertex(movingVertexIndex, vertexIndex);
-    }
-}
+//         visitor_.eraseVertex(vertexIndex);
+//         visitor_.relabelVertex(movingVertexIndex, vertexIndex);
+//     }
+// }
 
-/// Erase an edge.
-///
-/// \param edgeIndex Integer index of the edge to be erased.
-/// 
-template<typename connectorData, typename nodeData, typename Visitor>
-inline void 
-Graph<connectorData, nodeData, Visitor>::eraseEdge(
-    const std::size_t edgeIndex
-) {
-    assert(edgeIndex < numberOfEdges()); 
+// /// Erase an edge.
+// ///
+// /// \param edgeIndex Integer index of the edge to be erased.
+// /// 
+// template<typename connectorData, typename nodeData, typename Visitor>
+// inline void 
+// Graph<connectorData, nodeData, Visitor>::eraseEdge(
+//     const std::size_t edgeIndex
+// ) {
+//     assert(edgeIndex < numberOfEdges()); 
 
-    eraseAdjacenciesForEdge(edgeIndex);
-    if(edgeIndex == numberOfEdges() - 1) { // if the last edge is erased
-        edges_.pop_back(); // delete
-        visitor_.eraseEdge(edgeIndex);
-    }
-    else { 
-        std::size_t movingEdgeIndex = numberOfEdges() - 1;
-        eraseAdjacenciesForEdge(movingEdgeIndex);
-        edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
-        edges_.pop_back(); // delete
-        insertAdjacenciesForEdge(edgeIndex);
-        visitor_.eraseEdge(edgeIndex);
-        visitor_.relabelEdge(movingEdgeIndex, edgeIndex);
-    }
-}
+//     eraseAdjacenciesForEdge(edgeIndex);
+//     if(edgeIndex == numberOfEdges() - 1) { // if the last edge is erased
+//         edges_.pop_back(); // delete
+//         visitor_.eraseEdge(edgeIndex);
+//     }
+//     else { 
+//         std::size_t movingEdgeIndex = numberOfEdges() - 1;
+//         eraseAdjacenciesForEdge(movingEdgeIndex);
+//         edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
+//         edges_.pop_back(); // delete
+//         insertAdjacenciesForEdge(edgeIndex);
+//         visitor_.eraseEdge(edgeIndex);
+//         visitor_.relabelEdge(movingEdgeIndex, edgeIndex);
+//     }
+// }
 
 /// Search for an edge (in logarithmic time).
 ///
@@ -359,7 +360,6 @@ Graph<connectorData, nodeData, Visitor>::eraseEdge(
 // ) const {
 //     assert(vertex0 < numberOfVertices());
 //     assert(vertex1 < numberOfVertices());
-
 //     std::size_t v0 = vertex0;
 //     std::size_t v1 = vertex1;
 //     if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {

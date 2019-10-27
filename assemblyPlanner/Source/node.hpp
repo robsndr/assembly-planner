@@ -34,7 +34,7 @@ public:
     std::size_t addSource(Node<TypeNode, TypeConnector>* );
 
 private:
-    TypeNode id_;
+    std::string id_;
     TypeConnector data_;
     std::vector<Node<TypeNode, TypeConnector>*> to_;
     std::vector<Node<TypeNode, TypeConnector>*> from_;
@@ -117,11 +117,11 @@ public:
     std::vector< Connector<TypeNode, TypeConnector>* > & getPredecessors() const;
 
     bool visited = false;
+    std::string id_;
 
 private:
     std::vector< Connector<TypeNode, TypeConnector>* > parents_;
     std::vector< Connector<TypeNode, TypeConnector>* > children_; 
-    std::string id_;
     TypeNode data_;
 };
 

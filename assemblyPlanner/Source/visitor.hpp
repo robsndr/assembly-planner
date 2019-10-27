@@ -33,7 +33,7 @@ struct VerboseGraphVisitor {
     VerboseGraphVisitor() {}
     void insertVertex(const size_type a) const
         { std::cout << "inserting vertex " << a << std::endl; }
-    void insertVertices(const size_type a, const size_type n) const
+    void insertVertices(const size_type a, const size_t n) const
         { std::cout << "inserting " << n << " vertices, starting from index " << a << std::endl; }
     void eraseVertex(const size_type a) const
         { std::cout << "removing vertex " << a << std::endl; }
