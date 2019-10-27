@@ -12,18 +12,16 @@
 #include <algorithm> // std::fill
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include "node.hpp"
 #include "visitor.hpp"
 
-template<typename Visitor = IdleGraphVisitor<std::string> >
+template<typename connectorData, typename nodeData, typename Visitor = IdleGraphVisitor<std::string> >
 class Graph{
 public:
     //Construction
     Graph(const Visitor& = Visitor());
-    Graph(const std::size_t, const Visitor& = Visitor());
-    void assign(const Visitor& = Visitor());
-    void assign(const std::size_t, const Visitor& = Visitor());
+    Graph(const std::size_t, const std::size_t, const Visitor& = Visitor());
     void reserveVertices(const std::size_t);
     void reserveEdges(const std::size_t);
 
@@ -40,13 +38,14 @@ public:
     // AdjacencyIterator adjacenciesToVertexBegin(const std::size_t) const;
     // AdjacencyIterator adjacenciesToVertexEnd(const std::size_t) const;
 
-    std::size_t numberOfVertices() const;
+    std::size_t numberOfNodes() const;
     std::size_t numberOfConnectors() const;
-    std::size_t numberOfConnectorsFromNode(const std::size_t) const;
-    std::size_t numberOfConnectorsToNode(const std::size_t) const;
-    std::size_t vertexOfEdge(const std::size_t, const std::size_t) const;
-    std::size_t edgeFromVertex(const std::size_t, const std::size_t) const;
-    std::size_t edgeToVertex(const std::size_t, const std::size_t) const;
+    std::size_t numberOfConnectorsFromNode(const std::string) const;
+    std::size_t numberOfConnectorsToNode(const std::string) const;
+
+    Connector<nodeData, connectorData> * connectorFromNode(const std::string, const std::size_t) const;
+    Connector<nodeData, connectorData> * connectorToNode(const std::string, const std::size_t) const
+
     std::size_t vertexFromVertex(const std::size_t, const std::size_t) const;
     std::size_t vertexToVertex(const std::size_t, const std::size_t) const;
     const AdjacencyType& adjacencyFromVertex(const std::size_t, const std::size_t) const;
@@ -67,184 +66,121 @@ private:
     void insertAdjacenciesForEdge(const std::size_t);
     void eraseAdjacenciesForEdge(const std::size_t);
 
-    std::vector<Vertex> vertices_;
-    std::vector<Edge> edges_;
+    std::unordered_map<std::string, Node> nodes_;
+    std::vector<Connector> connectors_;
     Visitor visitor_;
 };
 
 
-/* Construct an undirected graph.
- @param visitor: Visitor to follow changes of integer indices of vertices and edges.
-*/
-template<typename Visitor>
+/* Construct a graph
+    @param visitor: Visitor to follow changes of integer indices of vertices and edges.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline 
-Graph<Visitor>::Graph(
+Graph<connectorData, nodeData, Visitor>::Graph(
     const Visitor& visitor
 )
-:   vertices_(),
-    edges_(),
+:   nodes_(),
+    connectors_(),
     visitor_(visitor)
 {}
 
 
-/// Construct an undirected graph with an initial number of vertices.
-///
-/// \param numberOfVertices Number of vertices.
-/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
-///
-template<typename Visitor>
+/* Construct a graph with preallocating memory for given Edges.
+    @numberOfVertices: Number of vertices.
+    @numberOfEdges: Number of edges.
+    @visitor: Visitor to follow changes of integer indices of vertices and edges.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline 
-Graph<Visitor>::Graph(
-    const std::size_t numberOfVertices,
+Graph<connectorData, nodeData, Visitor>::Graph(
+    const std::size_t numberOfNodes,
+    const std::size_t numberOfConnectors,
     const Visitor& visitor
 )
-:   vertices_(numberOfVertices),
-    edges_(),
-    multipleEdgesEnabled_(false),
+:   nodes_(),
+    connectors_(),
     visitor_(visitor)
 {
-    visitor_.insertVertices(0, numberOfVertices);
-}
-
-/// Clear an undirected graph.
-///
-/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
-///
-template<typename Visitor>
-inline void
-Graph<Visitor>::assign(
-    const Visitor& visitor
-) {
-    vertices_.clear();
-    edges_.clear();
-    visitor_ = visitor;
-}
-
-/// Clear an undirected graph with an initial number of vertices.
-///
-/// \param numberOfVertices Number of vertices.
-/// \param visitor Visitor to follow changes of integer indices of vertices and edges.
-///
-template<typename Visitor>
-inline void
-Graph<Visitor>::assign(
-    const std::size_t numberOfVertices,
-    const Visitor& visitor
-) {
-    vertices_.resize(numberOfVertices);
-    std::fill(vertices_.begin(), vertices_.end(), Vertex());
-    edges_.clear();
-    multipleEdgesEnabled_ = false;
-    visitor_ = visitor;
+    connectors_.reserve(numberOfConnectors);
     visitor_.insertVertices(0, numberOfVertices);
 }
     
-/// Get the number of vertices.
-///
-template<typename Visitor>
+/* Get the number of nodes.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::numberOfVertices() const { 
-    return vertices_.size(); 
+Graph<connectorData, nodeData, Visitor>::numberOfNodes() const { 
+    return nodes_.size(); 
 }
 
-/// Get the number of edges.
-///
-template<typename Visitor>
+/* Get the number of connectors.
+*/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::numberOfEdges() const { 
-    return edges_.size(); 
+Graph<connectorData, nodeData, Visitor>::numberOfConnectors() const { 
+    return connectors_.size(); 
 }
 
-/// Get the number of edges that originate from a given vertex.
-///
-/// \param vertex Integer index of a vertex.
-///
-/// \sa edgeFromVertex()
-///
-template<typename Visitor>
+/* Get the number of connectors that originate from a given node.
+    @node string-id of a node.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::numberOfEdgesFromVertex(
-    const std::size_t vertex
+Graph<connectorData, nodeData, Visitor>::numberOfConnectorsFromNode(
+    const std::string node
 ) const { 
-    return vertices_[vertex].size();
+    return nodes_[node].numberOfChildren();
 }
 
-/// Get the number of edges that are incident to a given vertex.
-///
-/// \param vertex Integer index of a vertex.
-///
-/// \sa edgeToVertex()
-///
-template<typename Visitor>
+/* Get the number of edges that are incident to a given vertex.
+    @node: string-id of a node.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::numberOfEdgesToVertex(
-    const std::size_t vertex
+Graph<connectorData, nodeData, Visitor>::numberOfConnectorsToNode(
+    const std::string node
 ) const { 
-    return vertices_[vertex].size();
+    return nodes_[node].numberOfParents();
 }
 
-/// Get the integer index of a vertex of an edge.
-///
-/// \param edge Integer index of an edge.
-/// \param j Number of the vertex in the edge; either 0 or 1.
-///
-template<typename Visitor>
-inline std::size_t
-Graph<Visitor>::vertexOfEdge(
-    const std::size_t edge,
+/* Get the pointer to the j`th connector that originates from a given node.
+    @node: string-id of a node.
+    @j; number of Connector. Between 0 and numberOfEdgesFromNode(node) - 1.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
+inline Connector<nodeData, connectorData>*
+Graph<connectorData, nodeData, Visitor>::connectorFromNode(
+    const std::string node,
     const std::size_t j
 ) const {
-    assert(j < 2);
-
-    return edges_[edge][j];
+    return nodes_[node].children[j];
 }
 
-/// Get the integer index of an edge that originates from a given vertex.
-///
-/// \param vertex Integer index of a vertex.
-/// \param j Number of the edge; between 0 and numberOfEdgesFromVertex(vertex) - 1.
-///
-/// \sa numberOfEdgesFromVertex()
-///
-template<typename Visitor>
-inline std::size_t
-Graph<Visitor>::edgeFromVertex(
-    const std::size_t vertex,
+/* Get the pointer to the j`th connector that is incident to a given node.
+    @node: string-id of a node.
+    @j: index of Connector. Between 0 and numberOfEdgesToNode(node) - 1.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
+inline Connector<nodeData, connectorData>*
+Graph<connectorData, nodeData, Visitor>::connectorToNode(
+    const std::string node,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].edge();
+    return nodes_[node].parents[j];
 }
 
-/// Get the integer index of an edge that is incident to a given vertex.
-///
-/// \param vertex Integer index of a vertex.
-/// \param j Number of the edge; between 0 and numberOfEdgesFromVertex(vertex) - 1.
-///
-/// \sa numberOfEdgesToVertex()
-///
-template<typename Visitor>
-inline std::size_t
-Graph<Visitor>::edgeToVertex(
-    const std::size_t vertex,
+/* Get pointers to the nodes reachable from a given vertex via a given connector.
+    @node: string-id of a node.
+    @j: Index of the connector. Between 0 and numberOfEdgesFromVertex(vertex) - 1.
+**/
+template<typename connectorData, typename nodeData, typename Visitor>
+inline std::vector<Node<nodeData>*> &
+Graph<connectorData, nodeData, Visitor>::nodeFromNode(
+    const std::string node,
     const std::size_t j
 ) const {
-    return vertices_[vertex][j].edge();
-}
-
-/// Get the integer index of a vertex reachable from a given vertex via a single edge.
-///
-/// \param vertex Integer index of a vertex.
-/// \param j Number of the vertex; between 0 and numberOfEdgesFromVertex(vertex) - 1.
-///
-/// \sa numberOfEdgesFromVertex() 
-///
-template<typename Visitor>
-inline std::size_t
-Graph<Visitor>::vertexFromVertex(
-    const std::size_t vertex,
-    const std::size_t j
-) const {
-    return vertices_[vertex][j].vertex();
+    return vertices_[node].children[j].successors();
 }
 
 /// Get the integer index of a vertex from which a given vertex is reachable via a single edge.
@@ -254,9 +190,9 @@ Graph<Visitor>::vertexFromVertex(
 ///
 /// \sa numberOfEdgesFromVertex() 
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::vertexToVertex(
+Graph<connectorData, nodeData, Visitor>::vertexToVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
@@ -269,9 +205,9 @@ Graph<Visitor>::vertexToVertex(
 ///
 /// \sa insertVertices()
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::insertVertex() {
+Graph<connectorData, nodeData, Visitor>::insertVertex() {
     vertices_.push_back(Vertex());
     visitor_.insertVertex(vertices_.size() - 1);
     return vertices_.size() - 1;
@@ -284,9 +220,9 @@ Graph<Visitor>::insertVertex() {
 ///
 /// \sa insertVertex()
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::insertVertices(
+Graph<connectorData, nodeData, Visitor>::insertVertices(
     const std::size_t number
 ) {
     std::size_t position = vertices_.size();
@@ -301,9 +237,9 @@ Graph<Visitor>::insertVertices(
 /// \param vertexIndex1 Integer index of the second vertex in the edge.
 /// \return Integer index of the newly inserted edge.
 /// 
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<Visitor>::insertEdge(
+Graph<connectorData, nodeData, Visitor>::insertEdge(
     const std::size_t vertexIndex0,
     const std::size_t vertexIndex1
 ) {
@@ -333,9 +269,9 @@ insertEdgeMark:
 ///
 /// \param vertexIndex Integer index of the vertex to be erased.
 /// 
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 void 
-Graph<Visitor>::eraseVertex(
+Graph<connectorData, nodeData, Visitor>::eraseVertex(
     const std::size_t vertexIndex
 ) {
     assert(vertexIndex < numberOfVertices()); 
@@ -397,9 +333,9 @@ Graph<Visitor>::eraseVertex(
 ///
 /// \param edgeIndex Integer index of the edge to be erased.
 /// 
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline void 
-Graph<Visitor>::eraseEdge(
+Graph<connectorData, nodeData, Visitor>::eraseEdge(
     const std::size_t edgeIndex
 ) {
     assert(edgeIndex < numberOfEdges()); 
@@ -427,9 +363,9 @@ Graph<Visitor>::eraseEdge(
 /// 
 /// \sa verticesFromVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::VertexIterator 
-Graph<Visitor>::verticesFromVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
+Graph<connectorData, nodeData, Visitor>::verticesFromVertexBegin(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
@@ -442,9 +378,9 @@ Graph<Visitor>::verticesFromVertexBegin(
 /// 
 /// \sa verticesFromVertexBegin()
 /// 
-template<typename Visitor>
-inline typename Graph<Visitor>::VertexIterator 
-Graph<Visitor>::verticesFromVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
+Graph<connectorData, nodeData, Visitor>::verticesFromVertexEnd(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
@@ -457,9 +393,9 @@ Graph<Visitor>::verticesFromVertexEnd(
 /// 
 /// \sa verticesToVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::VertexIterator 
-Graph<Visitor>::verticesToVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
+Graph<connectorData, nodeData, Visitor>::verticesToVertexBegin(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
@@ -472,9 +408,9 @@ Graph<Visitor>::verticesToVertexBegin(
 /// 
 /// \sa verticesToVertexBegin()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::VertexIterator 
-Graph<Visitor>::verticesToVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::VertexIterator 
+Graph<connectorData, nodeData, Visitor>::verticesToVertexEnd(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
@@ -487,9 +423,9 @@ Graph<Visitor>::verticesToVertexEnd(
 ///
 /// \sa edgesFromVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::EdgeIterator 
-Graph<Visitor>::edgesFromVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
+Graph<connectorData, nodeData, Visitor>::edgesFromVertexBegin(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
@@ -502,9 +438,9 @@ Graph<Visitor>::edgesFromVertexBegin(
 ///
 /// \sa edgesFromVertexBegin()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::EdgeIterator 
-Graph<Visitor>::edgesFromVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
+Graph<connectorData, nodeData, Visitor>::edgesFromVertexEnd(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
@@ -517,9 +453,9 @@ Graph<Visitor>::edgesFromVertexEnd(
 ///
 /// \sa edgesToVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::EdgeIterator 
-Graph<Visitor>::edgesToVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
+Graph<connectorData, nodeData, Visitor>::edgesToVertexBegin(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].begin(); 
@@ -532,9 +468,9 @@ Graph<Visitor>::edgesToVertexBegin(
 ///
 /// \sa edgesToVertexBegin()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::EdgeIterator 
-Graph<Visitor>::edgesToVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::EdgeIterator 
+Graph<connectorData, nodeData, Visitor>::edgesToVertexEnd(
     const std::size_t vertex
 ) const { 
     return vertices_[vertex].end(); 
@@ -547,9 +483,9 @@ Graph<Visitor>::edgesToVertexEnd(
 ///
 /// \sa adjacenciesFromVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::AdjacencyIterator 
-Graph<Visitor>::adjacenciesFromVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
+Graph<connectorData, nodeData, Visitor>::adjacenciesFromVertexBegin(
     const std::size_t vertex
 ) const {
     return vertices_[vertex].begin();
@@ -562,9 +498,9 @@ Graph<Visitor>::adjacenciesFromVertexBegin(
 ///
 /// \sa adjacenciesFromVertexBegin()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::AdjacencyIterator 
-Graph<Visitor>::adjacenciesFromVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
+Graph<connectorData, nodeData, Visitor>::adjacenciesFromVertexEnd(
     const std::size_t vertex
 ) const {
     return vertices_[vertex].end();
@@ -577,9 +513,9 @@ Graph<Visitor>::adjacenciesFromVertexEnd(
 ///
 /// \sa adjacenciesToVertexEnd()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::AdjacencyIterator 
-Graph<Visitor>::adjacenciesToVertexBegin(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
+Graph<connectorData, nodeData, Visitor>::adjacenciesToVertexBegin(
     const std::size_t vertex
 ) const {
     return vertices_[vertex].begin();
@@ -592,46 +528,46 @@ Graph<Visitor>::adjacenciesToVertexBegin(
 ///
 /// \sa adjacenciesToVertexBegin()
 ///
-template<typename Visitor>
-inline typename Graph<Visitor>::AdjacencyIterator 
-Graph<Visitor>::adjacenciesToVertexEnd(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline typename Graph<connectorData, nodeData, Visitor>::AdjacencyIterator 
+Graph<connectorData, nodeData, Visitor>::adjacenciesToVertexEnd(
     const std::size_t vertex
 ) const {
     return vertices_[vertex].end();
 }
 
-/// Reserve memory for at least the given total number of vertices.
-///
-/// \param number Total number of vertices.
-///
-template<typename Visitor>
-inline void 
-Graph<Visitor>::reserveVertices(
-    const std::size_t number
-) {
-    vertices_.reserve(number);
-}
+// /// Reserve memory for at least the given total number of vertices.
+// ///
+// /// \param number Total number of vertices.
+// ///
+// template<typename connectorData, typename nodeData, typename Visitor>
+// inline void 
+// Graph<connectorData, nodeData, Visitor>::reserveVertices(
+//     const std::size_t number
+// ) {
+//     vertices_.reserve(number);
+// }
 
-/// Reserve memory for at least the given total number of edges.
-///
-/// \param number Total number of edges.
-///
-template<typename Visitor>
-inline void 
-Graph<Visitor>::reserveEdges(
-    const std::size_t number
-) {
-    edges_.reserve(number);
-}
+// /// Reserve memory for at least the given total number of edges.
+// ///
+// /// \param number Total number of edges.
+// ///
+// template<typename connectorData, typename nodeData, typename Visitor>
+// inline void 
+// Graph<connectorData, nodeData, Visitor>::reserveEdges(
+//     const std::size_t number
+// ) {
+//     edges_.reserve(number);
+// }
 
 /// Get the j-th adjacency from a vertex.
 ///
 /// \param vertex Vertex.
 /// \param j Number of the adjacency.
 ///
-template<typename Visitor>
-inline const typename Graph<Visitor>::AdjacencyType&
-Graph<Visitor>::adjacencyFromVertex(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline const typename Graph<connectorData, nodeData, Visitor>::AdjacencyType&
+Graph<connectorData, nodeData, Visitor>::adjacencyFromVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
@@ -643,9 +579,9 @@ Graph<Visitor>::adjacencyFromVertex(
 /// \param vertex Vertex.
 /// \param j Number of the adjacency.
 ///
-template<typename Visitor>
-inline const typename Graph<Visitor>::AdjacencyType&
-Graph<Visitor>::adjacencyToVertex(
+template<typename connectorData, typename nodeData, typename Visitor>
+inline const typename Graph<connectorData, nodeData, Visitor>::AdjacencyType&
+Graph<connectorData, nodeData, Visitor>::adjacencyToVertex(
     const std::size_t vertex,
     const std::size_t j
 ) const {
@@ -660,9 +596,9 @@ Graph<Visitor>::adjacencyToVertex(
 ///     and pair.second is the index of such an edge. if no edge from vertex0
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline std::pair<bool, std::size_t>
-Graph<Visitor>::findEdge(
+Graph<connectorData, nodeData, Visitor>::findEdge(
     const std::size_t vertex0,
     const std::size_t vertex1
 ) const {
@@ -694,9 +630,9 @@ Graph<Visitor>::findEdge(
 ///
 /// \return true if multiple edges are enabled, false otherwise.
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline bool
-Graph<Visitor>::multipleEdgesEnabled() const {
+Graph<connectorData, nodeData, Visitor>::multipleEdgesEnabled() const {
     return multipleEdgesEnabled_;
 }
 
@@ -706,15 +642,15 @@ Graph<Visitor>::multipleEdgesEnabled() const {
 ///
 /// \return reference the a Boolean flag.
 ///
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline bool&
-Graph<Visitor>::multipleEdgesEnabled() {
+Graph<connectorData, nodeData, Visitor>::multipleEdgesEnabled() {
     return multipleEdgesEnabled_;
 }
 
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline void 
-Graph<Visitor>::insertAdjacenciesForEdge(
+Graph<connectorData, nodeData, Visitor>::insertAdjacenciesForEdge(
     const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
@@ -730,9 +666,9 @@ Graph<Visitor>::insertAdjacenciesForEdge(
     }
 }
 
-template<typename Visitor>
+template<typename connectorData, typename nodeData, typename Visitor>
 inline void 
-Graph<Visitor>::eraseAdjacenciesForEdge(
+Graph<connectorData, nodeData, Visitor>::eraseAdjacenciesForEdge(
     const std::size_t edgeIndex
 ) {
     const Edge& edge = edges_[edgeIndex];
