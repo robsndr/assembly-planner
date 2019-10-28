@@ -41,9 +41,10 @@ public:
     // inserttion
     std::size_t insertNode( const std::string, const nodeData);
     std::size_t insertNodes(const std::vector<Node<nodeData, edgeData>*>& );
-    std::size_t insertEdge( const edgeData data, 
-                            const std::string , 
-                            const std::vector<std::string> & );
+    std::size_t insertEdge(  const edgeData, const std::string , const std::string);
+    std::size_t insertEdges( const edgeData, 
+                             const std::string , 
+                             const std::vector<std::string> & );
     
     // manipulation
     // removal
@@ -128,9 +129,9 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
     return nodes_[node]->numberOfPredecessors();
 }
 
-/* Get the pointer to the j`th connector that originates from a given node.
+/* Get the pointer to the j`th edge that originates from a given node.
     @node: string-id of a node.
-    @j; number of Connector. Between 0 and numberOfConnectorsFromNode(node) - 1.
+    @j; number of edge. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
 template<typename edgeData, typename nodeData, typename Visitor>
 inline Edge<nodeData, edgeData>*
@@ -141,9 +142,9 @@ Graph<edgeData, nodeData, Visitor>::edgeFromNode(
     return nodes_[node]->children[j];
 }
 
-/* Get the pointer to the j`th connector that is incident to a given node.
+/* Get the pointer to the j`th edge that is incident to a given node.
     @node: string-id of a node.
-    @j: index of Connector. Between 0 and numberOfConnectorsToNode(node) - 1.
+    @j: index of edge. Between 0 and numberOfedgesToNode(node) - 1.
 **/
 template<typename edgeData, typename nodeData, typename Visitor>
 inline Edge<nodeData, edgeData>*
@@ -154,9 +155,9 @@ Graph<edgeData, nodeData, Visitor>::edgeToNode(
     return nodes_[node]->parents[j];
 }
 
-/* Get pointers to the nodes reachable from a given node via a specified connector.
+/* Get pointers to the nodes reachable from a given node via a specified edge.
     @node: string-id of a node.
-    @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
+    @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::vector<Node<nodeData, edgeData>*> &
@@ -167,9 +168,9 @@ Graph<edgeData, nodeData, Visitor>::nodesFromNode(
     return nodes_[node]->children[j].getSuccessors();
 }
 
-/* Get pointers to the nodes incident to a given node via a specified connector.
+/* Get pointers to the nodes incident to a given node via a specified edge.
     @node: string-id of a node.
-    @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
+    @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::vector<Node<nodeData, edgeData>*> &
@@ -213,46 +214,64 @@ Graph<edgeData, nodeData, Visitor>::insertNodes(
     return position;
 }
 
-/* Insert an additional connector.
-    @srcNodeId: string-ids of the source nodes of the connectors.
-    @destNodeId: string-ids of the destinaion nodes of the connectors.
+/* Insert additional edge.
+    @srcNodeId: string-ids of the source nodes of the edges.
+    @destNodeId: string-ids of the destinaion nodes of the edges.
     \return Integer index of the newly inserted edge.
 **/ 
 template<typename edgeData, typename nodeData, typename Visitor>
-inline std::size_t
+std::size_t
 Graph<edgeData, nodeData, Visitor>::insertEdge(
     const edgeData data,
     const std::string srcNodeId,
-    const std::vector<std::string> & destNodeId
+    const std::string destNodeId
 ) {
     Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
     edges_.push_back(edge);
 
     if ( nodes_.find(srcNodeId) == nodes_.end() ) {
-        std::cerr << "Unable to create connector. " 
+        std::cerr << "Unable to create edge. " 
                     << "Node " << srcNodeId << " not in graph." << std::endl;
         edges_.pop_back();
-        throw std::range_error("Unable to create connector.");
+        throw std::range_error("Unable to create edge.");
     } else {
         edges_.back()->setSource(nodes_[srcNodeId]);
     }
     nodes_[srcNodeId]->addSuccessor(edges_.back());
-    
+
+
+    if ( nodes_.find(destNodeId) == nodes_.end() ) {
+        std::cerr << "Unable to create edge. " 
+                    << "Node" << destNodeId << " not in graph." << std::endl;
+        edges_.pop_back();
+        throw std::range_error("Unable to create edge.");
+    } else {
+        edges_.back()->setDestination(nodes_[destNodeId]);
+    }
+    nodes_[destNodeId]->addPredecessor(edges_.back());
+
+    return edges_.size();
+}
+
+/* Insert additional edges.
+    @srcNodeId: string-ids of the source nodes of the edges.
+    @destNodeId: string-ids of the destinaion nodes of the edges.
+    \return Integer index of the newly inserted edge.
+**/ 
+template<typename edgeData, typename nodeData, typename Visitor>
+inline std::size_t
+Graph<edgeData, nodeData, Visitor>::insertEdges(
+    const edgeData data,
+    const std::string srcNodeId,
+    const std::vector<std::string> & destNodeId
+) {
     for(auto const& dst: destNodeId) {
-        if ( nodes_.find(dst) == nodes_.end() ) {
-            std::cerr << "Unable to create connector. " 
-                      << "Node" << dst << " not in graph." << std::endl;
-            edges_.pop_back();
-            throw std::range_error("Unable to create connector.");
-        } else {
-            edges_.back()->setDestination(nodes_[dst]);
-        }
-        nodes_[dst]->addPredecessor(edges_.back());
+        insertEdge(data, srcNodeId, dst);
     }
     return edges_.size();
 }
 
-/* Erase a Node and all Connectors concerning this Node.
+/* Erase a Node and all edges concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
 // template<typename edgeData, typename nodeData, typename Visitor>
@@ -266,7 +285,7 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
 //         throw std::range_error;
 //     }
 
-//     // erase all connectors connected to the vertex
+//     // erase all edges connected to the vertex
 //     while(vertices_[vertexIndex].size() != 0) {
 //         eraseEdge(vertices_[vertexIndex].begin()->edge());
 //     }
@@ -323,9 +342,9 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
 // ///
 // /// \param edgeIndex Integer index of the edge to be erased.
 // /// 
-// template<typename connectorData, typename nodeData, typename Visitor>
+// template<typename edgeData, typename nodeData, typename Visitor>
 // inline void 
-// Graph<connectorData, nodeData, Visitor>::eraseEdge(
+// Graph<edgeData, nodeData, Visitor>::eraseEdge(
 //     const std::size_t edgeIndex
 // ) {
 //     assert(edgeIndex < numberOfEdges()); 
@@ -354,9 +373,9 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
 ///     and pair.second is the index of such an edge. if no edge from vertex0
 ///     to vertex1 exists, pair.first is false and pair.second is undefined.
 ///
-// template<typename connectorData, typename nodeData, typename Visitor>
+// template<typename edgeData, typename nodeData, typename Visitor>
 // inline std::pair<bool, std::size_t>
-// Graph<connectorData, nodeData, Visitor>::findEdge(
+// Graph<edgeData, nodeData, Visitor>::findEdge(
 //     const std::size_t vertex0,
 //     const std::size_t vertex1
 // ) const {

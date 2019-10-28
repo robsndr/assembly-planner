@@ -27,7 +27,7 @@ int main(void){
     std::string src("qaz");
     std::vector<std::string>  dst;
     dst.push_back("wsx");
-    graph.insertEdge("1", src, dst);
+    graph.insertEdge("1", src, "wsx");
 
 
 
