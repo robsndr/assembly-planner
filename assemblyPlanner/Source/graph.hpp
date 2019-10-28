@@ -13,10 +13,11 @@
 #include <string>
 #include <unordered_map>
 #include <exception>
+#include <memory>
 #include "node.hpp"
 #include "visitor.hpp"
 
-template<typename connectorData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::string> >
+template<typename edgeData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::string> >
 class Graph{
 public:
     // Construction
@@ -25,46 +26,46 @@ public:
 
     // General Information
     std::size_t numberOfNodes() const;
-    std::size_t numberOfConnectors() const;
-    std::size_t numberOfConnectorsFromNode(const std::string);
-    std::size_t numberOfConnectorsToNode(const std::string);
+    std::size_t numberOfEdges() const;
+    std::size_t numberOfEdgesFromNode(const std::string);
+    std::size_t numberOfEdgesToNode(const std::string);
 
     // Access specific nodes/vertices.
-    Connector<nodeData, connectorData> * connectorFromNode(const std::string, const std::size_t) const;
-    Connector<nodeData, connectorData> * connectorToNode(const std::string, const std::size_t) const;
-    std::vector<Node<nodeData, connectorData>*>& nodesFromNode(const std::string, const std::size_t) const;
-    std::vector<Node<nodeData, connectorData>*>& nodesToNode(const std::string, const std::size_t) const;
+    Edge<nodeData, edgeData> * edgeFromNode(const std::string, const std::size_t) const;
+    Edge<nodeData, edgeData> * edgeToNode(const std::string, const std::size_t) const;
+    std::vector<Node<nodeData, edgeData>*>& nodesFromNode(const std::string, const std::size_t) const;
+    std::vector<Node<nodeData, edgeData>*>& nodesToNode(const std::string, const std::size_t) const;
     // std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
 
     // manipulation
     // inserttion
-    std::size_t insertNode(const std::string, const nodeData);
-    std::size_t insertNodes(const std::vector<Node<nodeData, connectorData>*>& );
-    std::size_t insertConnector( const connectorData data, 
-                                 const std::vector<std::string> & , 
-                                 const std::vector<std::string> & );
+    std::size_t insertNode( const std::string, const nodeData);
+    std::size_t insertNodes(const std::vector<Node<nodeData, edgeData>*>& );
+    std::size_t insertEdge( const edgeData data, 
+                            const std::string , 
+                            const std::vector<std::string> & );
     
     // manipulation
     // removal
-    void eraseNode(const std::string nodeId); 
+    // void eraseNode(const std::string nodeId); 
     // void eraseEdge(const std::size_t);
 
 private:
-    std::unordered_map<std::string, Node<nodeData, connectorData>*> nodes_;
-    std::vector<Connector<nodeData, connectorData>> connectors_;
+    std::unordered_map< std::string, Node<nodeData, edgeData>* > nodes_;
+    std::vector< Edge<nodeData, edgeData>* > edges_;
     Visitor visitor_;
 };
 
 /* Construct a graph
     @param visitor: Visitor to follow changes of integer indices of vertices and edges.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline 
-Graph<connectorData, nodeData, Visitor>::Graph(
+Graph<edgeData, nodeData, Visitor>::Graph(
     const Visitor& visitor
 )
 :   nodes_(),
-    connectors_(),
+    edges_(),
     visitor_(visitor)
 {}
 
@@ -73,55 +74,55 @@ Graph<connectorData, nodeData, Visitor>::Graph(
     @numberOfEdges: Number of edges.
     @visitor: Visitor to follow changes of integer indices of vertices and edges.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline 
-Graph<connectorData, nodeData, Visitor>::Graph(
+Graph<edgeData, nodeData, Visitor>::Graph(
     const std::size_t numberOfNodes,
-    const std::size_t numberOfConnectors,
+    const std::size_t numberOfEdges,
     const Visitor& visitor
 )
 :   nodes_(),
-    connectors_(),
+    edges_(),
     visitor_(visitor)
 {
-    connectors_.reserve(numberOfConnectors);
+    edges_.reserve(numberOfEdges);
     // visitor_.insertVertices("0", );
 }
     
 /* Get the number of nodes.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::numberOfNodes() const { 
+Graph<edgeData, nodeData, Visitor>::numberOfNodes() const { 
     return nodes_.size(); 
 }
 
-/* Get the number of connectors.
+/* Get the number of edges.
 */
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::numberOfConnectors() const { 
-    return connectors_.size(); 
+Graph<edgeData, nodeData, Visitor>::numberOfEdges() const { 
+    return edges_.size(); 
 }
 
-/* Get the number of connectors that originate from a given node.
+/* Get the number of edges that originate from a given node.
     @node string-id of a node.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::numberOfConnectorsFromNode(
+Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
     const std::string node
 ) { 
     nodes_[node]->numberOfSuccessors();
     return 1;
 }
 
-/* Get the number of edges that are incident to a given vertex.
+/* Get the number of edges that are incident to a given node.
     @node: string-id of a node.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::numberOfConnectorsToNode(
+Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
     const std::string node
 ) { 
     return nodes_[node]->numberOfPredecessors();
@@ -131,9 +132,9 @@ Graph<connectorData, nodeData, Visitor>::numberOfConnectorsToNode(
     @node: string-id of a node.
     @j; number of Connector. Between 0 and numberOfConnectorsFromNode(node) - 1.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
-inline Connector<nodeData, connectorData>*
-Graph<connectorData, nodeData, Visitor>::connectorFromNode(
+template<typename edgeData, typename nodeData, typename Visitor>
+inline Edge<nodeData, edgeData>*
+Graph<edgeData, nodeData, Visitor>::edgeFromNode(
     const std::string node,
     const std::size_t j
 ) const {
@@ -144,9 +145,9 @@ Graph<connectorData, nodeData, Visitor>::connectorFromNode(
     @node: string-id of a node.
     @j: index of Connector. Between 0 and numberOfConnectorsToNode(node) - 1.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
-inline Connector<nodeData, connectorData>*
-Graph<connectorData, nodeData, Visitor>::connectorToNode(
+template<typename edgeData, typename nodeData, typename Visitor>
+inline Edge<nodeData, edgeData>*
+Graph<edgeData, nodeData, Visitor>::edgeToNode(
     const std::string node,
     const std::size_t j
 ) const {
@@ -157,9 +158,9 @@ Graph<connectorData, nodeData, Visitor>::connectorToNode(
     @node: string-id of a node.
     @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
-inline std::vector<Node<nodeData, connectorData>*> &
-Graph<connectorData, nodeData, Visitor>::nodesFromNode(
+template<typename edgeData, typename nodeData, typename Visitor>
+inline std::vector<Node<nodeData, edgeData>*> &
+Graph<edgeData, nodeData, Visitor>::nodesFromNode(
     const std::string node,
     const std::size_t j
 ) const {
@@ -170,9 +171,9 @@ Graph<connectorData, nodeData, Visitor>::nodesFromNode(
     @node: string-id of a node.
     @j: index of the connector being used. Between 0 and numberOfConnectorsFromNode(node) - 1.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
-inline std::vector<Node<nodeData, connectorData>*> &
-Graph<connectorData, nodeData, Visitor>::nodesToNode(
+template<typename edgeData, typename nodeData, typename Visitor>
+inline std::vector<Node<nodeData, edgeData>*> &
+Graph<edgeData, nodeData, Visitor>::nodesToNode(
     const std::string node,
     const std::size_t j
 ) const {
@@ -184,10 +185,10 @@ Graph<connectorData, nodeData, Visitor>::nodesToNode(
     @data: data asociated with the created node.
     \return: number of nodes present in the graph.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertNode(std::string nodeId , nodeData data) {
-    Node<nodeData,connectorData> * tempNode = new Node<nodeData,connectorData>(nodeId, data);
+Graph<edgeData, nodeData, Visitor>::insertNode(std::string nodeId , nodeData data) {
+    Node<nodeData,edgeData> * tempNode = new Node<nodeData,edgeData>(nodeId, data);
     nodes_.insert(std::make_pair(nodeId ,tempNode));
     visitor_.insertVertex(nodeId);
     return nodes_.size() - 1;
@@ -197,10 +198,10 @@ Graph<connectorData, nodeData, Visitor>::insertNode(std::string nodeId , nodeDat
     @nodes: vector containing nodes to be inserted into the graph.
     \return: number of nodes present in the graph.
 **/
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertNodes(
-    const std::vector<Node<nodeData, connectorData>*>& nodes
+Graph<edgeData, nodeData, Visitor>::insertNodes(
+    const std::vector<Node<nodeData, edgeData>*>& nodes
 ) {
     for(auto const node: nodes){
         nodes_.insert(std::make_pair(node->id_, node));
@@ -217,54 +218,55 @@ Graph<connectorData, nodeData, Visitor>::insertNodes(
     @destNodeId: string-ids of the destinaion nodes of the connectors.
     \return Integer index of the newly inserted edge.
 **/ 
-template<typename connectorData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<connectorData, nodeData, Visitor>::insertConnector(
-    const connectorData data,
-    const std::vector<std::string> & srcNodeId,
+Graph<edgeData, nodeData, Visitor>::insertEdge(
+    const edgeData data,
+    const std::string srcNodeId,
     const std::vector<std::string> & destNodeId
 ) {
-    connectors_.push_back(Connector<connectorData, nodeData>(data));
-    for(auto const& src: srcNodeId) {
-        if ( nodes_.find(src) == nodes_.end() ) {
-            std::cerr << "Unable to create connector. " 
-                      << "Node " << src << " not in graph." << std::endl;
-            connectors_.pop_back();
-            throw std::range_error("Unable to create connector.");
-        } else {
-            connectors_.back().addSource(nodes_[src]);
-        }
-        nodes_[src]->addSuccessor(&connectors_.back());
+    Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
+    edges_.push_back(edge);
+
+    if ( nodes_.find(srcNodeId) == nodes_.end() ) {
+        std::cerr << "Unable to create connector. " 
+                    << "Node " << srcNodeId << " not in graph." << std::endl;
+        edges_.pop_back();
+        throw std::range_error("Unable to create connector.");
+    } else {
+        edges_.back()->setSource(nodes_[srcNodeId]);
     }
+    nodes_[srcNodeId]->addSuccessor(edges_.back());
+    
     for(auto const& dst: destNodeId) {
         if ( nodes_.find(dst) == nodes_.end() ) {
             std::cerr << "Unable to create connector. " 
                       << "Node" << dst << " not in graph." << std::endl;
-            connectors_.pop_back();
+            edges_.pop_back();
             throw std::range_error("Unable to create connector.");
         } else {
-            connectors_.back().addDestination(nodes_[dst]);
+            edges_.back()->setDestination(nodes_[dst]);
         }
-        nodes_[dst]->addSuccessor(&connectors_.back());
+        nodes_[dst]->addPredecessor(edges_.back());
     }
-    return connectors_.size();
+    return edges_.size();
 }
 
 /* Erase a Node and all Connectors concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
-// template<typename connectorData, typename nodeData, typename Visitor>
+// template<typename edgeData, typename nodeData, typename Visitor>
 // void 
-// Graph<connectorData, nodeData, Visitor>::eraseNode(
+// Graph<edgeData, nodeData, Visitor>::eraseNode(
 //     const std::string nodeId
 // ) {
 //     if ( nodes_.find(nodeId) == nodes_.end() ) {
 //         std::cerr << "Unable to find node to remove. " 
-//                   << "Node" << nodeId << " not in graph." << std::endl;
+//                   << "Node: " << nodeId << " not in graph." << std::endl;
 //         throw std::range_error;
 //     }
 
-//     // erase all edges connected to the vertex
+//     // erase all connectors connected to the vertex
 //     while(vertices_[vertexIndex].size() != 0) {
 //         eraseEdge(vertices_[vertexIndex].begin()->edge());
 //     }

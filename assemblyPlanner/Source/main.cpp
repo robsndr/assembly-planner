@@ -6,6 +6,11 @@
 
 int main(void){
 
+    // Connector<nodeData, connectorData> * connectorFromNode(const std::string, const std::size_t);
+    // Connector<nodeData, connectorData> * connectorToNode(const std::string, const std::size_t);
+    // std::vector<Node<nodeData, connectorData>*>& nodesFromNode(const std::string, const std::size_t);
+    // std::vector<Node<nodeData, connectorData>*>& nodesToNode(const std::string, const std::size_t);
+
     Graph<std::string,std::string> graph; 
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
     graph.insertNode("ab", "1");
@@ -19,15 +24,28 @@ int main(void){
     vec.push_back(pointr2);
     graph.insertNodes(vec);
 
-    std::vector<std::string>  src;
+    std::string src("qaz");
     std::vector<std::string>  dst;
-    src.push_back("qaz");
     dst.push_back("wsx");
-    graph.insertConnector("1", src, dst);
+    graph.insertEdge("1", src, dst);
 
-    std::cout << "Connectors from Node: "<< graph.numberOfConnectorsFromNode("ab") << std::endl;
+
+
+    std::cout << "Edges from Node: "<< graph.numberOfEdgesFromNode("ab") << std::endl;
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
-    std::cout << "Number of Edges: " << graph.numberOfConnectors() << std::endl;
+    std::cout << "Number of Edges: " << graph.numberOfEdges() << std::endl;
+
+    std::cout   << "Number of Edges from Node 'qaz': " 
+                << graph.numberOfEdgesFromNode("qaz") 
+                << std::endl;
+
+    std::cout   << "Number of Edges to Node 'qaz': " 
+                << graph.numberOfEdgesToNode("qaz")
+                << std::endl;
+
+    std::cout   << "Number of Edges to Node 'wsx': " 
+                << graph.numberOfEdgesToNode("wsx")
+                << std::endl;
 
     return 0;
 }
