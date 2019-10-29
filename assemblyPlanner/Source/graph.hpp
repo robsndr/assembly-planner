@@ -48,8 +48,8 @@ public:
     
     // manipulation
     // removal
-    void eraseNode(const std::size_t nodeId); 
-    void eraseEdge(const std::size_t);
+    void eraseNode( const std::size_t); 
+    bool eraseEdge( const std::size_t, std::size_t );
     inline std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
 private:
@@ -119,7 +119,6 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
     const std::size_t node
 ) { 
     nodes_[node]->numberOfSuccessors();
-    return 1;
 }
 
 /* Get the number of edges that are incident to a given node.
@@ -230,28 +229,23 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
     const std::size_t srcNodeId,
     const std::size_t destNodeId
 ) {
-    Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
-    edges_.push_back(edge);
 
     if ( nodes_.find(srcNodeId) == nodes_.end() ) {
         std::cerr << "Unable to create edge. " 
                     << "Node " << srcNodeId << " not in graph." << std::endl;
-        edges_.pop_back();
         throw std::range_error("Unable to create edge.");
-    } else {
-        edges_.back()->setSource(nodes_[srcNodeId]);
     }
-    nodes_[srcNodeId]->addSuccessor(edges_.back());
-
-
     if ( nodes_.find(destNodeId) == nodes_.end() ) {
         std::cerr << "Unable to create edge. " 
                     << "Node" << destNodeId << " not in graph." << std::endl;
-        edges_.pop_back();
         throw std::range_error("Unable to create edge.");
-    } else {
-        edges_.back()->setDestination(nodes_[destNodeId]);
     }
+
+    Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
+    edge->setDestination(nodes_[destNodeId]);
+    edge->setSource(nodes_[srcNodeId]);
+    edges_.push_back(edge);
+    nodes_[srcNodeId]->addSuccessor(edges_.back());
     nodes_[destNodeId]->addPredecessor(edges_.back());
 
     return edges_.size();
@@ -275,9 +269,10 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
     return edges_.size();
 }
 
-/* Search for an edge (in logarithmic time).
-    @vertex0: first vertex of the edge.
-    @vertex1: second vertex of the edge.
+//TODO improve search to log time.
+/* Search for an edge (in LINEAR time!!!!).
+    @nodeSrc: first vertex of the edge.
+    @nodeDst: second vertex of the edge.
     \return if an edge from nodeSrc to nodeDst exists, pair.first is true 
      and pair.second is the index of such an edge. if no edge from nodeSrc
      to nodeDst exists, pair.first is false and pair.second is undefined.
@@ -289,6 +284,7 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
     const std::size_t nodeDst
 ) {
 
+    // check if given nodes exist in the graph.
     if ( nodes_.find(nodeSrc) == nodes_.end() ) {
         std::cerr << "Edge search: source node does not exist in graph. " 
                     << "Node " << nodeSrc << " not in graph." << std::endl;
@@ -301,8 +297,10 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
         return std::make_pair(false, 0);
     }
 
+    // search the edges for the given connection. 
+    //TODO: improve this step such that search is log=time instead linear.
     bool success = false;
-    size_t edge_index;
+    std::size_t edge_index;
 
     for(size_t j = 0; j < edges_.size(); j++){
         if(edges_[j]->getSource() == nodes_[nodeSrc] && edges_[j]->getDestination() == nodes_[nodeDst]){
@@ -315,18 +313,49 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
     return std::make_pair(success, edge_index);
 }
 
+/* Erase an edge.
+    @edgeIndex: Integer index of the edge to be erased.
+*/ 
+template<typename edgeData, typename nodeData, typename Visitor>
+inline bool 
+Graph<edgeData, nodeData, Visitor>::eraseEdge(
+    const std::size_t nodeSrc, 
+    const std::size_t nodeDst
+) {
+    // check if given nodes exist in the graph.
+    if ( nodes_.find(nodeSrc) == nodes_.end() ) {
+        std::cerr << "Edge search: source node does not exist in graph. " 
+                    << "Node " << nodeSrc << " not in graph." << std::endl;
+        return false;
+    } 
 
+    if ( nodes_.find(nodeDst) == nodes_.end() ) {
+        std::cerr << "Edge search: destination node does not exist in graph. " 
+                    << "Node " << nodeDst << " not in graph." << std::endl;
+        return false;
+    }
 
+    std::pair<bool, std::size_t>  result = findEdge( nodeSrc, nodeDst);
+    std::size_t edgeIndex= std::get<1>(result);
 
+    if(!std::get<0>(result)){
+        std::cerr << "eraseEdge: Specified edge is not present in the graph." << std::endl;
+        std::cerr << "eraseEdge: Edge was not removed." << std::endl;
+        return false;
+    }
 
+    Node<nodeData, edgeData>* source_node = nodes_[nodeSrc];
+    Node<nodeData, edgeData>* destination_node = nodes_[nodeDst];
+    source_node->removeSuccessor(nodeDst);
+    destination_node->removePredecessor(nodeSrc);
 
-
-
-
-
-
-
-
+    edges_.erase(edges_.begin() + edgeIndex);    
+    
+    return true;
+    // visitor_.eraseEdge(edgeIndex);
+    // visitor_.relabelEdge(movingEdgeIndex, edgeIndex);
+    
+}
 
 
 /* Erase a Node and all edges concerning this Node.
@@ -393,32 +422,6 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
 
 //         visitor_.eraseVertex(vertexIndex);
 //         visitor_.relabelVertex(movingVertexIndex, vertexIndex);
-//     }
-// }
-
-// /* Erase an edge.
-//     @edgeIndex: Integer index of the edge to be erased.
-// */ 
-// template<typename edgeData, typename nodeData, typename Visitor>
-// inline void 
-// Graph<edgeData, nodeData, Visitor>::eraseEdge(
-//     const std::size_t edgeIndex
-// ) {
-//     assert(edgeIndex < numberOfEdges()); 
-
-//     eraseAdjacenciesForEdge(edgeIndex);
-//     if(edgeIndex == numberOfEdges() - 1) { // if the last edge is erased
-//         edges_.pop_back(); // delete
-//         visitor_.eraseEdge(edgeIndex);
-//     }
-//     else { 
-//         std::size_t movingEdgeIndex = numberOfEdges() - 1;
-//         eraseAdjacenciesForEdge(movingEdgeIndex);
-//         edges_[edgeIndex] = edges_[movingEdgeIndex]; // copy
-//         edges_.pop_back(); // delete
-//         insertAdjacenciesForEdge(edgeIndex);
-//         visitor_.eraseEdge(edgeIndex);
-//         visitor_.relabelEdge(movingEdgeIndex, edgeIndex);
 //     }
 // }
 

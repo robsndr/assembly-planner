@@ -13,12 +13,12 @@ int main(void){
 
     Graph<std::size_t,std::size_t> graph; 
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
-    graph.insertNode(0, 1);
+    graph.insertNode(0, 0);
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
 
     std::vector<Node<std::size_t,std::size_t>*> vec;
-    Node<std::size_t,std::size_t> * pointr = new Node<std::size_t,std::size_t>(1,1);
-    Node<std::size_t,std::size_t> * pointr2 = new Node<std::size_t,std::size_t>(2,1);
+    Node<std::size_t,std::size_t> * pointr = new Node<std::size_t,std::size_t>(1,0);
+    Node<std::size_t,std::size_t> * pointr2 = new Node<std::size_t,std::size_t>(2,0);
 
     vec.push_back(pointr);
     vec.push_back(pointr2);
@@ -31,9 +31,17 @@ int main(void){
 
 
 
-    std::cout << "Edges from Node: "<< graph.numberOfEdgesFromNode(1) << std::endl;
-    std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
-    std::cout << "Number of Edges: " << graph.numberOfEdges() << std::endl;
+    std::cout << "Edges from Node '1': "<< graph.numberOfEdgesFromNode(1) << std::endl;
+    std::cout << "Number of Nodes in Graph: " << graph.numberOfNodes() << std::endl;
+    std::cout << "Number of Edges in Graph: " << graph.numberOfEdges() << std::endl;
+
+    std::cout   << "Number of Edges from Node '1': " 
+                << graph.numberOfEdgesFromNode(1) 
+                << std::endl;
+
+    std::cout   << "Number of Edges to Node '1': " 
+                << graph.numberOfEdgesToNode(1)
+                << std::endl;
 
     std::cout   << "Number of Edges from Node '2': " 
                 << graph.numberOfEdgesFromNode(2) 
@@ -41,20 +49,40 @@ int main(void){
 
     std::cout   << "Number of Edges to Node '2': " 
                 << graph.numberOfEdgesToNode(2)
-                << std::endl;
+                << std::endl;                
 
     std::cout   << "Number of Edges to Node '2': " 
                 << graph.numberOfEdgesToNode(2)
                 << std::endl;
 
-    std::cout << "Searching for edge..." << std::endl;
-    std::pair<bool, std::size_t> value = graph.findEdge(2,1);
-    if(std::get<0>(value)){
-        std::cout << "Found edge. Index:" << std::get<1>(value) << std::endl;
-    }
-    else{
-        std::cout << "No such edge in graph." << std::endl;
-    }
+    graph.eraseEdge(1,2);
+    graph.eraseEdge(2,1);
+
+    std::cout << "*************************************************************************" << std::endl;
+
+    std::cout << "Edges from Node '1': "<< graph.numberOfEdgesFromNode(1) << std::endl;
+    std::cout << "Number of Nodes in Graph: " << graph.numberOfNodes() << std::endl;
+    std::cout << "Number of Edges in Graph: " << graph.numberOfEdges() << std::endl;
+
+    std::cout   << "Number of Edges from Node '1': " 
+                << graph.numberOfEdgesFromNode(1) 
+                << std::endl;
+
+    std::cout   << "Number of Edges to Node '1': " 
+                << graph.numberOfEdgesToNode(1)
+                << std::endl;
+
+    std::cout   << "Number of Edges from Node '2': " 
+                << graph.numberOfEdgesFromNode(2) 
+                << std::endl;
+
+    std::cout   << "Number of Edges to Node '2': " 
+                << graph.numberOfEdgesToNode(2)
+                << std::endl;                
+
+    std::cout   << "Number of Edges to Node '2': " 
+                << graph.numberOfEdgesToNode(2)
+                << std::endl;
 
     return 0;
 }
