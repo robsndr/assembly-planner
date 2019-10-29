@@ -247,15 +247,15 @@ Node<TypeNode, TypeEdge>::numberOfPredecessors() const{
 template <class TypeNode, class TypeEdge> 
 inline std::vector<Edge<TypeNode, TypeEdge>*>  
 Node<TypeNode, TypeEdge>::getSuccessors() {
-    std::vector<int> vecOfValues;
+    std::vector<Edge<TypeNode, TypeEdge>*> vecOfValues;
     vecOfValues.reserve(children_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
-    std::for_each(children_.begin(), children_.end(),  [&](std::pair<std::size_t, Edge<TypeNode, TypeEdge>*>  & element){
-													vecOfValues.push_back(element.second);
-												});
-}
+    for(auto elem : parents_)
+	 vecOfValues.push_back(elem.second);
 
+     return vecOfValues;
+}
 /* Obtain predecessor edge connecting the node to the one specified by the index-id.
     @index: node id. 
     \return: pointer to the edge connecting given node to the one specified by @index.
@@ -263,11 +263,12 @@ Node<TypeNode, TypeEdge>::getSuccessors() {
 template <class TypeNode, class TypeEdge> 
 inline std::vector<Edge<TypeNode, TypeEdge>*>  
 Node<TypeNode, TypeEdge>::getPredecessors() {
-    std::vector<int> vecOfValues;
+    std::vector<Edge<TypeNode, TypeEdge>*> vecOfValues;
     vecOfValues.reserve(children_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
-    std::for_each(children_.begin(), children_.end(),  [&](std::pair<std::size_t, Edge<TypeNode, TypeEdge>*>  & element){
-													vecOfValues.push_back(element.second);
-												});
+    for(auto elem : children_)
+	 vecOfValues.push_back(elem.second);
+    
+    return vecOfValues;
 }

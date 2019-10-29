@@ -43,9 +43,11 @@ public:
     // removal
     bool eraseNode( const std::size_t); 
     bool eraseEdge( const std::size_t, std::size_t );
-    inline std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
+    std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
 private:
+
+    std::size_t findEdgeIndexHelper( Edge<nodeData, edgeData> * );
 
     std::unordered_map< std::size_t, Node<nodeData, edgeData>* > nodes_;
     std::vector< Edge<nodeData, edgeData>* > edges_;
@@ -111,7 +113,11 @@ inline std::size_t
 Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
     const std::size_t node
 ) { 
-    nodes_[node]->numberOfSuccessors();
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: numberOfEdgesFromNode. Node " << node << " not in graph." << std::endl;
+        return 0;
+    }
+    return nodes_[node]->numberOfSuccessors();
 }
 
 /* Get the number of edges that are incident to a given node.
@@ -122,6 +128,10 @@ inline std::size_t
 Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
     const std::size_t node
 ) { 
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: numberOfEdgesFromNode. Node " << node << " not in graph." << std::endl;
+        return 0;
+    }
     return nodes_[node]->numberOfPredecessors();
 }
 
@@ -135,6 +145,10 @@ Graph<edgeData, nodeData, Visitor>::edgeFromNode(
     const std::size_t node,
     const std::size_t j
 ) const {
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: edgeFromNode. Node " << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
     return nodes_[node]->children[j];
 }
 
@@ -148,6 +162,10 @@ Graph<edgeData, nodeData, Visitor>::edgeToNode(
     const std::size_t node,
     const std::size_t j
 ) const {
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: edgeToNode. Node " << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
     return nodes_[node]->parents[j];
 }
 
@@ -161,6 +179,10 @@ Graph<edgeData, nodeData, Visitor>::nodesFromNode(
     const std::size_t node,
     const std::size_t j
 ) const {
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: nodesFromNode. Node " << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
     return nodes_[node]->children[j].getSuccessors();
 }
 
@@ -174,6 +196,10 @@ Graph<edgeData, nodeData, Visitor>::nodesToNode(
     const std::size_t node,
     const std::size_t j
 ) const {
+    if ( nodes_.find(node) == nodes_.end() ) {
+        std::cerr << std::endl << "Error: nodesToNode. Node " << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
     return nodes_[node]->parents[j].getPredecessors();
 }
 
@@ -187,7 +213,7 @@ inline std::size_t
 Graph<edgeData, nodeData, Visitor>::insertNode(std::size_t nodeId , nodeData data) {
     Node<nodeData,edgeData> * tempNode = new Node<nodeData,edgeData>(nodeId, data);
     nodes_.insert(std::make_pair(nodeId ,tempNode));
-    visitor_.insertVertex(nodeId);
+    // visitor_.insertVertex(nodeId);
     return nodes_.size() - 1;
 }
 
@@ -306,6 +332,23 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
     return std::make_pair(success, edge_index);
 }
 
+/* Find the index corresponding to a given edge pointer.
+    @edge: pointer to edge edge which index to find.
+*/ 
+template<typename edgeData, typename nodeData, typename Visitor>
+inline std::size_t 
+Graph<edgeData, nodeData, Visitor>::findEdgeIndexHelper( Edge<nodeData, edgeData> * edge){
+    std::size_t edge_index;
+    for(size_t j = 0; j < edges_.size(); j++){
+        if(edges_[j] == edge ){
+            edge_index = j;
+            break;
+        }
+    }
+    return edge_index;
+}
+
+
 /* Erase an edge.
     @edgeIndex: Integer index of the edge to be erased.
 */ 
@@ -367,21 +410,34 @@ Graph<edgeData, nodeData, Visitor>::eraseNode(
     }
 
     Node<nodeData, edgeData>* node_to_remove = nodes_[nodeId];
-    std::vector<Edge<nodeData, edgeData>*> predecessors = node_to_remove->getPredecessors();
-    std::vector<Edge<nodeData, edgeData>*> successors = node_to_remove->getPredecessors();
-
-    for(size_t j = 0; j < predecessors.size(); j++){
-       Node<nodeData, edgeData>* temp = predecessors[j].getSource();
-       temp->removeSuccessor(nodeId);
-    }
-
-    for(size_t j = 0; j < predecessors.size(); j++){
-       Node<nodeData, edgeData>* temp = predecessors[j].getDestination();
-       temp->removePredecessor(nodeId);
-    }
-
-    delete nodes_[nodeId];
     nodes_.erase(nodeId);
+
+    std::vector<Edge<nodeData, edgeData>*> predecessors = node_to_remove->getPredecessors();
+    std::vector<Edge<nodeData, edgeData>*> successors = node_to_remove->getSuccessors();
+    std::size_t temp_edge_index;
+
+    for(size_t j = 0; j < predecessors.size(); j++){
+        Edge<nodeData, edgeData>* edge_to_remove = predecessors[j];
+        Node<nodeData, edgeData>* predecessor_node = edge_to_remove->getSource();
+        predecessor_node->removeSuccessor(nodeId);
+        
+        temp_edge_index = findEdgeIndexHelper(edge_to_remove);
+        edges_.erase(edges_.begin() + temp_edge_index); 
+        delete edge_to_remove;
+    }
+
+    for(size_t j = 0; j < successors.size(); j++){
+        Edge<nodeData, edgeData>* edge_to_remove = successors[j];
+        Node<nodeData, edgeData>* successor_node = edge_to_remove->getDestination();
+        successor_node->removePredecessor(nodeId);
+        
+        temp_edge_index = findEdgeIndexHelper(edge_to_remove);
+        edges_.erase(edges_.begin() + temp_edge_index); 
+        delete edge_to_remove;
+    }
+
+    
+    delete node_to_remove;
 
     return true;
 }
