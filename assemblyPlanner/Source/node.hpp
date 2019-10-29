@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <unordered_map>
 //TODO: Introduce Smart-Pointer instead.
@@ -114,16 +115,17 @@ public:
     void addSuccessor(Edge<TypeNode,TypeEdge> *);
     void removePredecessor(std::size_t);
     void removeSuccessor(std::size_t);
-
     Edge<TypeNode, TypeEdge>* getSuccessor(std::size_t) const;    
-    Edge<TypeNode, TypeEdge>* getPredecessor(std::size_t index) const;
+    Edge<TypeNode, TypeEdge>* getPredecessor(std::size_t) const;
+    std::vector<Edge<TypeNode, TypeEdge>*> getSuccessors();    
+    std::vector<Edge<TypeNode, TypeEdge>*> getPredecessors();
+
 
     bool visited = false;
     std::size_t id_;
 
 private:
-    std::pair<bool, std::size_t > findSuccessorEdge(const std::size_t) const;
-    std::pair<bool, std::size_t > findPredecessorEdge(const std::size_t) const;
+
 
     std::unordered_map< std::size_t, Edge<TypeNode, TypeEdge>* > parents_;
     std::unordered_map< std::size_t, Edge<TypeNode, TypeEdge>* > children_; 
@@ -236,4 +238,36 @@ template <class TypeNode, class TypeEdge>
 inline std::size_t
 Node<TypeNode, TypeEdge>::numberOfPredecessors() const{
     return parents_.size();
+}
+
+/* Obtain predecessor edge connecting the node to the one specified by the index-id.
+    @index: node id. 
+    \return: pointer to the edge connecting given node to the one specified by @index.
+**/
+template <class TypeNode, class TypeEdge> 
+inline std::vector<Edge<TypeNode, TypeEdge>*>  
+Node<TypeNode, TypeEdge>::getSuccessors() {
+    std::vector<int> vecOfValues;
+    vecOfValues.reserve(children_.size());
+ 
+    /*** Copy all value fields from map to a vector using Lambda function ***/
+    std::for_each(children_.begin(), children_.end(),  [&](std::pair<std::size_t, Edge<TypeNode, TypeEdge>*>  & element){
+													vecOfValues.push_back(element.second);
+												});
+}
+
+/* Obtain predecessor edge connecting the node to the one specified by the index-id.
+    @index: node id. 
+    \return: pointer to the edge connecting given node to the one specified by @index.
+**/
+template <class TypeNode, class TypeEdge> 
+inline std::vector<Edge<TypeNode, TypeEdge>*>  
+Node<TypeNode, TypeEdge>::getPredecessors() {
+    std::vector<int> vecOfValues;
+    vecOfValues.reserve(children_.size());
+ 
+    /*** Copy all value fields from map to a vector using Lambda function ***/
+    std::for_each(children_.begin(), children_.end(),  [&](std::pair<std::size_t, Edge<TypeNode, TypeEdge>*>  & element){
+													vecOfValues.push_back(element.second);
+												});
 }

@@ -1,15 +1,8 @@
 #ifndef GRAPH_HPP
 #define GRAPH_HPP
 
-#include <cassert>
-#include <cstddef>
-#include <iterator> // std::random_access_iterator
 #include <vector>
-#include <set> 
 #include <iostream>
-#include <utility> // std::pair
-#include <algorithm> // std::fill
-
 #include <string>
 #include <unordered_map>
 #include <exception>
@@ -48,7 +41,7 @@ public:
     
     // manipulation
     // removal
-    void eraseNode( const std::size_t); 
+    bool eraseNode( const std::size_t); 
     bool eraseEdge( const std::size_t, std::size_t );
     inline std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
@@ -278,7 +271,7 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
      to nodeDst exists, pair.first is false and pair.second is undefined.
 */
 template<typename edgeData, typename nodeData, typename Visitor>
-inline std::pair<bool, std::size_t>
+std::pair<bool, std::size_t>
 Graph<edgeData, nodeData, Visitor>::findEdge(
     const std::size_t nodeSrc, 
     const std::size_t nodeDst
@@ -317,7 +310,7 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
     @edgeIndex: Integer index of the edge to be erased.
 */ 
 template<typename edgeData, typename nodeData, typename Visitor>
-inline bool 
+bool 
 Graph<edgeData, nodeData, Visitor>::eraseEdge(
     const std::size_t nodeSrc, 
     const std::size_t nodeDst
@@ -349,6 +342,7 @@ Graph<edgeData, nodeData, Visitor>::eraseEdge(
     source_node->removeSuccessor(nodeDst);
     destination_node->removePredecessor(nodeSrc);
 
+    delete edges_[edgeIndex];
     edges_.erase(edges_.begin() + edgeIndex);    
     
     return true;
@@ -357,82 +351,39 @@ Graph<edgeData, nodeData, Visitor>::eraseEdge(
     
 }
 
-
 /* Erase a Node and all edges concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
-// template<typename edgeData, typename nodeData, typename Visitor>
-// void 
-// Graph<edgeData, nodeData, Visitor>::eraseNode(
-//     const std::size_t nodeId
-// ) {
-//     if ( nodes_.find(nodeId) == nodes_.end() ) {
-//         std::cerr << "Unable to find node to remove. " 
-//                   << "Node: " << nodeId << " not in graph." << std::endl;
-//         throw std::range_error;
-//     }
+template<typename edgeData, typename nodeData, typename Visitor>
+bool
+Graph<edgeData, nodeData, Visitor>::eraseNode(
+    const std::size_t nodeId
+) {
+    if ( nodes_.find(nodeId) == nodes_.end() ) {
+        std::cerr << "Unable to find node to remove. " 
+                  << "Node: " << nodeId << " not in graph. Was not removed." 
+                  << std::endl;
+        return false;
+    }
 
-//     // erase all edges connected to the vertex
-//     while(vertices_[vertexIndex].size() != 0) {
-//         eraseEdge(vertices_[vertexIndex].begin()->edge());
-//     }
+    Node<nodeData, edgeData>* node_to_remove = nodes_[nodeId];
+    std::vector<Edge<nodeData, edgeData>*> predecessors = node_to_remove->getPredecessors();
+    std::vector<Edge<nodeData, edgeData>*> successors = node_to_remove->getPredecessors();
 
-//     if(vertexIndex == numberOfVertices()-1) { // if the last vertex is to be erased        
-//         vertices_.pop_back(); // erase vertex
-//         visitor_.eraseVertex(vertexIndex);
-//     }
-//     else { // if a vertex is to be erased which is not the last vertex
-//         // move last vertex to the free position:
+    for(size_t j = 0; j < predecessors.size(); j++){
+       Node<nodeData, edgeData>* temp = predecessors[j].getSource();
+       temp->removeSuccessor(nodeId);
+    }
 
-//         // collect indices of edges affected by the move
-//         std::size_t movingVertexIndex = numberOfVertices() - 1;
-//         std::set<std::size_t> affectedEdgeIndices;
-//         for(Vertex::const_iterator it = vertices_[movingVertexIndex].begin();
-//         it != vertices_[movingVertexIndex].end(); ++it) {
-//             affectedEdgeIndices.insert(it->edge());
-//         }
-        
-//         // for all affected edges:
-//         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-//         it != affectedEdgeIndices.end(); ++it) { 
-//             // remove adjacencies
-//             eraseAdjacenciesForEdge(*it);
+    for(size_t j = 0; j < predecessors.size(); j++){
+       Node<nodeData, edgeData>* temp = predecessors[j].getDestination();
+       temp->removePredecessor(nodeId);
+    }
 
-//             // adapt vertex labels
-//             for(std::size_t j=0; j<2; ++j) {
-//                 if(edges_[*it][j] == movingVertexIndex) {
-//                     edges_[*it][j] = vertexIndex;
-//                 }
-//             }
-//             // if(!(edges_[*it].directedness()) && edges_[*it][0] > edges_[*it][1]) {
-//             if(edges_[*it][0] > edges_[*it][1]) {
-//                 std::swap(edges_[*it][0], edges_[*it][1]);
-//             }
-//         }
+    delete nodes_[nodeId];
+    nodes_.erase(nodeId);
 
-//         // move vertex
-//         vertices_[vertexIndex] = vertices_[movingVertexIndex]; // copy
-//         vertices_.pop_back(); // erase
-
-//         // insert adjacencies for edges of moved vertex
-//         for(std::set<std::size_t>::const_iterator it = affectedEdgeIndices.begin();
-//         it != affectedEdgeIndices.end(); ++it) { 
-//             insertAdjacenciesForEdge(*it);
-//         }
-
-//         visitor_.eraseVertex(vertexIndex);
-//         visitor_.relabelVertex(movingVertexIndex, vertexIndex);
-//     }
-// }
-
-// template<typename edgeData, typename nodeData, typename Visitor>
-// inline bool 
-// Graph<edgeData, nodeData, Visitor>::checkNode(std::size_t){
-//     bool exists = true;
-
-
-
-//     return exists;
-// }
+    return true;
+}
 
 #endif //GRAPH_HPP
