@@ -11,41 +11,50 @@ int main(void){
     // std::vector<Node<nodeData, connectorData>*>& nodesFromNode(const std::string, const std::size_t);
     // std::vector<Node<nodeData, connectorData>*>& nodesToNode(const std::string, const std::size_t);
 
-    Graph<std::string,std::string> graph; 
+    Graph<std::size_t,std::size_t> graph; 
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
-    graph.insertNode("ab", "1");
+    graph.insertNode(0, 1);
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
 
-    std::vector<Node<std::string,std::string>*> vec;
-    Node<std::string,std::string> * pointr = new Node<std::string,std::string>("qaz","4");
-    Node<std::string,std::string> * pointr2 = new Node<std::string,std::string>("wsx","5");
+    std::vector<Node<std::size_t,std::size_t>*> vec;
+    Node<std::size_t,std::size_t> * pointr = new Node<std::size_t,std::size_t>(1,1);
+    Node<std::size_t,std::size_t> * pointr2 = new Node<std::size_t,std::size_t>(2,1);
 
     vec.push_back(pointr);
     vec.push_back(pointr2);
     graph.insertNodes(vec);
 
-    std::string src("qaz");
-    std::vector<std::string>  dst;
-    dst.push_back("wsx");
-    graph.insertEdge("1", src, "wsx");
+    std::size_t src = 2;
+    std::vector<std::size_t>  dst;
+    dst.push_back(src);
+    graph.insertEdge(1, src, 1);
 
 
 
-    std::cout << "Edges from Node: "<< graph.numberOfEdgesFromNode("ab") << std::endl;
+    std::cout << "Edges from Node: "<< graph.numberOfEdgesFromNode(1) << std::endl;
     std::cout << "Number of Nodes: " << graph.numberOfNodes() << std::endl;
     std::cout << "Number of Edges: " << graph.numberOfEdges() << std::endl;
 
-    std::cout   << "Number of Edges from Node 'qaz': " 
-                << graph.numberOfEdgesFromNode("qaz") 
+    std::cout   << "Number of Edges from Node '2': " 
+                << graph.numberOfEdgesFromNode(2) 
                 << std::endl;
 
-    std::cout   << "Number of Edges to Node 'qaz': " 
-                << graph.numberOfEdgesToNode("qaz")
+    std::cout   << "Number of Edges to Node '2': " 
+                << graph.numberOfEdgesToNode(2)
                 << std::endl;
 
-    std::cout   << "Number of Edges to Node 'wsx': " 
-                << graph.numberOfEdgesToNode("wsx")
+    std::cout   << "Number of Edges to Node '2': " 
+                << graph.numberOfEdgesToNode(2)
                 << std::endl;
+
+    std::cout << "Searching for edge..." << std::endl;
+    std::pair<bool, std::size_t> value = graph.findEdge(2,1);
+    if(std::get<0>(value)){
+        std::cout << "Found edge. Index:" << std::get<1>(value) << std::endl;
+    }
+    else{
+        std::cout << "No such edge in graph." << std::endl;
+    }
 
     return 0;
 }

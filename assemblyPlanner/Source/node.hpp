@@ -29,8 +29,8 @@ public:
     void setDestination( Node<TypeNode, TypeEdge>* );
     void setSource( Node<TypeNode, TypeEdge>* );
 
+    std::size_t id_;
 private:
-    std::string id_;
     TypeEdge data_;
     Node<TypeNode, TypeEdge>* to_;
     Node<TypeNode, TypeEdge>* from_;
@@ -86,7 +86,7 @@ Edge<TypeNode,TypeEdge>::setSource(Node<TypeNode, TypeEdge>* node){
 template <class TypeNode, class TypeEdge> 
 class Node{
 public:
-    Node(std::string identifier, TypeNode data);
+    Node(std::size_t identifier, TypeNode data);
 
     bool hasSuccessor() const;
     bool hasPredecessor() const;
@@ -97,10 +97,15 @@ public:
     // Connector * removeSuccessor(TypeId identifier);
 
     std::vector< Edge<TypeNode, TypeEdge>* > & getSuccessors() const;
+    Edge<TypeNode, TypeEdge>* getSuccessor(std::size_t) const;
+    std::pair<bool, std::size_t > findSuccessor(const std::size_t) const;
+    
     std::vector< Edge<TypeNode, TypeEdge>* > & getPredecessors() const;
+    Edge<TypeNode, TypeEdge>* getPredecessor(std::size_t index) const;
+    
 
     bool visited = false;
-    std::string id_;
+    std::size_t id_;
 
 private:
     std::vector< Edge<TypeNode, TypeEdge>* > parents_;
@@ -109,7 +114,7 @@ private:
 };
 
 template <class TypeNode, class TypeEdge> 
-Node<TypeNode, TypeEdge>::Node(std::string identifier, TypeNode data){
+Node<TypeNode, TypeEdge>::Node(std::size_t identifier, TypeNode data){
     id_ = identifier;
     data_ = data;
 }
@@ -133,9 +138,21 @@ Node<TypeNode, TypeEdge>::getSuccessors(void) const{
 }
 
 template <class TypeNode, class TypeEdge> 
+inline Edge<TypeNode, TypeEdge>* 
+Node<TypeNode, TypeEdge>::getSuccessor(std::size_t index) const{
+    return children_[index];
+}
+
+template <class TypeNode, class TypeEdge> 
 inline std::vector< Edge<TypeNode, TypeEdge>* >&  
 Node<TypeNode, TypeEdge>::getPredecessors(void) const{
     return parents_;
+}
+
+template <class TypeNode, class TypeEdge> 
+inline Edge<TypeNode, TypeEdge>* 
+Node<TypeNode, TypeEdge>::getPredecessor(std::size_t index) const{
+    return parents_[index];
 }
 
 template <class TypeNode, class TypeEdge> 
@@ -164,4 +181,22 @@ template <class TypeNode, class TypeEdge>
 inline std::size_t
 Node<TypeNode, TypeEdge>::numberOfPredecessors() const{
     return parents_.size();
+}
+
+template <class TypeNode, class TypeEdge> 
+inline std::pair<bool, std::size_t >
+Node<TypeNode, TypeEdge>::findSuccessor(const std::size_t nodeId) const{
+
+    bool success = false;
+    size_t edge_index;
+
+    for(size_t j; j < children_.size(); j++){
+        if(children_[j]->getDestination() == nodeId){
+            success = true;
+            edge_index = j;
+            break;
+        }
+    }
+
+    return std::make_pair(success, edge_index);
 }

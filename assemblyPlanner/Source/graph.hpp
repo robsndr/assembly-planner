@@ -17,7 +17,7 @@
 #include "node.hpp"
 #include "visitor.hpp"
 
-template<typename edgeData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::string> >
+template<typename edgeData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::size_t> >
 class Graph{
 public:
     // Construction
@@ -27,34 +27,38 @@ public:
     // General Information
     std::size_t numberOfNodes() const;
     std::size_t numberOfEdges() const;
-    std::size_t numberOfEdgesFromNode(const std::string);
-    std::size_t numberOfEdgesToNode(const std::string);
+    std::size_t numberOfEdgesFromNode(const std::size_t);
+    std::size_t numberOfEdgesToNode(const std::size_t);
 
     // Access specific nodes/vertices.
-    Edge<nodeData, edgeData> * edgeFromNode(const std::string, const std::size_t) const;
-    Edge<nodeData, edgeData> * edgeToNode(const std::string, const std::size_t) const;
-    std::vector<Node<nodeData, edgeData>*>& nodesFromNode(const std::string, const std::size_t) const;
-    std::vector<Node<nodeData, edgeData>*>& nodesToNode(const std::string, const std::size_t) const;
+    Edge<nodeData, edgeData> * edgeFromNode(const std::size_t, const std::size_t) const;
+    Edge<nodeData, edgeData> * edgeToNode(const std::size_t, const std::size_t) const;
+    std::vector<Node<nodeData, edgeData>*>& nodesFromNode(const std::size_t, const std::size_t) const;
+    std::vector<Node<nodeData, edgeData>*>& nodesToNode(const std::size_t, const std::size_t) const;
     // std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
 
     // manipulation
     // inserttion
-    std::size_t insertNode( const std::string, const nodeData);
+    std::size_t insertNode( const std::size_t, const nodeData);
     std::size_t insertNodes(const std::vector<Node<nodeData, edgeData>*>& );
-    std::size_t insertEdge(  const edgeData, const std::string , const std::string);
+    std::size_t insertEdge(  const edgeData, const std::size_t , const std::size_t);
     std::size_t insertEdges( const edgeData, 
-                             const std::string , 
-                             const std::vector<std::string> & );
+                             const std::size_t , 
+                             const std::vector<std::size_t> & );
     
     // manipulation
     // removal
-    // void eraseNode(const std::string nodeId); 
-    // void eraseEdge(const std::size_t);
+    void eraseNode(const std::size_t nodeId); 
+    void eraseEdge(const std::size_t);
+    inline std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
 private:
-    std::unordered_map< std::string, Node<nodeData, edgeData>* > nodes_;
+
+    std::unordered_map< std::size_t, Node<nodeData, edgeData>* > nodes_;
     std::vector< Edge<nodeData, edgeData>* > edges_;
     Visitor visitor_;
+
+    // bool checkNode(const std::size_t) const;
 };
 
 /* Construct a graph
@@ -112,7 +116,7 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdges() const {
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
-    const std::string node
+    const std::size_t node
 ) { 
     nodes_[node]->numberOfSuccessors();
     return 1;
@@ -124,7 +128,7 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
-    const std::string node
+    const std::size_t node
 ) { 
     return nodes_[node]->numberOfPredecessors();
 }
@@ -136,7 +140,7 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
 template<typename edgeData, typename nodeData, typename Visitor>
 inline Edge<nodeData, edgeData>*
 Graph<edgeData, nodeData, Visitor>::edgeFromNode(
-    const std::string node,
+    const std::size_t node,
     const std::size_t j
 ) const {
     return nodes_[node]->children[j];
@@ -149,7 +153,7 @@ Graph<edgeData, nodeData, Visitor>::edgeFromNode(
 template<typename edgeData, typename nodeData, typename Visitor>
 inline Edge<nodeData, edgeData>*
 Graph<edgeData, nodeData, Visitor>::edgeToNode(
-    const std::string node,
+    const std::size_t node,
     const std::size_t j
 ) const {
     return nodes_[node]->parents[j];
@@ -162,7 +166,7 @@ Graph<edgeData, nodeData, Visitor>::edgeToNode(
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::vector<Node<nodeData, edgeData>*> &
 Graph<edgeData, nodeData, Visitor>::nodesFromNode(
-    const std::string node,
+    const std::size_t node,
     const std::size_t j
 ) const {
     return nodes_[node]->children[j].getSuccessors();
@@ -175,7 +179,7 @@ Graph<edgeData, nodeData, Visitor>::nodesFromNode(
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::vector<Node<nodeData, edgeData>*> &
 Graph<edgeData, nodeData, Visitor>::nodesToNode(
-    const std::string node,
+    const std::size_t node,
     const std::size_t j
 ) const {
     return nodes_[node]->parents[j].getPredecessors();
@@ -188,7 +192,7 @@ Graph<edgeData, nodeData, Visitor>::nodesToNode(
 **/
 template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::insertNode(std::string nodeId , nodeData data) {
+Graph<edgeData, nodeData, Visitor>::insertNode(std::size_t nodeId , nodeData data) {
     Node<nodeData,edgeData> * tempNode = new Node<nodeData,edgeData>(nodeId, data);
     nodes_.insert(std::make_pair(nodeId ,tempNode));
     visitor_.insertVertex(nodeId);
@@ -223,8 +227,8 @@ template<typename edgeData, typename nodeData, typename Visitor>
 std::size_t
 Graph<edgeData, nodeData, Visitor>::insertEdge(
     const edgeData data,
-    const std::string srcNodeId,
-    const std::string destNodeId
+    const std::size_t srcNodeId,
+    const std::size_t destNodeId
 ) {
     Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
     edges_.push_back(edge);
@@ -262,8 +266,8 @@ template<typename edgeData, typename nodeData, typename Visitor>
 inline std::size_t
 Graph<edgeData, nodeData, Visitor>::insertEdges(
     const edgeData data,
-    const std::string srcNodeId,
-    const std::vector<std::string> & destNodeId
+    const std::size_t srcNodeId,
+    const std::vector<std::size_t> & destNodeId
 ) {
     for(auto const& dst: destNodeId) {
         insertEdge(data, srcNodeId, dst);
@@ -271,13 +275,67 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
     return edges_.size();
 }
 
+/* Search for an edge (in logarithmic time).
+    @vertex0: first vertex of the edge.
+    @vertex1: second vertex of the edge.
+    \return if an edge from nodeSrc to nodeDst exists, pair.first is true 
+     and pair.second is the index of such an edge. if no edge from nodeSrc
+     to nodeDst exists, pair.first is false and pair.second is undefined.
+*/
+template<typename edgeData, typename nodeData, typename Visitor>
+inline std::pair<bool, std::size_t>
+Graph<edgeData, nodeData, Visitor>::findEdge(
+    const std::size_t nodeSrc, 
+    const std::size_t nodeDst
+) {
+
+    if ( nodes_.find(nodeSrc) == nodes_.end() ) {
+        std::cerr << "Edge search: source node does not exist in graph. " 
+                    << "Node " << nodeSrc << " not in graph." << std::endl;
+        return std::make_pair(false, 0);
+    } 
+
+    if ( nodes_.find(nodeDst) == nodes_.end() ) {
+        std::cerr << "Edge search: destination node does not exist in graph. " 
+                    << "Node " << nodeDst << " not in graph." << std::endl;
+        return std::make_pair(false, 0);
+    }
+
+    bool success = false;
+    size_t edge_index;
+
+    for(size_t j = 0; j < edges_.size(); j++){
+        if(edges_[j]->getSource() == nodes_[nodeSrc] && edges_[j]->getDestination() == nodes_[nodeDst]){
+            success = true;
+            edge_index = j;
+            break;
+        }
+    }
+    
+    return std::make_pair(success, edge_index);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Erase a Node and all edges concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
 // template<typename edgeData, typename nodeData, typename Visitor>
 // void 
 // Graph<edgeData, nodeData, Visitor>::eraseNode(
-//     const std::string nodeId
+//     const std::size_t nodeId
 // ) {
 //     if ( nodes_.find(nodeId) == nodes_.end() ) {
 //         std::cerr << "Unable to find node to remove. " 
@@ -338,10 +396,9 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
 //     }
 // }
 
-// /// Erase an edge.
-// ///
-// /// \param edgeIndex Integer index of the edge to be erased.
-// /// 
+// /* Erase an edge.
+//     @edgeIndex: Integer index of the edge to be erased.
+// */ 
 // template<typename edgeData, typename nodeData, typename Visitor>
 // inline void 
 // Graph<edgeData, nodeData, Visitor>::eraseEdge(
@@ -365,41 +422,14 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
 //     }
 // }
 
-/// Search for an edge (in logarithmic time).
-///
-/// \param vertex0 first vertex of the edge.
-/// \param vertex1 second vertex of the edge.
-/// \return if an edge from vertex0 to vertex1 exists, pair.first is true 
-///     and pair.second is the index of such an edge. if no edge from vertex0
-///     to vertex1 exists, pair.first is false and pair.second is undefined.
-///
 // template<typename edgeData, typename nodeData, typename Visitor>
-// inline std::pair<bool, std::size_t>
-// Graph<edgeData, nodeData, Visitor>::findEdge(
-//     const std::size_t vertex0,
-//     const std::size_t vertex1
-// ) const {
-//     assert(vertex0 < numberOfVertices());
-//     assert(vertex1 < numberOfVertices());
-//     std::size_t v0 = vertex0;
-//     std::size_t v1 = vertex1;
-//     if(numberOfEdgesFromVertex(vertex1) < numberOfEdgesFromVertex(vertex0)) {
-//         v0 = vertex1;
-//         v1 = vertex0;
-//     }
-//     VertexIterator it = std::lower_bound(
-//         verticesFromVertexBegin(v0),
-//         verticesFromVertexEnd(v0),
-//         v1
-//     ); // binary search
-//     if(it != verticesFromVertexEnd(v0) && *it == v1) {
-//         // access the corresponding edge in constant time
-//         const std::size_t j = std::distance(verticesFromVertexBegin(v0), it);
-//         return std::make_pair(true, edgeFromVertex(v0, j));
-//     }
-//     else {
-//         return std::make_pair(false, 0);
-//     }
+// inline bool 
+// Graph<edgeData, nodeData, Visitor>::checkNode(std::size_t){
+//     bool exists = true;
+
+
+
+//     return exists;
 // }
 
 #endif //GRAPH_HPP
