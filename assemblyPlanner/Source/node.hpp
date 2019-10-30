@@ -179,7 +179,7 @@ Node<TypeNode, TypeEdge>::getPredecessors() {
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
     for(auto elem : children_)
-	 vecOfValues.push_back(elem.second);
+	    vecOfValues.push_back(elem.second);
     
     return vecOfValues;
 }

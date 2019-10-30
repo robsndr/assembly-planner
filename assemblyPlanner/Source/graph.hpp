@@ -85,7 +85,7 @@ Graph<edgeData, nodeData, Visitor>::Graph(
     edges_(),
     visitor_(visitor)
 {
-    edges_.reserve(numberOfEdges);
+    // edges_.reserve(numberOfEdges);
     // visitor_.insertVertices("0", );
 }
     
