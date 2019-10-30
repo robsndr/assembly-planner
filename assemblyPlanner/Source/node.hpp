@@ -174,7 +174,7 @@ Node<TypeNode, TypeEdge>::getSuccessors() {
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
 template <class TypeNode, class TypeEdge> 
-inline std::vector<Edge<TypeNode, TypeEdge>*>  
+inline std::vector<Edge<TypeNode, TypeEdge>*> 
 Node<TypeNode, TypeEdge>::getPredecessors() {
     std::vector<Edge<TypeNode, TypeEdge>*> vecOfValues;
     vecOfValues.reserve(parents_.size());
