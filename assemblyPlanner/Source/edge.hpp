@@ -1,5 +1,7 @@
 /*Forward declaration of Node so Conector knows about it
 **/
+#include <iostream>
+
 template <class TypeNode, class TypeEdge> 
 class Node;
 
@@ -21,6 +23,8 @@ public:
 
     void setDestination( Node<TypeNode, TypeEdge>* );
     void setSource( Node<TypeNode, TypeEdge>* );
+
+    void print();
 
     std::size_t id_;
 private:
@@ -84,5 +88,14 @@ template <class TypeNode, class TypeEdge>
 inline void
 Edge<TypeNode,TypeEdge>::setSource(Node<TypeNode, TypeEdge>* node){
     from_ = node;
+}
+
+/*
+    Class representing the Nodes within the graph. 
+**/
+template <class TypeNode, class TypeEdge> 
+inline void
+Edge<TypeNode,TypeEdge>::print(){
+    std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
 }
 

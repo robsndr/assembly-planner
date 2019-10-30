@@ -3,12 +3,14 @@
 
 #include <vector>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <unordered_map>
 #include <exception>
 #include <memory>
 #include "node.hpp"
 #include "visitor.hpp"
+
 
 template<typename edgeData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::size_t> >
 class Graph{
@@ -45,6 +47,9 @@ public:
     bool eraseEdge( const std::size_t, std::size_t );
     std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
+    // TODO: implement as friend. For template might be complications.
+    void print();
+
 private:
 
     std::size_t findEdgeIndexHelper( Edge<nodeData, edgeData> * );
@@ -59,7 +64,7 @@ private:
 /* Construct a graph
     @param visitor: Visitor to follow changes of integer indices of vertices and edges.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename edgeData, typename nodeData, typename Visitor >
 inline 
 Graph<edgeData, nodeData, Visitor>::Graph(
     const Visitor& visitor
@@ -230,9 +235,9 @@ Graph<edgeData, nodeData, Visitor>::insertNodes(
         nodes_.insert(std::make_pair(node->id_, node));
     }
     std::size_t position = nodes_.size();
-    for(const auto nd: nodes){
-        visitor_.insertVertices(nd->id_, nodes.size());
-    }
+    // for(const auto nd: nodes){
+    //     visitor_.insertNodes(nd->id_, nodes.size());
+    // }
     return position;
 }
 
@@ -264,8 +269,8 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
     edge->setDestination(nodes_[destNodeId]);
     edge->setSource(nodes_[srcNodeId]);
     edges_.push_back(edge);
-    nodes_[srcNodeId]->addSuccessor(edges_.back());
-    nodes_[destNodeId]->addPredecessor(edges_.back());
+    nodes_[srcNodeId]->addSuccessor(edge);
+    nodes_[destNodeId]->addPredecessor(edge);
 
     return edges_.size();
 }
@@ -440,6 +445,27 @@ Graph<edgeData, nodeData, Visitor>::eraseNode(
     delete node_to_remove;
 
     return true;
+}
+
+/* DEBUG: print graph.
+*/ 
+template<typename edgeData, typename nodeData, typename Visitor>
+void
+Graph<edgeData, nodeData, Visitor>::print() 
+{
+    std::cout << std::endl << std::endl;
+    std::cout << "************************  Current Node configuration  ************************" << std::endl;
+    std::cout << "Number of Nodes in Graph: " << numberOfNodes()
+              << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
+    for (auto const& x : nodes_){
+        x.second->print();
+    }
+    std::cout << "Current Edge configuration:" << std::endl;
+    for (auto const& x : edges_){
+        x->print();
+    }
+    std::cout << "************************r************************r************************" << std::endl;
+    std::cout << std::endl << std::endl;
 }
 
 #endif //GRAPH_HPP
