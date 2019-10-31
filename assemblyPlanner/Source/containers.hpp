@@ -4,5 +4,6 @@ class NodeData{
 public:
     double cost;
     std::string name;
-    bool visited;
+    bool marked;
+    bool solved;
 };
