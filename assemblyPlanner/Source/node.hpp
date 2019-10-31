@@ -26,10 +26,15 @@ public:
     void addSuccessor(Edge<TypeNode,TypeEdge> *);
     void removePredecessor(std::size_t);
     void removeSuccessor(std::size_t);
+
     Edge<TypeNode, TypeEdge>* getSuccessor(std::size_t) const;    
     Edge<TypeNode, TypeEdge>* getPredecessor(std::size_t) const;
+
     std::vector<Edge<TypeNode, TypeEdge>*> getSuccessors();    
     std::vector<Edge<TypeNode, TypeEdge>*> getPredecessors();
+
+    std::vector<Node<TypeNode, TypeEdge>*> getSuccessorNodes();
+    std::vector<Node<TypeNode, TypeEdge>*> getPredecessorNodes();
 
     void print();
 
@@ -186,6 +191,38 @@ Node<TypeNode, TypeEdge>::getPredecessors() {
     return vecOfValues;
 }
 
+/* Obtain Successor Nodes. Skip connecting edges. Useful if graph not weighted.
+    \return: a vector containing pointers to the succeeding nodes.
+**/
+template <class TypeNode, class TypeEdge> 
+inline std::vector<Node<TypeNode, TypeEdge>*>  
+Node<TypeNode, TypeEdge>::getSuccessorNodes() {
+    std::vector<Node<TypeNode, TypeEdge>*> vecOfValues;
+    vecOfValues.reserve(children_.size());
+ 
+    /*** Copy all value fields from map to a vector using Lambda function ***/
+    for(auto elem : children_)
+	 vecOfValues.push_back(elem.second->getDestination());
+
+     return vecOfValues;
+}
+
+/* Obtain Predecessor Nodes. Skip connecting edges. Useful if graph not weighted.
+    \return: a vector containing pointers to the preceeding nodes.
+**/
+template <class TypeNode, class TypeEdge> 
+inline std::vector<Node<TypeNode, TypeEdge>*> 
+Node<TypeNode, TypeEdge>::getPredecessorNodes() {
+    std::vector<Node<TypeNode, TypeEdge>*> vecOfValues;
+    vecOfValues.reserve(parents_.size());
+ 
+    /*** Copy all value fields from map to a vector using Lambda function ***/
+    for(auto elem : parents_)
+	    vecOfValues.push_back(elem.second->getSource());
+    
+    return vecOfValues;
+}
+
 /* DEBUG
 **/
 template <class TypeNode, class TypeEdge> 
@@ -193,14 +230,14 @@ inline void
 Node<TypeNode, TypeEdge>::print() {
     std::cout << "Node ID: " << id_ << std::endl;
     std::cout << "    Parent Nodes: " ;
-    for (auto const& x : getPredecessors()){
-        std::cout << "    " << x->getSource()->id_;
+    for (auto const& x : getPredecessorNodes()){
+        std::cout << "    " << x->id_;
     }
     std::cout << std::endl;
 
     std::cout << "    Child Nodes:  " ;
-    for (auto const& x : getSuccessors()){
-        std::cout << "    " << x->getDestination()->id_;
+    for (auto const& x : getSuccessorNodes()){
+        std::cout << "    " << x->id_;
     }
     std::cout << std::endl << std::endl;
 }
