@@ -1,56 +1,53 @@
 /*Forward declaration of Node so Conector knows about it
 **/
 #include <iostream>
+#include "containers.hpp"
 
-template <class TypeNode, class TypeEdge> 
 class Node;
-
 
 /* Edge data class. Represens the interconnections within the graph.
 **/
-template <class TypeNode, class TypeEdge> 
 class Edge{
 public:
-    Edge( TypeEdge );
+    Edge( EdgeData );
 
-    Edge( TypeEdge, 
-          Node<TypeNode, TypeEdge> *, 
-          Node<TypeNode, TypeEdge> *
+    Edge( EdgeData, 
+          Node *, 
+          Node *
         );
 
-    Node<TypeNode, TypeEdge>* getDestination() const;
-    Node<TypeNode, TypeEdge>* getSource() const;
+    Node* getDestination() const;
+    Node* getSource() const;
 
-    void setDestination( Node<TypeNode, TypeEdge>* );
-    void setSource( Node<TypeNode, TypeEdge>* );
+    void setDestination( Node* );
+    void setSource( Node* );
 
     void print();
 
     std::size_t id_;
+    EdgeData data_;
+    
 private:
-    TypeEdge data_;
-    Node<TypeNode, TypeEdge>* to_;
-    Node<TypeNode, TypeEdge>* from_;
+    Node* to_;
+    Node* from_;
 };
 
 /*
     Class representing the Nodes within the graph. 
-**/
-template <class TypeNode, class TypeEdge>  
-Edge<TypeNode, TypeEdge>::Edge( 
-    TypeEdge data
+**/ 
+Edge::Edge( 
+    EdgeData data
 ) {
     data_ = data;
 }
 
 /*
     Class representing the Nodes within the graph. 
-**/
-template <class TypeNode, class TypeEdge>  
-Edge<TypeNode, TypeEdge>::Edge(
-    TypeEdge data, 
-    Node<TypeNode, TypeEdge> * source, 
-    Node<TypeNode, TypeEdge> * sink
+**/ 
+Edge::Edge(
+    EdgeData data, 
+    Node * source, 
+    Node * sink
 ) {
     data_ = data;
     from_ = source;
@@ -60,42 +57,28 @@ Edge<TypeNode, TypeEdge>::Edge(
 /*
     Class representing the Nodes within the graph. 
 **/
-template <class TypeNode, class TypeEdge> 
-inline Node<TypeNode, TypeEdge>*  
-Edge<TypeNode,TypeEdge>::getDestination() const{
+inline Node*  
+Edge::getDestination() const{
     return to_;
 }
 
 /*
     Class representing the Nodes within the graph. 
 **/
-template <class TypeNode, class TypeEdge> 
-inline Node<TypeNode, TypeEdge>* 
-Edge<TypeNode,TypeEdge>::getSource() const{
+inline Node* 
+Edge::getSource() const{
     return from_;
 }
 
-template <class TypeNode, class TypeEdge> 
 inline void
-Edge<TypeNode,TypeEdge>::setDestination(Node<TypeNode, TypeEdge>* node){
+Edge::setDestination(Node* node){
     to_ = node;
 }
 
 /*
     Class representing the Nodes within the graph. 
 **/
-template <class TypeNode, class TypeEdge> 
 inline void
-Edge<TypeNode,TypeEdge>::setSource(Node<TypeNode, TypeEdge>* node){
+Edge::setSource(Node* node){
     from_ = node;
 }
-
-/*
-    Class representing the Nodes within the graph. 
-**/
-template <class TypeNode, class TypeEdge> 
-inline void
-Edge<TypeNode,TypeEdge>::print(){
-    std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
-}
-

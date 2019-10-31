@@ -1,9 +1,14 @@
 #include <string>
 
+enum class NodeType{AND, OR};
+
 class NodeData{
 public:
-    double cost;
-    std::string name;
-    bool marked;
-    bool solved;
+    double cost = 0;
+    NodeType type;
+    std::string name = "";
+    bool marked = false;
+    bool solved = false;;
 };
+
+typedef std::size_t EdgeData;

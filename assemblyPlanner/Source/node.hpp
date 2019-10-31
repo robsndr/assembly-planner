@@ -12,66 +12,62 @@
     It generalizes to AND/OR graphs so Connectors are used instead of edges.
     Connectors can be seen as k-edges. One connector can reach up to k destination nodes.
 **/
-template <class TypeNode, class TypeEdge> 
 class Node{
 public:
-    Node(std::size_t identifier, TypeNode data);
+    Node(std::size_t identifier, NodeData data);
 
     bool hasSuccessor() const;
     bool hasPredecessor() const;
     std::size_t numberOfSuccessors() const;
     std::size_t numberOfPredecessors() const;
 
-    void addPredecessor(Edge<TypeNode,TypeEdge> *);
-    void addSuccessor(Edge<TypeNode,TypeEdge> *);
+    void addPredecessor(Edge *);
+    void addSuccessor(Edge *);
     void removePredecessor(std::size_t);
     void removeSuccessor(std::size_t);
 
-    Edge<TypeNode, TypeEdge>* getSuccessor(std::size_t) const;    
-    Edge<TypeNode, TypeEdge>* getPredecessor(std::size_t) const;
+    Edge* getSuccessor(std::size_t) const;    
+    Edge* getPredecessor(std::size_t) const;
 
-    std::vector<Edge<TypeNode, TypeEdge>*> getSuccessors();    
-    std::vector<Edge<TypeNode, TypeEdge>*> getPredecessors();
+    std::vector<Edge* > getSuccessors();    
+    std::vector<Edge* > getPredecessors();
 
-    std::vector<Node<TypeNode, TypeEdge>*> getSuccessorNodes();
-    std::vector<Node<TypeNode, TypeEdge>*> getPredecessorNodes();
+    std::vector<Node*> getSuccessorNodes();
+    std::vector<Node*> getPredecessorNodes();
 
     void print();
 
     bool visited = false;
     std::size_t id_;
+    NodeData data_;
 
 private:
 
 
-    std::unordered_map< std::size_t, Edge<TypeNode, TypeEdge>* > parents_;
-    std::unordered_map< std::size_t, Edge<TypeNode, TypeEdge>* > children_; 
-    TypeNode data_;
+    std::unordered_map< std::size_t, Edge* > parents_;
+    std::unordered_map< std::size_t, Edge* > children_; 
 };
 
 /* Constructor. 
     @identifier: unique id which is tied to a given node.
     @data: data container of Node. Type specified by user.
 **/
-template <class TypeNode, class TypeEdge> 
-Node<TypeNode, TypeEdge>::Node(std::size_t identifier, TypeNode data){
+Node::Node(std::size_t identifier, NodeData data){
     id_ = identifier;
     data_ = data;
 }
 
 /* Check if node has successors attached to it.
 **/
-template <class TypeNode, class TypeEdge> 
 inline bool 
-Node<TypeNode, TypeEdge>::hasSuccessor (void) const{
+Node::hasSuccessor (void) const{
     return children_.empty();
 }
 
 /* Check if node has predecessors attached to it.
 **/
-template <class TypeNode, class TypeEdge> 
 inline bool 
-Node<TypeNode, TypeEdge>::hasPredecessor (void) const{
+Node::hasPredecessor (void) const{
     return parents_.empty();
 }
 
@@ -79,29 +75,26 @@ Node<TypeNode, TypeEdge>::hasPredecessor (void) const{
     @index: node id. 
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
-template <class TypeNode, class TypeEdge> 
-inline Edge<TypeNode, TypeEdge>* 
-Node<TypeNode, TypeEdge>::getSuccessor(std::size_t index) const{
-    return children_[index];
+inline Edge* 
+Node::getSuccessor(std::size_t index) const{
+    return children_.at(index);
 }
 
 /* Obtain predecessor edge connecting the node to the one specified by the index-id.
     @index: node id. 
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
-template <class TypeNode, class TypeEdge> 
-inline Edge<TypeNode, TypeEdge>* 
-Node<TypeNode, TypeEdge>::getPredecessor(std::size_t index) const{
-    return parents_[index];
+inline Edge* 
+Node::getPredecessor(std::size_t index) const{
+    return parents_.at(index);
 }
 
 /* Add provided edge to the set of predecessors of Node.
     @predecessor: pointer to the Edge-object which should be added as predecessor of Node.
 **/
-template <class TypeNode, class TypeEdge> 
 inline void 
-Node<TypeNode, TypeEdge>::addPredecessor(
-    Edge<TypeNode, TypeEdge> * predecessor
+Node::addPredecessor(
+    Edge * predecessor
 ) {
     parents_.insert(std::make_pair(predecessor->getSource()->id_, predecessor));
 }
@@ -109,10 +102,9 @@ Node<TypeNode, TypeEdge>::addPredecessor(
 /* Add provided edge to the set of successors of Node.
     @successor: pointer to the Edge-object which should be added as successor of Node.
 **/
-template <class TypeNode, class TypeEdge> 
 inline void 
-Node<TypeNode, TypeEdge>::addSuccessor(
-    Edge<TypeNode, TypeEdge> * successor
+Node::addSuccessor(
+    Edge * successor
 ) {
     children_.insert(std::make_pair(successor->getDestination()->id_, successor));
 }
@@ -120,9 +112,8 @@ Node<TypeNode, TypeEdge>::addSuccessor(
 /* Remove Edge connecting the Node with the one specified by @predId from the set of predecessors.
     @predId: id of node specifying the Edge to delete.
 **/
-template <class TypeNode, class TypeEdge> 
 inline void 
-Node<TypeNode, TypeEdge>::removePredecessor(
+Node::removePredecessor(
     std::size_t predId
 ) {
     parents_.erase(predId);
@@ -131,9 +122,8 @@ Node<TypeNode, TypeEdge>::removePredecessor(
 /* Remove Edge connecting the Node with the one specified by @succId from the set of successors.
     @succId: id of node specifying the Edge to delete.
 **/
-template <class TypeNode, class TypeEdge> 
 inline void 
-Node<TypeNode, TypeEdge>::removeSuccessor(
+Node::removeSuccessor(
     std::size_t succId
 ) {
     children_.erase(succId);
@@ -142,18 +132,16 @@ Node<TypeNode, TypeEdge>::removeSuccessor(
 /* Get the number of successors connected to the Node.
     \return: number of successors.
 **/
-template <class TypeNode, class TypeEdge> 
 inline std::size_t 
-Node<TypeNode, TypeEdge>::numberOfSuccessors( ) const {
+Node::numberOfSuccessors( ) const {
     return children_.size();
 }
 
 /* Get the number of predecessors connected to the Node.
     \return: number of predecessors.
 **/
-template <class TypeNode, class TypeEdge> 
 inline std::size_t
-Node<TypeNode, TypeEdge>::numberOfPredecessors() const{
+Node::numberOfPredecessors() const{
     return parents_.size();
 }
 
@@ -161,10 +149,9 @@ Node<TypeNode, TypeEdge>::numberOfPredecessors() const{
     @index: node id. 
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
-template <class TypeNode, class TypeEdge> 
-inline std::vector<Edge<TypeNode, TypeEdge>*>  
-Node<TypeNode, TypeEdge>::getSuccessors() {
-    std::vector<Edge<TypeNode, TypeEdge>*> vecOfValues;
+inline std::vector<Edge*>  
+Node::getSuccessors() {
+    std::vector<Edge*> vecOfValues;
     vecOfValues.reserve(children_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
@@ -178,10 +165,9 @@ Node<TypeNode, TypeEdge>::getSuccessors() {
     @index: node id. 
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
-template <class TypeNode, class TypeEdge> 
-inline std::vector<Edge<TypeNode, TypeEdge>*> 
-Node<TypeNode, TypeEdge>::getPredecessors() {
-    std::vector<Edge<TypeNode, TypeEdge>*> vecOfValues;
+inline std::vector<Edge*> 
+Node::getPredecessors() {
+    std::vector<Edge*> vecOfValues;
     vecOfValues.reserve(parents_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
@@ -194,10 +180,9 @@ Node<TypeNode, TypeEdge>::getPredecessors() {
 /* Obtain Successor Nodes. Skip connecting edges. Useful if graph not weighted.
     \return: a vector containing pointers to the succeeding nodes.
 **/
-template <class TypeNode, class TypeEdge> 
-inline std::vector<Node<TypeNode, TypeEdge>*>  
-Node<TypeNode, TypeEdge>::getSuccessorNodes() {
-    std::vector<Node<TypeNode, TypeEdge>*> vecOfValues;
+inline std::vector<Node*>  
+Node::getSuccessorNodes() {
+    std::vector<Node*> vecOfValues;
     vecOfValues.reserve(children_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
@@ -210,10 +195,9 @@ Node<TypeNode, TypeEdge>::getSuccessorNodes() {
 /* Obtain Predecessor Nodes. Skip connecting edges. Useful if graph not weighted.
     \return: a vector containing pointers to the preceeding nodes.
 **/
-template <class TypeNode, class TypeEdge> 
-inline std::vector<Node<TypeNode, TypeEdge>*> 
-Node<TypeNode, TypeEdge>::getPredecessorNodes() {
-    std::vector<Node<TypeNode, TypeEdge>*> vecOfValues;
+inline std::vector<Node*> 
+Node::getPredecessorNodes() {
+    std::vector<Node*> vecOfValues;
     vecOfValues.reserve(parents_.size());
  
     /*** Copy all value fields from map to a vector using Lambda function ***/
@@ -225,9 +209,8 @@ Node<TypeNode, TypeEdge>::getPredecessorNodes() {
 
 /* DEBUG
 **/
-template <class TypeNode, class TypeEdge> 
 inline void
-Node<TypeNode, TypeEdge>::print() {
+Node::print() {
     std::cout << "Node ID: " << id_ << std::endl;
     std::cout << "    Parent Nodes: " ;
     for (auto const& x : getPredecessorNodes()){
@@ -240,4 +223,12 @@ Node<TypeNode, TypeEdge>::print() {
         std::cout << "    " << x->id_;
     }
     std::cout << std::endl << std::endl;
+}
+
+/*
+    Class representing the Nodes within the graph. 
+**/
+inline void
+Edge::print(){
+    std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
 }

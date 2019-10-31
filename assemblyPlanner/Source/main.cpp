@@ -2,48 +2,143 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
-#include "graph.hpp"
+#include "graph_generator.hpp"
 #include "aostar.hpp"
 
 int main(void){
 
-    Graph<std::size_t,std::size_t> graph; 
+    GraphGenerator graph_gen;
+    // graph_gen.insertOr(1, "ABCDEFGH", 0)
 
-    std::vector<Node<std::size_t,std::size_t>*> vec;
-    Node<std::size_t,std::size_t> * pointr1 = new Node<std::size_t,std::size_t>(1,0);
-    Node<std::size_t,std::size_t> * pointr2 = new Node<std::size_t,std::size_t>(2,0);
-    Node<std::size_t,std::size_t> * pointr3 = new Node<std::size_t,std::size_t>(3,0);
-    Node<std::size_t,std::size_t> * pointr4 = new Node<std::size_t,std::size_t>(4,0);
-    Node<std::size_t,std::size_t> * pointr5 = new Node<std::size_t,std::size_t>(5,0);
-    Node<std::size_t,std::size_t> * pointr6 = new Node<std::size_t,std::size_t>(6,0);
+    graph_gen.insertAnd(2, "a1", 100);
+    graph_gen.insertAnd(3, "a2", 100);
+    graph_gen.insertAnd(4, "a3", 100);
 
-    vec.push_back(pointr1);
-    vec.push_back(pointr2);
-    vec.push_back(pointr3);
-    vec.push_back(pointr4);
-    vec.push_back(pointr5);
-    vec.push_back(pointr6);
+    graph_gen.insertOr(5, "ABCDEF", 0);
+    graph_gen.insertAnd(6, "a4", 100);
 
-    graph.insertNodes(vec);
+    graph_gen.insertOr(7, "CDEFGH", 0);
+    graph_gen.insertAnd(8, "a5", 100);
 
-    graph.insertEdge(0, 1, 5);
-    graph.insertEdge(0, 4, 5);
-    graph.insertEdge(0, 4, 2);
-    graph.insertEdge(0, 1, 2);
-    graph.insertEdge(0, 5, 2);
-    graph.insertEdge(0, 4, 1);
-    graph.insertEdge(0, 3, 4);
-    graph.insertEdge(0, 1, 4);
+    graph_gen.insertOr(9, "ABCD", 0);
+    graph_gen.insertAnd(10, "a6", 100);
 
-    graph.print();
-;        
-    graph.eraseNode(4);
+    graph_gen.insertOr(11, "CDEF", 0);
+    graph_gen.insertAnd(12, "a7", 100);
 
-    graph.print();
+    graph_gen.insertOr(13, "EFGH", 0);
+    graph_gen.insertAnd(14, "a8", 100);
 
-    graph.eraseEdge(5,2);
 
-    graph.print();
+    graph_gen.insertOr(15, "AB", 0);
+    graph_gen.insertAnd(16, "a9", 100);
+
+    graph_gen.insertOr(17, "CD", 0);
+    graph_gen.insertAnd(18, "a10", 100);
+
+    graph_gen.insertOr(19, "EF", 0);
+    graph_gen.insertAnd(20, "a11", 100);
+
+    graph_gen.insertOr(21, "GH", 0);
+    graph_gen.insertAnd(22, "a12", 100);
+
+    graph_gen.insertOr(23, "A", 0);
+    graph_gen.insertOr(24, "B", 0);
+    graph_gen.insertOr(25, "C", 0);
+    graph_gen.insertOr(26, "D", 0);
+    graph_gen.insertOr(27, "E", 0);
+    graph_gen.insertOr(28, "F", 0);
+    graph_gen.insertOr(29, "G", 0);
+    graph_gen.insertOr(30, "H", 0);
+
+    Graph<> * graph = graph_gen.generate();
+    
+    NodeData rdata;
+    rdata.name = "ABCDEFGH";
+    rdata.type = NodeType::OR;
+    rdata.cost = 0;
+    Node * root = graph->insertNode(1, rdata);
+
+
+    // Insert edges
+    // ABCDEFGH
+    graph->insertEdge(0,1,2);
+    graph->insertEdge(0,1,3);
+    graph->insertEdge(0,1,4);
+
+    //a1
+    graph->insertEdge(0,2,5);
+    graph->insertEdge(0,2,21);
+
+    //a2
+    graph->insertEdge(0,3,9);
+    graph->insertEdge(0,3,13);
+
+    //a3
+    graph->insertEdge(0,4,15);
+    graph->insertEdge(0,4,7);
+
+    //ABCDEF
+    graph->insertEdge(0,5,6);
+
+    //CDEFGH
+    graph->insertEdge(0,7,8);
+
+    //a4
+    graph->insertEdge(0,6,15);
+    graph->insertEdge(0,6,11);
+
+    //a5
+    graph->insertEdge(0,8,11);
+    graph->insertEdge(0,8,21);
+
+    //ABCD
+    graph->insertEdge(0,9,10);
+
+    //CDEF
+    graph->insertEdge(0,11,12);
+
+    //EFGH
+    graph->insertEdge(0,13,14);
+
+    //a6
+    graph->insertEdge(0,10,15);
+    graph->insertEdge(0,10,17);
+
+    //a7
+    graph->insertEdge(0,12,17);
+    graph->insertEdge(0,12,19);
+
+    //a8
+    graph->insertEdge(0,14,19);
+    graph->insertEdge(0,14,21);
+
+    // AB, CD, EF, GH
+    graph->insertEdge(0,15,16);
+    graph->insertEdge(0,17,18);
+    graph->insertEdge(0,19,20);
+    graph->insertEdge(0,21,22);
+
+    //a9 -> A, B
+    graph->insertEdge(0,16,23);
+    graph->insertEdge(0,16,24);
+
+    //a10 -> C, D
+    graph->insertEdge(0,18,25);
+    graph->insertEdge(0,18,26);
+
+    //a11 -> E, F
+    graph->insertEdge(0,20,27);
+    graph->insertEdge(0,20,28);
+
+    //a12 -> G, H
+    graph->insertEdge(0,22,29);
+    graph->insertEdge(0,22,30);
+
+    graph->print();
+
+    AOStarSearch aostar;
+    aostar(graph, root);
 
     return 0;
 }

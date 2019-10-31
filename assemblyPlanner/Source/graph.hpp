@@ -12,7 +12,7 @@
 #include "visitor.hpp"
 
 
-template<typename edgeData, typename nodeData, typename Visitor = VerboseGraphVisitor<std::size_t> >
+template<typename Visitor = VerboseGraphVisitor<std::size_t> >
 class Graph{
 public:
     // Construction
@@ -26,18 +26,18 @@ public:
     std::size_t numberOfEdgesToNode(const std::size_t);
 
     // Access specific nodes/vertices.
-    Edge<nodeData, edgeData> * edgeFromNode(const std::size_t, const std::size_t) const;
-    Edge<nodeData, edgeData> * edgeToNode(const std::size_t, const std::size_t) const;
-    std::vector<Node<nodeData, edgeData>*>& nodesFromNode(const std::size_t, const std::size_t) const;
-    std::vector<Node<nodeData, edgeData>*>& nodesToNode(const std::size_t, const std::size_t) const;
+    Edge * edgeFromNode(const std::size_t, const std::size_t) const;
+    Edge * edgeToNode(const std::size_t, const std::size_t) const;
+    std::vector<Node*>& nodesFromNode(const std::size_t, const std::size_t) const;
+    std::vector<Node*>& nodesToNode(const std::size_t, const std::size_t) const;
     // std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
 
     // manipulation
     // inserttion
-    std::size_t insertNode( const std::size_t, const nodeData);
-    std::size_t insertNodes(const std::vector<Node<nodeData, edgeData>*>& );
-    std::size_t insertEdge(  const edgeData, const std::size_t , const std::size_t);
-    std::size_t insertEdges( const edgeData, 
+    Node* insertNode( const std::size_t, const NodeData);
+    std::size_t insertNodes(const std::vector<Node*>& );
+    std::size_t insertEdge(  const EdgeData, const std::size_t , const std::size_t);
+    std::size_t insertEdges( const EdgeData, 
                              const std::size_t , 
                              const std::vector<std::size_t> & );
     
@@ -52,10 +52,10 @@ public:
 
 private:
 
-    std::size_t findEdgeIndexHelper( Edge<nodeData, edgeData> * );
+    std::size_t findEdgeIndexHelper( Edge * );
 
-    std::unordered_map< std::size_t, Node<nodeData, edgeData>* > nodes_;
-    std::vector< Edge<nodeData, edgeData>* > edges_;
+    std::unordered_map< std::size_t, Node* > nodes_;
+    std::vector< Edge* > edges_;
     Visitor visitor_;
 
     // bool checkNode(const std::size_t) const;
@@ -64,9 +64,9 @@ private:
 /* Construct a graph
     @param visitor: Visitor to follow changes of integer indices of vertices and edges.
 **/
-template<typename edgeData, typename nodeData, typename Visitor >
+template<typename Visitor >
 inline 
-Graph<edgeData, nodeData, Visitor>::Graph(
+Graph<Visitor>::Graph(
     const Visitor& visitor
 )
 :   nodes_(),
@@ -79,9 +79,9 @@ Graph<edgeData, nodeData, Visitor>::Graph(
     @numberOfEdges: Number of edges.
     @visitor: Visitor to follow changes of integer indices of vertices and edges.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline 
-Graph<edgeData, nodeData, Visitor>::Graph(
+Graph<Visitor>::Graph(
     const std::size_t numberOfNodes,
     const std::size_t numberOfEdges,
     const Visitor& visitor
@@ -96,26 +96,26 @@ Graph<edgeData, nodeData, Visitor>::Graph(
     
 /* Get the number of nodes.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::numberOfNodes() const { 
+Graph<Visitor>::numberOfNodes() const { 
     return nodes_.size(); 
 }
 
 /* Get the number of edges.
 */
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::numberOfEdges() const { 
+Graph<Visitor>::numberOfEdges() const { 
     return edges_.size(); 
 }
 
 /* Get the number of edges that originate from a given node.
     @node string-id of a node.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
+Graph<Visitor>::numberOfEdgesFromNode(
     const std::size_t node
 ) { 
     if ( nodes_.find(node) == nodes_.end() ) {
@@ -128,9 +128,9 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesFromNode(
 /* Get the number of edges that are incident to a given node.
     @node: string-id of a node.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
+Graph<Visitor>::numberOfEdgesToNode(
     const std::size_t node
 ) { 
     if ( nodes_.find(node) == nodes_.end() ) {
@@ -144,9 +144,9 @@ Graph<edgeData, nodeData, Visitor>::numberOfEdgesToNode(
     @node: string-id of a node.
     @j; number of edge. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
-inline Edge<nodeData, edgeData>*
-Graph<edgeData, nodeData, Visitor>::edgeFromNode(
+template<typename Visitor>
+inline Edge*
+Graph<Visitor>::edgeFromNode(
     const std::size_t node,
     const std::size_t j
 ) const {
@@ -161,9 +161,9 @@ Graph<edgeData, nodeData, Visitor>::edgeFromNode(
     @node: string-id of a node.
     @j: index of edge. Between 0 and numberOfedgesToNode(node) - 1.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
-inline Edge<nodeData, edgeData>*
-Graph<edgeData, nodeData, Visitor>::edgeToNode(
+template<typename Visitor>
+inline Edge*
+Graph<Visitor>::edgeToNode(
     const std::size_t node,
     const std::size_t j
 ) const {
@@ -178,9 +178,9 @@ Graph<edgeData, nodeData, Visitor>::edgeToNode(
     @node: string-id of a node.
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
-inline std::vector<Node<nodeData, edgeData>*> &
-Graph<edgeData, nodeData, Visitor>::nodesFromNode(
+template<typename Visitor>
+inline std::vector<Node*> &
+Graph<Visitor>::nodesFromNode(
     const std::size_t node,
     const std::size_t j
 ) const {
@@ -195,9 +195,9 @@ Graph<edgeData, nodeData, Visitor>::nodesFromNode(
     @node: string-id of a node.
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
-inline std::vector<Node<nodeData, edgeData>*> &
-Graph<edgeData, nodeData, Visitor>::nodesToNode(
+template<typename Visitor>
+inline std::vector<Node*> &
+Graph<Visitor>::nodesToNode(
     const std::size_t node,
     const std::size_t j
 ) const {
@@ -213,23 +213,23 @@ Graph<edgeData, nodeData, Visitor>::nodesToNode(
     @data: data asociated with the created node.
     \return: number of nodes present in the graph.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
-inline std::size_t
-Graph<edgeData, nodeData, Visitor>::insertNode(std::size_t nodeId , nodeData data) {
-    Node<nodeData,edgeData> * tempNode = new Node<nodeData,edgeData>(nodeId, data);
+template<typename Visitor>
+inline Node *
+Graph<Visitor>::insertNode(std::size_t nodeId , NodeData data) {
+ Node * tempNode = new Node(nodeId, data);
     nodes_.insert(std::make_pair(nodeId ,tempNode));
     // visitor_.insertVertex(nodeId);
-    return nodes_.size() - 1;
+    return tempNode;
 }
 
 /* Insert multiple additional Nodes.
     @nodes: vector containing nodes to be inserted into the graph.
     \return: number of nodes present in the graph.
 **/
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::insertNodes(
-    const std::vector<Node<nodeData, edgeData>*>& nodes
+Graph<Visitor>::insertNodes(
+    const std::vector<Node*>& nodes
 ) {
     for(auto const node: nodes){
         nodes_.insert(std::make_pair(node->id_, node));
@@ -246,10 +246,10 @@ Graph<edgeData, nodeData, Visitor>::insertNodes(
     @destNodeId: string-ids of the destinaion nodes of the edges.
     \return Integer index of the newly inserted edge.
 **/ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 std::size_t
-Graph<edgeData, nodeData, Visitor>::insertEdge(
-    const edgeData data,
+Graph<Visitor>::insertEdge(
+    const EdgeData data,
     const std::size_t srcNodeId,
     const std::size_t destNodeId
 ) {
@@ -265,7 +265,7 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
         throw std::range_error("Unable to create edge.");
     }
 
-    Edge<edgeData, nodeData> *edge = new Edge<edgeData, nodeData>(data);
+    Edge *edge = new Edge(data);
     edge->setDestination(nodes_[destNodeId]);
     edge->setSource(nodes_[srcNodeId]);
     edges_.push_back(edge);
@@ -280,10 +280,10 @@ Graph<edgeData, nodeData, Visitor>::insertEdge(
     @destNodeId: string-ids of the destinaion nodes of the edges.
     \return Integer index of the newly inserted edge.
 **/ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t
-Graph<edgeData, nodeData, Visitor>::insertEdges(
-    const edgeData data,
+Graph<Visitor>::insertEdges(
+    const EdgeData data,
     const std::size_t srcNodeId,
     const std::vector<std::size_t> & destNodeId
 ) {
@@ -301,9 +301,9 @@ Graph<edgeData, nodeData, Visitor>::insertEdges(
      and pair.second is the index of such an edge. if no edge from nodeSrc
      to nodeDst exists, pair.first is false and pair.second is undefined.
 */
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 std::pair<bool, std::size_t>
-Graph<edgeData, nodeData, Visitor>::findEdge(
+Graph<Visitor>::findEdge(
     const std::size_t nodeSrc, 
     const std::size_t nodeDst
 ) {
@@ -340,9 +340,9 @@ Graph<edgeData, nodeData, Visitor>::findEdge(
 /* Find the index corresponding to a given edge pointer.
     @edge: pointer to edge edge which index to find.
 */ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 inline std::size_t 
-Graph<edgeData, nodeData, Visitor>::findEdgeIndexHelper( Edge<nodeData, edgeData> * edge){
+Graph<Visitor>::findEdgeIndexHelper( Edge * edge){
     std::size_t edge_index;
     for(size_t j = 0; j < edges_.size(); j++){
         if(edges_[j] == edge ){
@@ -357,9 +357,9 @@ Graph<edgeData, nodeData, Visitor>::findEdgeIndexHelper( Edge<nodeData, edgeData
 /* Erase an edge.
     @edgeIndex: Integer index of the edge to be erased.
 */ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 bool 
-Graph<edgeData, nodeData, Visitor>::eraseEdge(
+Graph<Visitor>::eraseEdge(
     const std::size_t nodeSrc, 
     const std::size_t nodeDst
 ) {
@@ -385,8 +385,8 @@ Graph<edgeData, nodeData, Visitor>::eraseEdge(
         return false;
     }
 
-    Node<nodeData, edgeData>* source_node = nodes_[nodeSrc];
-    Node<nodeData, edgeData>* destination_node = nodes_[nodeDst];
+    Node* source_node = nodes_[nodeSrc];
+    Node* destination_node = nodes_[nodeDst];
     source_node->removeSuccessor(nodeDst);
     destination_node->removePredecessor(nodeSrc);
 
@@ -402,9 +402,9 @@ Graph<edgeData, nodeData, Visitor>::eraseEdge(
 /* Erase a Node and all edges concerning this Node.
     @nodeId Integer index of the vertex to be erased.
 **/ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 bool
-Graph<edgeData, nodeData, Visitor>::eraseNode(
+Graph<Visitor>::eraseNode(
     const std::size_t nodeId
 ) {
     if ( nodes_.find(nodeId) == nodes_.end() ) {
@@ -414,16 +414,16 @@ Graph<edgeData, nodeData, Visitor>::eraseNode(
         return false;
     }
 
-    Node<nodeData, edgeData>* node_to_remove = nodes_[nodeId];
+    Node* node_to_remove = nodes_[nodeId];
     nodes_.erase(nodeId);
 
-    std::vector<Edge<nodeData, edgeData>*> predecessors = node_to_remove->getPredecessors();
-    std::vector<Edge<nodeData, edgeData>*> successors = node_to_remove->getSuccessors();
+    std::vector<Edge*> predecessors = node_to_remove->getPredecessors();
+    std::vector<Edge*> successors = node_to_remove->getSuccessors();
     std::size_t temp_edge_index;
 
     for(size_t j = 0; j < predecessors.size(); j++){
-        Edge<nodeData, edgeData>* edge_to_remove = predecessors[j];
-        Node<nodeData, edgeData>* predecessor_node = edge_to_remove->getSource();
+        Edge* edge_to_remove = predecessors[j];
+        Node* predecessor_node = edge_to_remove->getSource();
         predecessor_node->removeSuccessor(nodeId);
         
         temp_edge_index = findEdgeIndexHelper(edge_to_remove);
@@ -432,8 +432,8 @@ Graph<edgeData, nodeData, Visitor>::eraseNode(
     }
 
     for(size_t j = 0; j < successors.size(); j++){
-        Edge<nodeData, edgeData>* edge_to_remove = successors[j];
-        Node<nodeData, edgeData>* successor_node = edge_to_remove->getDestination();
+        Edge* edge_to_remove = successors[j];
+        Node* successor_node = edge_to_remove->getDestination();
         successor_node->removePredecessor(nodeId);
         
         temp_edge_index = findEdgeIndexHelper(edge_to_remove);
@@ -449,9 +449,9 @@ Graph<edgeData, nodeData, Visitor>::eraseNode(
 
 /* DEBUG: print graph.
 */ 
-template<typename edgeData, typename nodeData, typename Visitor>
+template<typename Visitor>
 void
-Graph<edgeData, nodeData, Visitor>::print() 
+Graph<Visitor>::print() 
 {
     std::cout << std::endl << std::endl;
     std::cout << "************************  Current Node configuration  ************************" << std::endl;
