@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include "graph.hpp"
+#include "aostar.hpp"
 
 int main(void){
 

@@ -1,15 +1,13 @@
 #ifndef AOSTAR_H
 #define AOSTAR_H
 // used for text debugging
-#include <iostream>
 #include <stdio.h>
+
 //#include <conio.h>
 #include <assert.h>
 
 // stl includes
 #include <algorithm>
-#include <set>
-#include <vector>
 #include <cfloat>
 
 using namespace std;
