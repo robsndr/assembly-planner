@@ -19,6 +19,7 @@ private:
     std::vector< Node* > stack_;
 
 
+
 };
 
 AOStarSearch::AOStarSearch(/* args */)
@@ -45,8 +46,6 @@ AOStarSearch::~AOStarSearch()
     \return: true if successfull.
 **/
 bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
-
-    int iter  = 0;
     Node * current_node = root;
     root->data_.marked = true;
     // Start node is terminating node and sole solution.
@@ -55,9 +54,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
     }
     min_ors.push_back(root);
 
-    while(root->data_.solved == false){
-        iter++;        
-
+    while(root->data_.solved == false){     
         // Select non terminal leaf node in marked subtree.
         // Begin withh root.
         current_node = root;
@@ -65,17 +62,12 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
 
         // Walk downwards to the best solution if already in the graph.
         while(current_node && current_node->data_.marked){
-            // if(!current_node->hasSuccessor()){
-                // root->data_.solved = true;
-                // return true;
-                // current_node = min_ans.back(); //???
-                // min_ans.pop_back();
-            // }
             //Nonterminal node
             if(current_node->hasSuccessor()){
                 stack_.push_back(current_node);
                 double cost = INT_MAX;
-                std::cout << "Going Down:  " << current_node->data_.name << "Solved: " << current_node->data_.solved << std::endl;  
+
+                // std::cout << "Going Down:  " << current_node->data_.name << "Solved: " << current_node->data_.solved << std::endl;  
 
                 for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
 
@@ -115,7 +107,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
         // Exploring
         for(std::size_t j = 0; j < min_ors.size(); j++){
             Node * n = min_ors[j];
-            std::cout << "Exploring :" << n->data_.name << std::endl;
+            // std::cout << "Exploring :" << n->data_.name << std::endl;
             
             int final_cost=INT_MAX;
             
@@ -153,13 +145,14 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
         while(!stack_.empty()){
             Node* n = stack_.back();
             stack_.pop_back();
-            // cout<<n->data<<" ";
+
 
             double final_cost=INT_MAX;
             for(std::size_t i=0; i< n->numberOfSuccessors(); i++){
                 // Obtain the i'th intermediate successor Node.
                 Node* and_node = n->getSuccessorNodes()[i];
                 int and_cost = and_node->data_.cost;
+                and_node->data_.marked = false;
 
                 std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
 
@@ -174,6 +167,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
                     final_cost=temp_cost;
                 }
             }
+            min_and->data_.marked = true;
 
             bool solved_flag = true;
             for(std::size_t j=0; j < min_ors.size(); j++){
@@ -184,8 +178,36 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
         }
         std::cout<<std::endl;
         current_node=root;
-        // if(iter > 20)
-        //     return true;
+    }
+
+
+    //PRINTING
+
+    current_node = root;
+    stack_.clear();
+    while(current_node && current_node->data_.solved){
+        // std::cout << "Search Found: " << current_node->data_.name << std::endl;
+        current_node->data_.solution = true;
+
+        if(current_node->hasSuccessor()){
+            for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
+                Node* and_node = current_node->getSuccessorNodes()[i];
+                std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
+                if(and_node->data_.marked){
+                    and_node->data_.solution = true;
+                    std::cout << "Action:  " << and_node->data_.name << std::endl;
+
+                    stack_.insert(std::end(stack_), std::begin(or_nodes), std::end(or_nodes));
+                }
+
+            }
+        }
+        // std::cout << "NODEEEEEE:" << current_node->data_.name << std::endl;
+        current_node = stack_.front();
+        if(!stack_.empty())
+            stack_.erase(stack_.begin());
+        else
+            return true;
     }
 }
 

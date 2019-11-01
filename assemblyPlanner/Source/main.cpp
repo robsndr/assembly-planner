@@ -171,7 +171,7 @@ int main(void){
     AOStarSearch aostar;
     aostar(graph, root);
 
-    graph->print();
+    // graph->print();
 
     return 0;
 }
