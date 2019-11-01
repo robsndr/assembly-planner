@@ -8,7 +8,6 @@
 int main(void){
 
     GraphGenerator graph_gen;
-    // graph_gen.insertOr(1, "ABCDEFGH", 0)
 
     // graph_gen.insertAnd(2, "a1", 20);
     // graph_gen.insertAnd(3, "a2", 5);
@@ -171,7 +170,7 @@ int main(void){
     AOStarSearch aostar;
     aostar(graph, root);
 
-    // graph->print();
+    graph->print();
 
     return 0;
 }

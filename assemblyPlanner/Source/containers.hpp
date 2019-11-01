@@ -9,7 +9,6 @@ public:
     std::string name = "";
     bool marked = false;
     bool solved = false;;
-    int leader_index = 0;
     bool solution = false;
 };
 

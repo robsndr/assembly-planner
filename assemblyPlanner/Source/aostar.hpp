@@ -13,7 +13,7 @@ public:
     bool operator()(Graph<> *, Node* );
 
 private:
-    
+    void flagSolutionTree(Node * root);
     std::vector< Node* > min_ors;
     Node* min_and;
     std::vector< Node* > stack_;
@@ -31,128 +31,139 @@ AOStarSearch::~AOStarSearch()
 } 
 
 
-
-// template<typename edgeData, typename nodeData >
-// bool AOStarSearch::getMinimalCostSuccessor()(Node<nodeData, edgeData> * start ){
-
-
-//     return true;
-// }
-
-
 /* Functor which triggers the AO* search.
     @graph: graph object to perform the search on.
     @start: root node to begin the search at.
     \return: true if successfull.
 **/
 bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
+   
     Node * current_node = root;
     root->data_.marked = true;
+
     // Start node is terminating node and sole solution.
     if(!root->hasSuccessor()){
         root->data_.solved = true;
     }
-    min_ors.push_back(root);
 
+    // Select a non-terminal leaf node from the marked sub-tree
     while(root->data_.solved == false){     
+
         // Select non terminal leaf node in marked subtree.
         // Begin withh root.
         current_node = root;
         stack_.clear();
 
-        // Walk downwards to the best solution if already in the graph.
+
+        // Propagate downwards through all CONNECTED and MARKED Nodes
         while(current_node && current_node->data_.marked){
-            //Nonterminal node
+           
+            // If current node is terminal node skip propagation
             if(current_node->hasSuccessor()){
+
+                // Put the current node into the search stack. Is important later.
+                // The stack is used for the last cost-revision step.
                 stack_.push_back(current_node);
-                double cost = INT_MAX;
+                
+                double cost = INT_MAX; // Set the cost to minimize to a large initial value.
 
-                // std::cout << "Going Down:  " << current_node->data_.name << "Solved: " << current_node->data_.solved << std::endl;  
-
+                // Search for the minimal successor - best cost and-node, set of or-nodes.
                 for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
-
-                    // Obtain the i'th intermediate successor Node.
                     Node* and_node = current_node->getSuccessorNodes()[i];
                     double and_cost = and_node->data_.cost;
-
                     std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
 
+                    // Calculate cost of i'th path
                     double temp_cost = and_node->data_.cost;
                     for(std::size_t j=0; j < or_nodes.size(); j++){
                         temp_cost += or_nodes[j]->data_.cost;
                     }
+
+                    // Set the best and/or successors according to cost.
                     if(temp_cost<cost){
                         min_and = and_node;
                         min_ors = or_nodes;
                         cost = temp_cost;
                     }
                 }
+                
+                current_node = NULL; // Make sure that NULL if nothing found in the next step. 
+                                     // Terminates loop if nothing found in next step.
 
-                // Select non-terminal leaf node from marked subtree.
-                current_node=NULL;
+                // Propagate-Down Step.
+                // Within the found 'min_ors" best cost successor nodes look for already marked ones.
                 for(std::size_t j = 0; j < min_ors.size(); j++){
-                    if(min_ors[j]->data_.marked && min_ors[j]->data_.solved == false &&
-                        min_ors[j]->hasSuccessor() &&
-                            min_and->data_.marked){
+                    
+                    // Check if given best-case successor is marked, not solved
+                    // and that its connected to the graph thorugh a valid and-node.
+                    if(min_ors[j]->data_.marked &&  min_ors[j]->data_.solved == false &&
+                        min_and->data_.marked){
+                        
                         current_node = min_ors[j];
                         break;
                     }
                 }
-
-            }
-            
-
+            } 
         }
 
-        // Exploring
+
+        // Update cost of found leaf node.
+        // For the non-terminal leaf-node of the marked subtree found in the last step update cost.
         for(std::size_t j = 0; j < min_ors.size(); j++){
+            
             Node * n = min_ors[j];
-            // std::cout << "Exploring :" << n->data_.name << std::endl;
             
-            int final_cost=INT_MAX;
+            int final_cost = INT_MAX; // Set cost to a high value for the minimization
             
+            // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
             if(!n->hasSuccessor()){
                 n->data_.solved = true;
             }
             else{
+                // Search for the minimal successor - best cost and-node, set of or-nodes.
                 for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
 
                     Node* and_node = n->getSuccessorNodes()[i];
                     double and_cost = and_node->data_.cost;
-
                     std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
 
+                    // Calculate cost of i'th path
                     double temp_cost = and_cost;
                     for(std::size_t j=0;j<(or_nodes.size());j++){
                         temp_cost+=or_nodes[j]->data_.cost;
                     }
-                    if(temp_cost<final_cost)
-                    {
-                        final_cost=temp_cost;
+
+                    // Update best-case cost.
+                    if(temp_cost < final_cost){
+                        final_cost = temp_cost;
                     }
                 }
-                n->data_.cost=final_cost;
-                n->data_.marked=true;
-                min_and->data_.marked = true;
+
+                // Update the investigated non-terminal leaf-node.
+                n->data_.cost = final_cost; // Update cost
+                n->data_.marked = true;     // Mark Node because it becomes member of optimal tree.
+                min_and->data_.marked = true; // Mark the connecting AND-Node. It is now member of the path.
             }
-            std::cout<<"Marked : "<<n->data_.name<<std::endl;
         }
 
-        // for(int i=0; i<20; i++) std::cout<<"=";
-        // std::cout << std::endl;
 
-
+        // Cost-Revision of Nodes along path.
+        // The leaf-node cost could have changed in last step.
         while(!stack_.empty()){
-            Node* n = stack_.back();
+            Node* n = stack_.back(); // stack keeps track of nodes present in the path so far.
             stack_.pop_back();
 
-
             double final_cost=INT_MAX;
+
+            // Update cost of every n which is a node on the path from root the leaf found in I.
             for(std::size_t i=0; i< n->numberOfSuccessors(); i++){
-                // Obtain the i'th intermediate successor Node.
                 Node* and_node = n->getSuccessorNodes()[i];
                 int and_cost = and_node->data_.cost;
-                and_node->data_.marked = false;
+
+                // The currently valid and node could have changed.
+                // Make sure to de-mark the connecting and-nodes on the path.
+                // The valid and_node is marked below...
+                and_node->data_.marked = false; 
 
                 std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
 
@@ -167,12 +178,17 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
                     final_cost=temp_cost;
                 }
             }
+
+            // Mark the and-node which connects to the minimal solution.
             min_and->data_.marked = true;
 
+            // If EACH successor OR-Node is labeled SOLVED, then label n as SOLVED.
             bool solved_flag = true;
             for(std::size_t j=0; j < min_ors.size(); j++){
                 solved_flag &= min_ors[j]->data_.solved;
             }
+
+            // Udpdate node data.
             n->data_.solved = solved_flag;
             n->data_.cost = final_cost;
         }
@@ -182,12 +198,15 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
 
 
     //PRINTING
+    flagSolutionTree(root);
+}
 
-    current_node = root;
+void AOStarSearch::flagSolutionTree(Node * root){
+    Node * current_node = root;
     stack_.clear();
     while(current_node && current_node->data_.solved){
         // std::cout << "Search Found: " << current_node->data_.name << std::endl;
-        current_node->data_.solution = true;
+        // current_node->data_.solution = true;
 
         if(current_node->hasSuccessor()){
             for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
@@ -207,10 +226,6 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
         if(!stack_.empty())
             stack_.erase(stack_.begin());
         else
-            return true;
+            return;
     }
 }
-
-// void printMarkedTree(Graph<> * graph){
-
-// }
