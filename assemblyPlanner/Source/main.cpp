@@ -10,9 +10,42 @@ int main(void){
     GraphGenerator graph_gen;
     // graph_gen.insertOr(1, "ABCDEFGH", 0)
 
-    graph_gen.insertAnd(2, "a1", 20);
-    graph_gen.insertAnd(3, "a2", 5);
-    graph_gen.insertAnd(4, "a3", 15);
+    // graph_gen.insertAnd(2, "a1", 20);
+    // graph_gen.insertAnd(3, "a2", 5);
+    // graph_gen.insertAnd(4, "a3", 15);
+
+    // graph_gen.insertOr(5, "ABCDEF", 2.5);
+    // graph_gen.insertAnd(6, "a4", 10);
+
+    // graph_gen.insertOr(7, "CDEFGH", 2.5);
+    // graph_gen.insertAnd(8, "a5", 5);
+
+    // graph_gen.insertOr(9, "ABCD", 2);
+    // graph_gen.insertAnd(10, "a6", 3);
+
+    // graph_gen.insertOr(11, "CDEF", 2);
+    // graph_gen.insertAnd(12, "a7", 5);
+
+    // graph_gen.insertOr(13, "EFGH", 2);
+    // graph_gen.insertAnd(14, "a8", 5);
+
+
+    // graph_gen.insertOr(15, "AB", 1);
+    // graph_gen.insertAnd(16, "a9", 5);
+
+    // graph_gen.insertOr(17, "CD", 1);
+    // graph_gen.insertAnd(18, "a10", 5);
+
+    // graph_gen.insertOr(19, "EF", 1);
+    // graph_gen.insertAnd(20, "a11", 10);
+
+    // graph_gen.insertOr(21, "GH", 1);
+    // graph_gen.insertAnd(22, "a12", 10);
+
+
+    graph_gen.insertAnd(2, "a1", 50);
+    graph_gen.insertAnd(3, "a2", 50);
+    graph_gen.insertAnd(4, "a3", 50);
 
     graph_gen.insertOr(5, "ABCDEF", 2.5);
     graph_gen.insertAnd(6, "a4", 10);
@@ -21,7 +54,7 @@ int main(void){
     graph_gen.insertAnd(8, "a5", 5);
 
     graph_gen.insertOr(9, "ABCD", 2);
-    graph_gen.insertAnd(10, "a6", 3);
+    graph_gen.insertAnd(10, "a6", 10);
 
     graph_gen.insertOr(11, "CDEF", 2);
     graph_gen.insertAnd(12, "a7", 5);
@@ -31,10 +64,10 @@ int main(void){
 
 
     graph_gen.insertOr(15, "AB", 1);
-    graph_gen.insertAnd(16, "a9", 5);
+    graph_gen.insertAnd(16, "a9", 20);
 
     graph_gen.insertOr(17, "CD", 1);
-    graph_gen.insertAnd(18, "a10", 5);
+    graph_gen.insertAnd(18, "a10", 10);
 
     graph_gen.insertOr(19, "EF", 1);
     graph_gen.insertAnd(20, "a11", 10);
@@ -138,7 +171,7 @@ int main(void){
     AOStarSearch aostar;
     aostar(graph, root);
 
-    // graph->print();
+    graph->print();
 
     return 0;
 }
