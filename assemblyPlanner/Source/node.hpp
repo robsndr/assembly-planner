@@ -61,14 +61,14 @@ Node::Node(std::size_t identifier, NodeData data){
 **/
 inline bool 
 Node::hasSuccessor (void) const{
-    return children_.empty();
+    return !children_.empty();
 }
 
 /* Check if node has predecessors attached to it.
 **/
 inline bool 
 Node::hasPredecessor (void) const{
-    return parents_.empty();
+    return !parents_.empty();
 }
 
 /* Obtain successor edge connecting the node to the one specified by the index-id.
@@ -222,6 +222,12 @@ Node::print() {
     for (auto const& x : getSuccessorNodes()){
         std::cout << "    " << x->id_;
     }
+    std::cout <<  std::endl;
+    std::cout << "    Marked: " << data_.marked;
+    std::cout <<  std::endl;
+    std::cout << "    Name: " << data_.name;
+    std::cout <<  std::endl;
+    std::cout << "    Cost: " << data_.cost;
     std::cout << std::endl << std::endl;
 }
 

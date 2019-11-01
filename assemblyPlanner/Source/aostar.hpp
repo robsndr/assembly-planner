@@ -14,7 +14,10 @@ public:
 
 private:
     
-    std::vector< Node* > marked_;
+    std::vector< Node* > min_ors;
+    Node* min_and;
+    std::vector< Node* > stack_;
+
 
 };
 
@@ -41,127 +44,150 @@ AOStarSearch::~AOStarSearch()
     @start: root node to begin the search at.
     \return: true if successfull.
 **/
-bool AOStarSearch::operator()(Graph<> * graph, Node * start ){
+bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
 
-    Node * current_node = start;
-    start->data_.marked = true;
+    int iter  = 0;
+    Node * current_node = root;
+    root->data_.marked = true;
     // Start node is terminating node and sole solution.
-    if(start->numberOfSuccessors() == 0){
-        start->data_.solved = true;
+    if(!root->hasSuccessor()){
+        root->data_.solved = true;
     }
-    marked_.push_back(start);
+    min_ors.push_back(root);
 
-    // If root has been solved - terminate.
-    while(start->data_.solved == false){
+    while(root->data_.solved == false){
+        iter++;        
 
-        current_node = marked_.pop_back();
+        // Select non terminal leaf node in marked subtree.
+        // Begin withh root.
+        current_node = root;
+        stack_.clear();
 
+        // Walk downwards to the best solution if already in the graph.
         while(current_node && current_node->data_.marked){
-            if(current_node->numberOfSuccessors() == 0){
-                start->data_.solved = true;
-                return true;
-            }
+            // if(!current_node->hasSuccessor()){
+                // root->data_.solved = true;
+                // return true;
+                // current_node = min_ans.back(); //???
+                // min_ans.pop_back();
+            // }
+            //Nonterminal node
+            if(current_node->hasSuccessor()){
+                stack_.push_back(current_node);
+                double cost = INT_MAX;
+                std::cout << "Going Down:  " << current_node->data_.name << std::endl;  
 
-            int cost = INT_MAX;
+                for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
 
-            for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
-                std::vector<Node*> ans = current_node->getSuccessorNodes()[i]->getSuccessorNodes();
+                    // Obtain the i'th intermediate successor Node.
+                    Node* and_node = current_node->getSuccessorNodes()[i];
+                    double and_cost = and_node->data_.cost;
 
-                int temp_cost=0;
-                for(std::size_t j=0; j<ans.size(); j++){
-                    Node* n= ans[j];
-                    temp_cost+=n->data;
+                    std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
+
+                    double temp_cost = and_node->data_.cost;
+                    for(std::size_t j=0; j < or_nodes.size(); j++){
+                        temp_cost += or_nodes[j]->data_.cost;
+                    }
+                    if(temp_cost<cost){
+                        min_and = and_node;
+                        min_ors = or_nodes;
+                        cost = temp_cost;
+                    }
                 }
-                if(temp_cost<cost)
-                {
-                    min_ans=ans;
-                    cost=temp_cost;
+
+                // Select non-terminal leaf node from marked subtree.
+                current_node=NULL;
+                for(std::size_t j = 0; j < min_ors.size(); j++){
+                    if(min_ors[j]->data_.marked && 
+                        min_ors[j]->hasSuccessor() &&
+                            min_and->data_.marked){
+                        current_node = min_ors[j];
+                        break;
+                    }
                 }
+
             }
-            vector<node*> min_ans_v=*min_ans;
-            current_node=NULL;
-            for(unsigned int j=0;j<min_ans_v.size();j++)
-            {
-                if(min_ans_v[j]->mark)
-                {
-                    current_node=min_ans_v[j];
-                    break;
-                }
-            }
+            
 
         }
 
-        vector<node*> min_ans_v=*min_ans;
-        for(unsigned int j=0;j<min_ans_v.size();j++)
-        {
-            node* n=min_ans_v[j];
-            cout<<"Exploring :"<<n->data<<endl;
+        // Exploring
+        for(std::size_t j = 0; j < min_ors.size(); j++){
+            Node * n = min_ors[j];
+            std::cout << "Exploring :" << n->data_.name << std::endl;
+            
             int final_cost=INT_MAX;
-            if(n->v.size()==0)
-            {
-                n->mark=true;
+            
+            if(!n->hasSuccessor()){
+                n->data_.solved = true;
             }
             else{
-            for(unsigned int i=0;i<n->v.size();i++)
-            {
-                vector<node*>*ans=(n->v)[i];
-                vector<node*> ans_v=*ans;
-                int temp_cost=0;
-                for(unsigned int j=0;j<(ans_v.size());j++)
-                {
-                    node* n=ans_v[j];
-                    temp_cost+=n->data;
-                    temp_cost+=edge_cost;
+                for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
+
+                    Node* and_node = n->getSuccessorNodes()[i];
+                    double and_cost = and_node->data_.cost;
+
+                    std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
+
+                    double temp_cost = and_cost;
+                    for(std::size_t j=0;j<(or_nodes.size());j++){
+                        temp_cost+=or_nodes[j]->data_.cost;
+                    }
+                    if(temp_cost<final_cost)
+                    {
+                        final_cost=temp_cost;
+                    }
                 }
-                if(temp_cost<final_cost)
-                {
-                    final_cost=temp_cost;
-                }
+                n->data_.cost=final_cost;
+                n->data_.marked=true;
+                min_and->data_.marked = true;
             }
-            n->data=final_cost;
-            n->mark=true;
-            }
-            cout<<"Marked : "<<n->data<<endl;
+            std::cout<<"Marked : "<<n->id_<<std::endl;
         }
 
-    for(int i=0;i<20;i++) cout<<"=";
-    cout<<endl;
-        while(!st.empty())
-        {
-            node* n=st.top();
-            cout<<n->data<<" ";
-            st.pop();
-            int final_cost=INT_MAX;
-            for(unsigned int i=0;i<n->v.size();i++)
-            {
-                vector<node*>*ans=(n->v)[i];
-                vector<node*> ans_v=*ans;
-                int temp_cost=0;
-                for(unsigned int j=0;j<(ans_v.size());j++)
-                {
-                    node* n=ans_v[j];
-                    temp_cost+=n->data;
-                    temp_cost+=edge_cost;
+        // for(int i=0; i<20; i++) std::cout<<"=";
+        // std::cout << std::endl;
+
+
+        while(!stack_.empty()){
+            Node* n = stack_.back();
+            stack_.pop_back();
+            // cout<<n->data<<" ";
+
+            bool solved_flag = true;
+
+            double final_cost=INT_MAX;
+            for(std::size_t i=0; i< n->numberOfSuccessors(); i++){
+                // Obtain the i'th intermediate successor Node.
+                Node* and_node = n->getSuccessorNodes()[i];
+                int and_cost = and_node->data_.cost;
+
+                std::vector<Node*> or_nodes = and_node->getSuccessorNodes();
+
+                
+                double temp_cost = and_node->data_.cost;
+                for(std::size_t j=0; j < or_nodes.size(); j++){
+                    if(or_nodes[j]->data_.solved == false)
+                        solved_flag = false;
+                    temp_cost += or_nodes[j]->data_.cost;
                 }
-                if(temp_cost<final_cost)
-                {
-                    min_ans=ans;
+
+                if(temp_cost<final_cost){
+                    min_ors=or_nodes;
                     final_cost=temp_cost;
                 }
             }
-            n->data=final_cost;
+            n->data_.solved = solved_flag;
+            n->data_.cost = final_cost;
         }
-        cout<<endl;
+        std::cout<<std::endl;
         current_node=root;
-
+        if(iter >6)
+            return true;
     }
 }
 
+// void printMarkedTree(Graph<> * graph){
 
-
-
-
-    }
-
-    return true;
-}
+// }

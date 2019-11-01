@@ -458,7 +458,8 @@ Graph<Visitor>::print()
     std::cout << "Number of Nodes in Graph: " << numberOfNodes()
               << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
     for (auto const& x : nodes_){
-        x.second->print();
+        if(x.second->data_.marked)
+            x.second->print();
     }
     std::cout << "Current Edge configuration:" << std::endl;
     for (auto const& x : edges_){

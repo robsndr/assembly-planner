@@ -10,37 +10,37 @@ int main(void){
     GraphGenerator graph_gen;
     // graph_gen.insertOr(1, "ABCDEFGH", 0)
 
-    graph_gen.insertAnd(2, "a1", 100);
-    graph_gen.insertAnd(3, "a2", 100);
-    graph_gen.insertAnd(4, "a3", 100);
+    graph_gen.insertAnd(2, "a1", 20);
+    graph_gen.insertAnd(3, "a2", 5);
+    graph_gen.insertAnd(4, "a3", 15);
 
-    graph_gen.insertOr(5, "ABCDEF", 0);
-    graph_gen.insertAnd(6, "a4", 100);
+    graph_gen.insertOr(5, "ABCDEF", 2.5);
+    graph_gen.insertAnd(6, "a4", 10);
 
-    graph_gen.insertOr(7, "CDEFGH", 0);
-    graph_gen.insertAnd(8, "a5", 100);
+    graph_gen.insertOr(7, "CDEFGH", 2.5);
+    graph_gen.insertAnd(8, "a5", 5);
 
-    graph_gen.insertOr(9, "ABCD", 0);
-    graph_gen.insertAnd(10, "a6", 100);
+    graph_gen.insertOr(9, "ABCD", 2);
+    graph_gen.insertAnd(10, "a6", 3);
 
-    graph_gen.insertOr(11, "CDEF", 0);
-    graph_gen.insertAnd(12, "a7", 100);
+    graph_gen.insertOr(11, "CDEF", 2);
+    graph_gen.insertAnd(12, "a7", 5);
 
-    graph_gen.insertOr(13, "EFGH", 0);
-    graph_gen.insertAnd(14, "a8", 100);
+    graph_gen.insertOr(13, "EFGH", 2);
+    graph_gen.insertAnd(14, "a8", 5);
 
 
-    graph_gen.insertOr(15, "AB", 0);
-    graph_gen.insertAnd(16, "a9", 100);
+    graph_gen.insertOr(15, "AB", 1);
+    graph_gen.insertAnd(16, "a9", 5);
 
-    graph_gen.insertOr(17, "CD", 0);
-    graph_gen.insertAnd(18, "a10", 100);
+    graph_gen.insertOr(17, "CD", 1);
+    graph_gen.insertAnd(18, "a10", 5);
 
-    graph_gen.insertOr(19, "EF", 0);
-    graph_gen.insertAnd(20, "a11", 100);
+    graph_gen.insertOr(19, "EF", 1);
+    graph_gen.insertAnd(20, "a11", 10);
 
-    graph_gen.insertOr(21, "GH", 0);
-    graph_gen.insertAnd(22, "a12", 100);
+    graph_gen.insertOr(21, "GH", 1);
+    graph_gen.insertAnd(22, "a12", 10);
 
     graph_gen.insertOr(23, "A", 0);
     graph_gen.insertOr(24, "B", 0);
@@ -56,7 +56,7 @@ int main(void){
     NodeData rdata;
     rdata.name = "ABCDEFGH";
     rdata.type = NodeType::OR;
-    rdata.cost = 0;
+    rdata.cost = 3;
     Node * root = graph->insertNode(1, rdata);
 
 
@@ -135,10 +135,10 @@ int main(void){
     graph->insertEdge(0,22,29);
     graph->insertEdge(0,22,30);
 
-    graph->print();
-
     AOStarSearch aostar;
     aostar(graph, root);
+
+    // graph->print();
 
     return 0;
 }
