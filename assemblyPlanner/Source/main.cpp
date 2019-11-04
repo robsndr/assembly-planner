@@ -13,32 +13,32 @@ int main(void){
     // graph_gen.insertAnd(3, "a2", 5);
     // graph_gen.insertAnd(4, "a3", 15);
 
-    // graph_gen.insertOr(5, "ABCDEF", 2.5);
+    // graph_gen.insertOr(5, "ABCDEF");
     // graph_gen.insertAnd(6, "a4", 10);
 
-    // graph_gen.insertOr(7, "CDEFGH", 2.5);
+    // graph_gen.insertOr(7, "CDEFGH");
     // graph_gen.insertAnd(8, "a5", 5);
 
-    // graph_gen.insertOr(9, "ABCD", 2);
+    // graph_gen.insertOr(9, "ABCD");
     // graph_gen.insertAnd(10, "a6", 3);
 
-    // graph_gen.insertOr(11, "CDEF", 2);
+    // graph_gen.insertOr(11, "CDEF");
     // graph_gen.insertAnd(12, "a7", 5);
 
-    // graph_gen.insertOr(13, "EFGH", 2);
+    // graph_gen.insertOr(13, "EFGH");
     // graph_gen.insertAnd(14, "a8", 5);
 
 
-    // graph_gen.insertOr(15, "AB", 1);
+    // graph_gen.insertOr(15, "AB");
     // graph_gen.insertAnd(16, "a9", 5);
 
-    // graph_gen.insertOr(17, "CD", 1);
+    // graph_gen.insertOr(17, "CD");
     // graph_gen.insertAnd(18, "a10", 5);
 
-    // graph_gen.insertOr(19, "EF", 1);
+    // graph_gen.insertOr(19, "EF");
     // graph_gen.insertAnd(20, "a11", 10);
 
-    // graph_gen.insertOr(21, "GH", 1);
+    // graph_gen.insertOr(21, "GH");
     // graph_gen.insertAnd(22, "a12", 10);
 
 
@@ -46,42 +46,42 @@ int main(void){
     graph_gen.insertAnd(3, "a2", 50);
     graph_gen.insertAnd(4, "a3", 50);
 
-    graph_gen.insertOr(5, "ABCDEF", 2.5);
+    graph_gen.insertOr(5, "ABCDEF");
     graph_gen.insertAnd(6, "a4", 10);
 
-    graph_gen.insertOr(7, "CDEFGH", 2.5);
+    graph_gen.insertOr(7, "CDEFGH");
     graph_gen.insertAnd(8, "a5", 5);
 
-    graph_gen.insertOr(9, "ABCD", 2);
+    graph_gen.insertOr(9, "ABCD");
     graph_gen.insertAnd(10, "a6", 10);
 
-    graph_gen.insertOr(11, "CDEF", 2);
+    graph_gen.insertOr(11, "CDEF");
     graph_gen.insertAnd(12, "a7", 5);
 
-    graph_gen.insertOr(13, "EFGH", 2);
+    graph_gen.insertOr(13, "EFGH");
     graph_gen.insertAnd(14, "a8", 5);
 
 
-    graph_gen.insertOr(15, "AB", 1);
+    graph_gen.insertOr(15, "AB");
     graph_gen.insertAnd(16, "a9", 20);
 
-    graph_gen.insertOr(17, "CD", 1);
+    graph_gen.insertOr(17, "CD");
     graph_gen.insertAnd(18, "a10", 10);
 
-    graph_gen.insertOr(19, "EF", 1);
+    graph_gen.insertOr(19, "EF");
     graph_gen.insertAnd(20, "a11", 10);
 
-    graph_gen.insertOr(21, "GH", 1);
+    graph_gen.insertOr(21, "GH");
     graph_gen.insertAnd(22, "a12", 10);
 
-    graph_gen.insertOr(23, "A", 0);
-    graph_gen.insertOr(24, "B", 0);
-    graph_gen.insertOr(25, "C", 0);
-    graph_gen.insertOr(26, "D", 0);
-    graph_gen.insertOr(27, "E", 0);
-    graph_gen.insertOr(28, "F", 0);
-    graph_gen.insertOr(29, "G", 0);
-    graph_gen.insertOr(30, "H", 0);
+    graph_gen.insertOr(23, "A");
+    graph_gen.insertOr(24, "B");
+    graph_gen.insertOr(25, "C");
+    graph_gen.insertOr(26, "D");
+    graph_gen.insertOr(27, "E");
+    graph_gen.insertOr(28, "F");
+    graph_gen.insertOr(29, "G");
+    graph_gen.insertOr(30, "H");
 
     Graph<> * graph = graph_gen.generate();
     
@@ -168,7 +168,7 @@ int main(void){
     graph->insertEdge(0,22,30);
 
     AOStarSearch aostar;
-    aostar(graph, root);
+    aostar(graph, root, 3);
 
     graph->print();
 

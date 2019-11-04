@@ -1,34 +1,42 @@
 #include <iostream>
+#include <climits>
 #include <set>
 #include <vector>
 #include "graph.hpp"
+
+
+/* Class representing the AOStarSearch State. 
+    Used as a return value to the search function.
+**/
+class AOStarState {
+public:
+    int depth;
+    double total_cost;
+    bool valid;
+    std::vector< Node* > nodes;
+};
+
 
 /* Class representing the AOStar Search. Used as a functor - enables to store state.
 **/
 class AOStarSearch{
 public:
-    AOStarSearch(/* args */);
+    AOStarSearch();
     ~AOStarSearch();
 
-    bool operator()(Graph<> *, Node* );
+    AOStarState operator()(Graph<> *, Node*, int);
 
 private:
-    void flagSolutionTree(Node * root);
+    bool flagSolutionTree(Node * root);
     std::vector< Node* > min_ors;
-    Node* min_and;
     std::vector< Node* > stack_;
-
-
+    Node* min_and;
 
 };
 
-AOStarSearch::AOStarSearch(/* args */)
-{
-}
+AOStarSearch::AOStarSearch(){}
 
-AOStarSearch::~AOStarSearch()
-{
-} 
+AOStarSearch::~AOStarSearch(){} 
 
 
 /* Functor which triggers the AO* search.
@@ -36,7 +44,12 @@ AOStarSearch::~AOStarSearch()
     @start: root node to begin the search at.
     \return: true if successfull.
 **/
-bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
+AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root, int depth_to_search = INT_MAX){
+
+    AOStarState search_state;
+    search_state.depth = 0;
+    search_state.valid = false;
+    search_state.total_cost = 0;
    
     Node * current_node = root;
     root->data_.marked = true;
@@ -54,12 +67,15 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
         current_node = root;
         stack_.clear();
 
+        search_state.depth = 0;
 
         // Propagate downwards through all CONNECTED and MARKED Nodes
         while(current_node && current_node->data_.marked){
            
             // If current node is terminal node skip propagation
-            if(current_node->hasSuccessor()){
+            if(current_node->hasSuccessor() && search_state.depth < depth_to_search){
+
+                search_state.depth += 1; // we get one level deeper within the search.
 
                 // Put the current node into the search stack. Is important later.
                 // The stack is used for the last cost-revision step.
@@ -80,7 +96,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
                     }
 
                     // Set the best and/or successors according to cost.
-                    if(temp_cost<cost){
+                    if(temp_cost < cost){
                         min_and = and_node;
                         min_ors = or_nodes;
                         cost = temp_cost;
@@ -116,7 +132,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
             int final_cost = INT_MAX; // Set cost to a high value for the minimization
             
             // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
-            if(!n->hasSuccessor()){
+            if(!n->hasSuccessor() || search_state.depth == depth_to_search){
                 n->data_.solved = true;
             }
             else{
@@ -153,7 +169,7 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
             Node* n = stack_.back(); // stack keeps track of nodes present in the path so far.
             stack_.pop_back();
 
-            double final_cost=INT_MAX;
+            double final_cost = INT_MAX;
 
             // Update cost of every n which is a node on the path from root the leaf found in I.
             for(std::size_t i=0; i< n->numberOfSuccessors(); i++){
@@ -192,19 +208,24 @@ bool AOStarSearch::operator()(Graph<> * graph, Node * root ){
             n->data_.solved = solved_flag;
             n->data_.cost = final_cost;
         }
-        std::cout<<std::endl;
         current_node=root;
     }
 
-
-    //PRINTING
+    // Mark nodes that are part of the optimal subtree.
     flagSolutionTree(root);
+
+    // Update search state.
+    search_state.valid = true;
+    search_state.total_cost = root->data_.cost;
+
+    return search_state;
 }
 
-void AOStarSearch::flagSolutionTree(Node * root){
+bool AOStarSearch::flagSolutionTree(Node * root){
     Node * current_node = root;
     stack_.clear();
     while(current_node && current_node->data_.solved){
+        current_node->data_.solution = true;
         if(current_node->hasSuccessor()){
             for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
                 Node* and_node = current_node->getSuccessorNodes()[i];
@@ -222,6 +243,6 @@ void AOStarSearch::flagSolutionTree(Node * root){
         if(!stack_.empty())
             stack_.erase(stack_.begin());
         else
-            return;
+            return true;
     }
 }

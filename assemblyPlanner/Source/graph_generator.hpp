@@ -1,5 +1,6 @@
 #include <string>
 #include "graph.hpp"
+#include <math.h>      
 
 class GraphGenerator{
 public:
@@ -7,7 +8,7 @@ public:
     ~GraphGenerator();
 
     void insertAnd(std::size_t, std::string, double);
-    void insertOr(std::size_t, std::string, double);
+    void insertOr(std::size_t, std::string);
 
     Graph<> * generate();
 
@@ -37,11 +38,11 @@ void GraphGenerator::insertAnd(std::size_t id, std::string name, double cost){
     and_.push_back(temp);
 }
 
-void GraphGenerator::insertOr(std::size_t id, std::string name, double cost){
+void GraphGenerator::insertOr(std::size_t id, std::string name){
     NodeData data;
     data.name = name;
     data.type = NodeType::AND;
-    data.cost = cost;
+    data.cost = log2(name.length());
     data.marked = false;
     data.solved = false;
 
