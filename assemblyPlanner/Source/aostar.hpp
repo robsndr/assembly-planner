@@ -205,9 +205,6 @@ void AOStarSearch::flagSolutionTree(Node * root){
     Node * current_node = root;
     stack_.clear();
     while(current_node && current_node->data_.solved){
-        // std::cout << "Search Found: " << current_node->data_.name << std::endl;
-        // current_node->data_.solution = true;
-
         if(current_node->hasSuccessor()){
             for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
                 Node* and_node = current_node->getSuccessorNodes()[i];
@@ -218,7 +215,6 @@ void AOStarSearch::flagSolutionTree(Node * root){
 
                     stack_.insert(std::end(stack_), std::begin(or_nodes), std::end(or_nodes));
                 }
-
             }
         }
         // std::cout << "NODEEEEEE:" << current_node->data_.name << std::endl;
