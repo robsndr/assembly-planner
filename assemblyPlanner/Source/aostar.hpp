@@ -12,7 +12,7 @@ class AOStarState {
 public:
     double total_cost;
     bool valid;
-    std::vector< Node* > nodes;
+    std::vector< Node* > nodes_investigated;
 };
 
 
@@ -60,9 +60,12 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
 
     stack_.clear();
 
+    min_ors.push_back(root);
+
     // Propagate downwards through all CONNECTED and MARKED Nodes
     while(current_node && current_node->data_.marked){
         
+        std::cout << "STUCL!";
         // If current node is terminal node skip propagation
         if(current_node->hasSuccessor()){
 
@@ -110,6 +113,12 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
             }
         } 
     }
+
+    std::cout << "Nodes to expand: " << std::endl;
+    for (auto const& x : min_ors){
+        std::cout << "Expanded node: " << x->data_.name << std::endl;
+    }
+
 
     return min_ors;
 
@@ -219,23 +228,30 @@ void AOStarSearch::reviseCosts(){
     \return: true if successfull.
 **/
 bool AOStarSearch::flagSolutionTree(Node * root){
+
     Node * current_node = root;
     stack_.clear();
+    
     while(current_node && current_node->data_.solved){
+    
         current_node->data_.solution = true;
-        if(current_node->hasSuccessor()){
+        if(current_node->hasSuccessor() && !current_node->data_.terminal){
+    
             for(std::size_t i=0; i<current_node->numberOfSuccessors(); i++){
+                
                 temp_and_node = current_node->getSuccessorNodes()[i];
                 temp_or_nodes = temp_and_node->getSuccessorNodes();
+                
                 if(temp_and_node->data_.marked){
                     temp_and_node->data_.solution = true;
+                    
                     std::cout << "Action:  " << temp_and_node->data_.name << std::endl;
 
                     stack_.insert(std::end(stack_), std::begin(temp_or_nodes), std::end(temp_or_nodes));
                 }
             }
         }
-        // std::cout << "NODEEEEEE:" << current_node->data_.name << std::endl;
+        
         current_node = stack_.front();
         if(!stack_.empty())
             stack_.erase(stack_.begin());
@@ -265,7 +281,7 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
     }
 
     // Select a non-terminal leaf node from the marked sub-tree
-    while(root->data_.solved == false){     
+    // while(root->data_.solved == false){     
 
         // Walk down the least-cost path within the currently marked subgraph. 
         // Obtain set of nodes which have not been expanded/marked yet.
@@ -275,11 +291,11 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
 
         reviseCosts();        
 
-        current_node=root;
-    }
+        // current_node=root;
+    // }
 
     // Mark nodes that are part of the optimal subtree.
-    flagSolutionTree(root);
+    // flagSolutionTree(root);
 
     // Update search state.
     search_state.valid = true;

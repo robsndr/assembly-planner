@@ -49,6 +49,7 @@ public:
 
     // TODO: implement as friend. For template might be complications.
     void print();
+    void reset(); 
 
 private:
 
@@ -458,15 +459,26 @@ Graph<Visitor>::print()
     std::cout << "Number of Nodes in Graph: " << numberOfNodes()
               << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
     for (auto const& x : nodes_){
-        if(x.second->data_.marked)
+        if(!x.second->data_.terminal)
             x.second->print();
     }
-    std::cout << "Current Edge configuration:" << std::endl;
-    for (auto const& x : edges_){
-        x->print();
-    }
-    std::cout << "************************r************************r************************" << std::endl;
-    std::cout << std::endl << std::endl;
+    // std::cout << "Current Edge configuration:" << std::endl;
+    // for (auto const& x : edges_){
+    //     x->print();
+    // }
+    // std::cout << "************************r************************r************************" << std::endl;
+    // std::cout << std::endl << std::endl;
 }
+
+
+template<typename Visitor>
+void
+Graph<Visitor>::reset() 
+{
+    for (auto const& x : nodes_){
+        x.second->data_.reset();
+    }
+}
+
 
 #endif //GRAPH_HPP

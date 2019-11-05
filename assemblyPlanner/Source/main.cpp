@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <unordered_map>
 #include "graph_generator.hpp"
-#include "aostar.hpp"
+// #include "aostar.hpp"
+#include "planner.hpp"
 
 int main(void){
 
@@ -167,10 +169,59 @@ int main(void){
     graph->insertEdge(0,22,29);
     graph->insertEdge(0,22,30);
 
-    AOStarSearch aostar;
-    aostar(graph, root);
+    std::unordered_map< std::string, std::vector<int> > action_cost_map;
+    action_cost_map["a1"].push_back(999);
+    action_cost_map["a1"].push_back(999);
+    action_cost_map["a1"].push_back(20);
 
-    graph->print();
+    action_cost_map["a2"].push_back(999);
+    action_cost_map["a2"].push_back(999);
+    action_cost_map["a2"].push_back(5);
+
+    action_cost_map["a3"].push_back(999);
+    action_cost_map["a3"].push_back(999);
+    action_cost_map["a3"].push_back(15);
+
+    action_cost_map["a4"].push_back(10);
+    action_cost_map["a4"].push_back(10);
+    action_cost_map["a4"].push_back(20);
+
+    action_cost_map["a5"].push_back(5);
+    action_cost_map["a5"].push_back(5);
+    action_cost_map["a5"].push_back(5);
+
+    action_cost_map["a6"].push_back(20);
+    action_cost_map["a6"].push_back(10);
+    action_cost_map["a6"].push_back(3);
+
+    action_cost_map["a7"].push_back(10);
+    action_cost_map["a7"].push_back(5);
+    action_cost_map["a7"].push_back(15);
+
+    action_cost_map["a8"].push_back(999);
+    action_cost_map["a8"].push_back(5);
+    action_cost_map["a8"].push_back(10);
+
+    action_cost_map["a9"].push_back(20);
+    action_cost_map["a9"].push_back(20);
+    action_cost_map["a9"].push_back(5);
+
+    action_cost_map["a10"].push_back(10);
+    action_cost_map["a10"].push_back(10);
+    action_cost_map["a10"].push_back(5);
+
+    action_cost_map["a11"].push_back(10);
+    action_cost_map["a11"].push_back(10);
+    action_cost_map["a11"].push_back(10);
+
+    action_cost_map["a12"].push_back(10);
+    action_cost_map["a12"].push_back(10);
+    action_cost_map["a12"].push_back(10);
+
+    Planner planner;
+    planner(graph, root, action_cost_map);
+
+    // graph->print();
 
     return 0;
 }
