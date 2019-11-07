@@ -25,7 +25,7 @@ public:
 
     AOStarState operator()(Graph<> *, Node*);
     std::vector<Node *> nodesToExpand(Graph<> *, Node* );
-    void expandNodes(std::vector<Node *> & );
+    void expandNodes();
 
 
 private:
@@ -59,6 +59,7 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
     Node * current_node = root;
 
     stack_.clear();
+    min_ors.clear();
 
     min_ors.push_back(root);
 
@@ -67,7 +68,7 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
         
         std::cout << "STUCL!";
         // If current node is terminal node skip propagation
-        if(current_node->hasSuccessor()){
+        if(current_node->hasSuccessor() && !current_node->data_.terminal){
 
             // Put the current node into the search stack. Is important later.
             // The stack is used for the last cost-revision step.
@@ -105,7 +106,7 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
                 // Check if given best-case successor is marked, not solved
                 // and that its connected to the graph thorugh a valid and-node.
                 if(min_ors[j]->data_.marked &&  min_ors[j]->data_.solved == false &&
-                    min_and->data_.marked){
+                    min_and->data_.marked && !min_ors[j]->data_.terminal){
                     
                     current_node = min_ors[j];
                     break;
@@ -114,11 +115,12 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
         } 
     }
 
-    std::cout << "Nodes to expand: " << std::endl;
-    for (auto const& x : min_ors){
-        std::cout << "Expanded node: " << x->data_.name << std::endl;
-    }
+    // std::cout << "MinOrs: " << std::endl;
+    // for (auto const& x : min_ors){
+    //     std::cout << "MinOR: " << x->data_.name << std::endl;
+    // }
 
+    std::cout << "MINORS SIZE: " << min_ors.size() << std::endl;
 
     return min_ors;
 
@@ -128,42 +130,48 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
 /* Exapnad set of nodes. Use class-wide data structures for efficiency reasons.
         @nodes: reference to set of nodes to expand.
 **/
-void AOStarSearch::expandNodes(std::vector<Node *> & nodes){
+void AOStarSearch::expandNodes(){
     
     // Update cost of found leaf node.
     // For the non-terminal leaf-node of the marked subtree found in the last step update cost.
-    for(std::size_t j = 0; j < nodes.size(); j++){
+    for(std::size_t j = 0; j < min_ors.size(); j++){
         
-        Node * n = nodes[j];
+        Node * n = min_ors[j];
         
         int final_cost = INT_MAX; // Set cost to a high value for the minimization
         
+        std::cout << "Investigated MinOr: " << n->data_.name << std::endl;
         // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
         if(!n->hasSuccessor()){
             n->data_.solved = true;
         }
         else{
+
+            if(n->data_.terminal)
+                n->data_.solved = true;
             // Search for the minimal successor - best cost and-node, set of or-nodes.
-            for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
+            // for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
 
-                temp_and_node = n->getSuccessorNodes()[i];
-                double and_cost = temp_and_node->data_.cost;
-                temp_or_nodes = temp_and_node->getSuccessorNodes();
+            //     temp_and_node = n->getSuccessorNodes()[i];
+            //     double and_cost = temp_and_node->data_.cost;
+            //     temp_or_nodes = temp_and_node->getSuccessorNodes();
 
-                // Calculate cost of i'th path
-                double temp_cost = and_cost;
-                for(std::size_t j=0;j<(temp_or_nodes.size());j++){
-                    temp_cost+=temp_or_nodes[j]->data_.cost;
-                }
+            //     // Calculate cost of i'th path
+            //     double temp_cost = and_cost;
+            //     for(std::size_t j=0;j<(temp_or_nodes.size());j++){
+            //         temp_cost+=temp_or_nodes[j]->data_.cost;
+            //     }
 
-                // Update best-case cost.
-                if(temp_cost < final_cost){
-                    final_cost = temp_cost;
-                }
-            }
+            //     // Update best-case cost.
+            //     if(temp_cost < final_cost){
+            //         final_cost = temp_cost;
+            //     }
+            // }
+
+            // final_cost = ;
 
             // Update the investigated non-terminal leaf-node.
-            n->data_.cost = final_cost; // Update cost
+            // n->data_.cost = final_cost; // Update cost
             n->data_.marked = true;     // Mark Node because it becomes member of optimal tree.
             min_and->data_.marked = true; // Mark the connecting AND-Node. It is now member of the path.
         }
@@ -181,6 +189,7 @@ void AOStarSearch::reviseCosts(){
         Node* n = stack_.back(); // stack keeps track of nodes present in the path so far.
         stack_.pop_back();
 
+        std::cout << "On Stack: " << n->data_.name << std::endl;
         double final_cost = INT_MAX;
 
         // Update cost of every n which is a node on the path from root the leaf found in I.
@@ -281,18 +290,18 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
     }
 
     // Select a non-terminal leaf node from the marked sub-tree
-    // while(root->data_.solved == false){     
+    while(root->data_.solved == false){     
 
         // Walk down the least-cost path within the currently marked subgraph. 
         // Obtain set of nodes which have not been expanded/marked yet.
         nodesToExpand(graph, root);
 
-        expandNodes(min_ors);
+        expandNodes();
 
         reviseCosts();        
 
-        // current_node=root;
-    // }
+        current_node=root;
+    }
 
     // Mark nodes that are part of the optimal subtree.
     // flagSolutionTree(root);

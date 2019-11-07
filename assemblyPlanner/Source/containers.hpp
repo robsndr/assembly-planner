@@ -1,4 +1,5 @@
 #include <string>
+#include <cmath>
 
 enum class NodeType{AND, OR};
 
@@ -20,6 +21,7 @@ public:
 
 void NodeData::reset(){
     // marked = false;
+    cost = log2(name.length());
     solved = false;
     solution = false;
 }
