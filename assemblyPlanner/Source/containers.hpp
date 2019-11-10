@@ -11,7 +11,6 @@ public:
     std::string name = "";
     std::string worker = "";
 
-    bool terminal = true;
     bool marked = false;
     bool solved = false;;
     bool solution = false;
@@ -21,7 +20,9 @@ public:
 
 void NodeData::reset(){
     // marked = false;
-    cost = log2(name.length());
+    if(type == NodeType::OR)
+        cost = log2(name.length());
+
     solved = false;
     solution = false;
 }

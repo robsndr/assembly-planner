@@ -227,6 +227,8 @@ Node::print() {
     std::cout <<  std::endl;
     std::cout << "    Name: " << data_.name;
     std::cout <<  std::endl;
+    std::cout << "    Solved: " << data_.solved;
+    std::cout <<  std::endl;
     std::cout << "    Cost: " << data_.cost;
     std::cout << std::endl << std::endl;
 }
