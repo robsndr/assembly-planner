@@ -39,7 +39,12 @@ void Planner::operator()(Graph<> * graph, Node* root, std::unordered_map<std::st
         
         AOStarSearch aostar(graph);
         AOStarState state = aostar(graph, root);
-        graph->print();
+
+        for (auto node : state.solution_sequence){
+            std::cout << "Action:  " << node->data_.name << std::endl;
+        }
+        
+
         std::cout << "Run next iteration? " << std::endl;
         std::cin >> a; 
     }
