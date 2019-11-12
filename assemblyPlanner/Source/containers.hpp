@@ -11,6 +11,8 @@ public:
     std::string name = "";
     std::string worker = "";
 
+    bool expanded = false;
+
     bool marked = false;
     bool solved = false;;
     bool solution = false;

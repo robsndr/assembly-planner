@@ -158,10 +158,11 @@ void AOStarSearch::expandNodes(){
             // if(n->data_.terminal)
             //     n->data_.solved = true;
             // Search for the minimal successor - best cost and-node, set of or-nodes.
-            for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
-                temp_and_node = n->getSuccessorNodes()[i];
-                expandNode(temp_and_node);
-            }
+            // for(std::size_t i = 0; i < n->numberOfSuccessors(); i++){
+                // temp_and_node = n->getSuccessorNodes()[i];
+            if(n->data_.expanded == false)
+                expandNode(n);
+            // }
 
             // final_cost = ;
 
@@ -321,31 +322,41 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
 **/
 void AOStarSearch::expandNode(Node* node){
 
-    std::cout << "Expanding action " << node->data_.name << std::endl;
+    // Expand children and-nod es.
+    for (auto & and_node  : node->getSuccessorNodes()){
+        
+        std::cout << "Expanding action " << and_node->data_.name << std::endl;
 
-    std::size_t expansion_dimension;
-    std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
+        std::size_t expansion_dimension;
+        std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
 
-    for (size_t i = 0; i < expansion_dimension; i++){
-        NodeData rdata;
-        rdata.name = node->data_.name;
-        rdata.type = node->data_.type;
-        data.marked = false;
-        data.solved = false;
+        for (size_t i = 0; i < expansion_dimension; i++){
+            NodeData rdata;
+            
+            // Appending the string. 
+            std::string name_append = std::to_string(i);
+            rdata.name = and_node->data_.name + name_append;
+            rdata.type = and_node->data_.type;
+            rdata.marked = false;
+            rdata.solved = false;
 
-        std::cout << "Input cost for Action. Node: " << rdata.name << std::endl;
-        std::cout << "Cost: "; std::cin >> rdata.cost;
+            std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
+            std::cout << "Cost: "; std::cin >> rdata.cost;
 
-        ao_graph->insertNode(node->id_ * 100 + i , rdata);
+            ao_graph->insertNode(and_node->id_ * 100 + i , rdata);
 
+            int source_id = and_node->getPredecessorNodes().front()->id_;
+            int target_id = and_node->id_ * 100 + i;
 
-        ao_graph->insertEdges( 0, node->getPredecessor(0),  );
+            ao_graph->insertEdge( 0, source_id, target_id);
+
+            for (auto & successor_or  : and_node->getSuccessorNodes()){
+                ao_graph->insertEdge( 0, and_node->id_, successor_or->id_);
+            }
+        }
     }
-    
+    node->data_.expanded = true;
 
-
-    for (auto &x : node->getSuccessorNodes()){
-    }
-
+    ao_graph->print();
 
 }
