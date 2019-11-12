@@ -71,7 +71,7 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
     // Propagate downwards through all CONNECTED and MARKED Nodes
     while(current_node && current_node->data_.marked){
         
-        std::cout << "On Stack: " << current_node->data_.name << std::endl;
+        // std::cout << "On Stack: " << current_node->data_.name << std::endl;
 
         // If current node is terminal node skip propagation
         if(current_node->hasSuccessor()){
@@ -171,7 +171,7 @@ void AOStarSearch::reviseCosts(){
         Node* n = stack_.back(); // stack keeps track of nodes present in the path so far.
         stack_.pop_back();
 
-        std::cout << "On Stack: " << n->data_.name << std::endl;
+        // std::cout << "On Stack: " << n->data_.name << std::endl;
         double final_cost = INT_MAX;
 
         // Update cost of every n which is a node on the path from root the leaf found in I.
@@ -305,39 +305,39 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
 void AOStarSearch::expandNode(Node* node){
 
     // Expand children and-nod es.
-    for (auto & and_node  : node->getSuccessorNodes()){
+    // for (auto & and_node  : node->getSuccessorNodes()){
         
-        std::cout << "Expanding action " << and_node->data_.name << std::endl;
+    //     std::cout << "Expanding action " << and_node->data_.name << std::endl;
 
-        std::size_t expansion_dimension;
-        std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
+    //     std::size_t expansion_dimension;
+    //     std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
 
-        for (size_t i = 0; i < expansion_dimension; i++){
-            NodeData rdata;
+    //     for (size_t i = 0; i < expansion_dimension; i++){
+    //         NodeData rdata;
             
-            // Appending the string. 
-            // std::string name_append = std::to_string(i);
-            rdata.name = and_node->data_.name;
-            rdata.type = and_node->data_.type;
-            rdata.marked = false;
-            rdata.solved = false;
+    //         // Appending the string. 
+    //         // std::string name_append = std::to_string(i);
+    //         rdata.name = and_node->data_.name;
+    //         rdata.type = and_node->data_.type;
+    //         rdata.marked = false;
+    //         rdata.solved = false;
 
-            std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
-            std::cout << "Cost: "; std::cin >> rdata.cost;
+    //         std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
+    //         std::cout << "Cost: "; std::cin >> rdata.cost;
 
-            ao_graph->insertNode(and_node->id_ * 100 + i , rdata);
+    //         ao_graph->insertNode(and_node->id_ * 100 + i , rdata);
 
-            int source_id = and_node->getPredecessorNodes().front()->id_;
-            int expanded_and_id = and_node->id_ * 100 + i;
+    //         int source_id = and_node->getPredecessorNodes().front()->id_;
+    //         int expanded_and_id = and_node->id_ * 100 + i;
 
-            ao_graph->insertEdge( 0, source_id, expanded_and_id);
+    //         ao_graph->insertEdge( 0, source_id, expanded_and_id);
 
-            for (auto & successor_or  : and_node->getSuccessorNodes()){
-                ao_graph->insertEdge( 0, expanded_and_id, successor_or->id_);
-            }
-            // ao_graph->print();
+    //         for (auto & successor_or  : and_node->getSuccessorNodes()){
+    //             ao_graph->insertEdge( 0, expanded_and_id, successor_or->id_);
+    //         }
+    //         // ao_graph->print();
 
-        }
-    }
+    //     }
+    // }
     node->data_.expanded = true;
 }
