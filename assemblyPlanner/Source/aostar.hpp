@@ -139,13 +139,17 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
 **/
 void AOStarSearch::expandNodes(){
     
+    std::cout << "MINORS: " << std::endl;
     // Go through the best-case minOr nodes. Expand if possible. 
     // Mark nodes as they are part of the current best-path.
     // If a node is terminal, flag it solved so that it is not investigated further.
     for(std::size_t j = 0; j < min_ors.size(); j++){
         
+
         Node * n = min_ors[j];
          
+        std::cout << n->data_.name << std::endl;
+
         int final_cost = INT_MAX; // Set cost to a high value for the minimization
         
         // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
