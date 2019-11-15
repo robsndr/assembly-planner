@@ -9,6 +9,7 @@
 // #include "bfs.hpp"
 
 
+
 int main(void){
 
     GraphGenerator graph_gen;
@@ -171,54 +172,62 @@ int main(void){
     graph->insertEdge(0,22,29);
     graph->insertEdge(0,22,30);
 
-    std::unordered_map< std::string, std::vector<int> > action_cost_map;
-    action_cost_map["a1"].push_back(999);
-    action_cost_map["a1"].push_back(999);
-    action_cost_map["a1"].push_back(20);
 
-    action_cost_map["a2"].push_back(999);
-    action_cost_map["a2"].push_back(999);
-    action_cost_map["a2"].push_back(5);
+    CostMap action_cost_map(12, 3);
 
-    action_cost_map["a3"].push_back(999);
-    action_cost_map["a3"].push_back(999);
-    action_cost_map["a3"].push_back(15);
+    action_cost_map.addMapping("a1", "r1", 999);
+    action_cost_map.addMapping("a1", "r2", 999);
+    action_cost_map.addMapping("a1", "h",  20);
 
-    action_cost_map["a4"].push_back(10);
-    action_cost_map["a4"].push_back(10);
-    action_cost_map["a4"].push_back(20);
+    action_cost_map.addMapping("a2", "r1", 999);
+    action_cost_map.addMapping("a2", "r2", 999);
+    action_cost_map.addMapping("a2", "h",  5);
 
-    action_cost_map["a5"].push_back(5);
-    action_cost_map["a5"].push_back(5);
-    action_cost_map["a5"].push_back(5);
+    action_cost_map.addMapping("a3", "r1", 999);
+    action_cost_map.addMapping("a3", "r2", 999);
+    action_cost_map.addMapping("a3", "h",  15);
 
-    action_cost_map["a6"].push_back(20);
-    action_cost_map["a6"].push_back(10);
-    action_cost_map["a6"].push_back(3);
+    action_cost_map.addMapping("a4", "r1", 10);
+    action_cost_map.addMapping("a4", "r2", 10);
+    action_cost_map.addMapping("a4", "h",  20);
 
-    action_cost_map["a7"].push_back(10);
-    action_cost_map["a7"].push_back(5);
-    action_cost_map["a7"].push_back(15);
+    action_cost_map.addMapping("a5", "r1", 5);
+    action_cost_map.addMapping("a5", "r2", 5);
+    action_cost_map.addMapping("a5", "h",  5);
 
-    action_cost_map["a8"].push_back(999);
-    action_cost_map["a8"].push_back(5);
-    action_cost_map["a8"].push_back(10);
+    action_cost_map.addMapping("a6", "r1", 20);
+    action_cost_map.addMapping("a6", "r2", 10);
+    action_cost_map.addMapping("a6", "h",  3);
 
-    action_cost_map["a9"].push_back(20);
-    action_cost_map["a9"].push_back(20);
-    action_cost_map["a9"].push_back(5);
 
-    action_cost_map["a10"].push_back(10);
-    action_cost_map["a10"].push_back(10);
-    action_cost_map["a10"].push_back(5);
+    action_cost_map.addMapping("a7", "r1", 10);
+    action_cost_map.addMapping("a7", "r2", 5);
+    action_cost_map.addMapping("a7", "h",  15);
 
-    action_cost_map["a11"].push_back(10);
-    action_cost_map["a11"].push_back(10);
-    action_cost_map["a11"].push_back(10);
 
-    action_cost_map["a12"].push_back(10);
-    action_cost_map["a12"].push_back(10);
-    action_cost_map["a12"].push_back(10);
+    action_cost_map.addMapping("a8", "r1", 99);
+    action_cost_map.addMapping("a8", "r2", 5);
+    action_cost_map.addMapping("a8", "h",  10);
+
+
+    action_cost_map.addMapping("a9", "r1", 20);
+    action_cost_map.addMapping("a9", "r2", 20);
+    action_cost_map.addMapping("a9", "h",  5);
+
+
+    action_cost_map.addMapping("a10", "r1", 10);
+    action_cost_map.addMapping("a10", "r2", 10);
+    action_cost_map.addMapping("a10", "h",  5);
+
+
+    action_cost_map.addMapping("a11", "r1", 10);
+    action_cost_map.addMapping("a11", "r2", 10);
+    action_cost_map.addMapping("a11", "h",  10);
+
+
+    action_cost_map.addMapping("a12", "r1", 10);
+    action_cost_map.addMapping("a12", "r2", 10);
+    action_cost_map.addMapping("a12", "h",  10);
 
     Planner planner;
     planner(graph, root, action_cost_map);

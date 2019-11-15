@@ -1,21 +1,28 @@
 #include <vector>
 #include "graph.hpp"
 
+
 class NodeExpander{
 public:
-    NodeExpander(Graph<> *, std::unordered_map<std::string, std::vector<int> >);
+    NodeExpander(Graph<> *, CostMap&);
     // void operator()(std::vector<Node*> &);
     void expandNode(Node * node);
-    void expandNodes(std::vector<Node*> & nodes);
+    void expandNodes(std::vector<Node*> &);
 
+    void createNodeActionTable(std::vector<Node*> &);
+    void generateAssignments();
 
 private:
     Graph<> * search_tree_;
-    std::unordered_map<std::string, std::vector<int> > cost_map_;
+    CostMap cost_map_;
+
+    std::unordered_map<std::string, std::vector<std::string> > node_actions_; // First entry denotes node.
+                                                                             // Second entry denotes action.
+
 };
 
 
-NodeExpander::NodeExpander(Graph<> * tree, std::unordered_map<std::string, std::vector<int> > costs){
+NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
     search_tree_ = tree;
     cost_map_ = costs;
 }
@@ -24,9 +31,12 @@ NodeExpander::NodeExpander(Graph<> * tree, std::unordered_map<std::string, std::
 **/
 void NodeExpander::expandNodes(std::vector<Node*> & nodes){
     // Expand multiple nodes at once.
-    for( auto &node : nodes){
-        expandNode(node);
-    }
+
+    createNodeActionTable(nodes);
+
+    // for( auto &node : nodes){
+    //     // expandNode(node);
+    // }
 }
 
 /* Function which performs the node expansion on a single OR.
@@ -73,4 +83,32 @@ void NodeExpander::expandNode(Node* node){
         }
     }
     node->data_.expanded = true;
+}
+
+/* Function which performs the generation of assignments of workers to actions.
+**/
+void NodeExpander::createNodeActionTable(std::vector<Node*> & nodes){
+
+    for( auto &node : nodes){
+        for (auto & and_node  : node->getSuccessorNodes()){
+            std::cout << "Node: " << node->data_.name << " Action: " << and_node->data_.name << std::endl;
+            node_actions_[node->data_.name].push_back(and_node->data_.name);
+        }
+    }
+    
+}
+
+/* Function which performs the generation of assignments of workers to actions.
+**/
+void NodeExpander::generateAssignments( ){
+
+    // int number_of_workers = ;
+
+    // for( auto &node : nodes){
+    //     for (auto & and_node  : node->getSuccessorNodes()){
+    //         std::cout << "Node: " << node->data_.name << " Action: " << and_node->data_.name << std::endl;
+    //         node_actions_[node->data_.name].push_back(and_node->data_.name);
+    //     }
+    // }
+    
 }

@@ -8,7 +8,7 @@ public:
     Planner();
     ~Planner();
     
-    void operator()(Graph<> *, Node*, std::unordered_map<std::string, std::vector<int> >);
+    void operator()(Graph<> *, Node*, CostMap &);
 
 private:
     std::vector<Node *> nodes_to_expand;
@@ -23,14 +23,14 @@ Planner::Planner(){}
 Planner::~Planner(){}
 
 
-void Planner::operator()(Graph<> * graph, Node* root, std::unordered_map<std::string, std::vector<int> > cost_map){
+void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
     // search_graph = new Graph<>();
 
     Graph<> * tree = bfs(root);
     Node * tree_root = tree->root_;
 
-    NodeExpander expander(tree, cost_map);
+    NodeExpander expander(tree, costs_);
 
     int a = 1;
     
