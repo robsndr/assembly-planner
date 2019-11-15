@@ -35,6 +35,8 @@ void Planner::operator()(Graph<> * graph, Node* root, std::unordered_map<std::st
     // search_graph = new Graph<>();
 
     Node * tree_root = BFS(root);
+    // Node * tree_root = root;
+
 
     int a = 1;
     

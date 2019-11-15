@@ -2,6 +2,7 @@
 #include <climits>
 #include <set>
 #include <vector>
+#include <queue>
 #include "graph.hpp"
 
 
@@ -27,7 +28,7 @@ public:
 
 
 private:
-    std::vector<Node *> nodesToExpand(Graph<> *, Node* );
+    std::vector<Node *> walkMarkedSubtree(Node* );
     void expandNodes();
     void expandNode(Node*);
     void reviseCosts();
@@ -57,22 +58,28 @@ AOStarSearch::~AOStarSearch(){}
         @start: root node to begin the search at.
         \return: leaf node of the curectly marked subgraph (node to expand).
 **/
-std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
+std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
     
     // Select non terminal leaf node in marked subtree.
     // Begin withh root.
-    Node * current_node = root;
+    Node * current_node = start_node;
 
-    stack_.clear();
+    // stack_.clear();
+    std::vector< Node* > ors_found;
+    Node* and_found;
+
+    std::queue< Node* > temp_storage;
+
+    ors_found.clear();
     min_ors.clear();
-
-    min_ors.push_back(root);
+    temp_storage.push(start_node);
 
     // Propagate downwards through all CONNECTED and MARKED Nodes
-    while(current_node && current_node->data_.marked){
+    while(!temp_storage.empty()){
         
         // std::cout << "On Stack: " << current_node->data_.name << std::endl;
-
+        current_node = temp_storage.front();
+        temp_storage.pop();
         // If current node is terminal node skip propagation
         if(current_node->hasSuccessor()){
 
@@ -96,42 +103,44 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
 
                 // Set the best and/or successors according to cost.
                 if(temp_cost < cost){
-                    min_and = temp_and_node;
-                    min_ors = temp_or_nodes;
+                    and_found = temp_and_node;
+                    ors_found = temp_or_nodes;
                     cost = temp_cost;
                 }
             }
-            
-            current_node = NULL; // Make sure that NULL if nothing found in the next step. 
-                                    // Terminates loop if nothing found in next step.
 
+
+            bool is_leaf = false;
             // Propagate-Down Step.
             // Within the found 'min_ors" best cost successor nodes look for already marked ones.
-            for(std::size_t j = 0; j < min_ors.size(); j++){
-                
+            for(std::size_t j = 0; j < ors_found.size(); j++){
+
                 // Check if given best-case successor is marked, not solved
                 // and that its connected to the graph thorugh a valid and-node.
-                if(min_ors[j]->data_.marked &&  min_ors[j]->data_.solved == false &&
-                    min_and->data_.marked ){
-                    
-                    current_node = min_ors[j];
-                    break;
+                if(ors_found[j]->data_.marked &&  
+                        ors_found[j]->data_.solved == false &&
+                            and_found->data_.marked ){
+                    is_leaf = true;
+                    temp_storage.push(ors_found[j]);
+                    // break;
                 }
             }
+
+            if(!is_leaf){
+                min_ors.insert(std::end(min_ors), std::begin(ors_found), std::end(ors_found));
+            }
+
         } 
     }
 
-    // std::cout << "MinOrs: " << std::endl;
-    // for (auto const& x : min_ors){
-    //     std::cout << "MinOR: " << x->data_.name << std::endl;
-    //     std::cout << "Solved: " << x->data_.solved << std::endl;
-    //     std::cout << "Terminal: " << x->data_.terminal << std::endl;
-    // }
+    std::cout << "---------" << std::endl;
+    for (auto const& x : min_ors){
+        std::cout << "MinOR: " << x->data_.name << std::endl;
+        // std::cout << "Solved: " << x->data_.solved << std::endl;
+        // std::cout << "Terminal: " << x->data_.terminal << std::endl;
+    }
 
-    // std::cout << "MINORS SIZE: " << min_ors.size() << std::endl;
-
-    return min_ors;
-
+    return ors_found;
 }
 
 
@@ -139,7 +148,7 @@ std::vector<Node *> AOStarSearch::nodesToExpand(Graph<> * graph, Node* root){
 **/
 void AOStarSearch::expandNodes(){
     
-    std::cout << "MINORS: " << std::endl;
+    // std::cout << "MINORS: " << std::endl;
     // Go through the best-case minOr nodes. Expand if possible. 
     // Mark nodes as they are part of the current best-path.
     // If a node is terminal, flag it solved so that it is not investigated further.
@@ -147,8 +156,6 @@ void AOStarSearch::expandNodes(){
         
 
         Node * n = min_ors[j];
-         
-        std::cout << n->data_.name << std::endl;
 
         int final_cost = INT_MAX; // Set cost to a high value for the minimization
         
@@ -183,6 +190,7 @@ void AOStarSearch::reviseCosts(){
             temp_and_node = n->getSuccessorNodes()[i];
             int and_cost = temp_and_node->data_.cost;
 
+            // std::cout << n->data_.name << std::endl;
             // The currently valid and node could have changed.
             // Make sure to de-mark the connecting and-nodes on the path.
             // The valid and_node is marked below...
@@ -218,6 +226,7 @@ void AOStarSearch::reviseCosts(){
         // Udpdate node data.
         n->data_.solved = solved_flag;
         n->data_.cost = final_cost;
+
     }
 
 }
@@ -286,7 +295,7 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
 
         // Walk down the least-cost path within the currently marked subgraph. 
         // Obtain set of nodes which have not been expanded/marked yet.
-        nodesToExpand(graph, root);
+        walkMarkedSubtree(root);
 
         expandNodes();
 
