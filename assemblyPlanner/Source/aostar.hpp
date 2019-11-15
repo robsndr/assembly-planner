@@ -3,8 +3,7 @@
 #include <set>
 #include <vector>
 #include <queue>
-#include "graph.hpp"
-
+#include "expander.hpp"
 
 /* Class representing the AOStarSearch State. 
     Used as a return value to the search function.
@@ -21,15 +20,12 @@ public:
 **/
 class AOStarSearch{
 public:
-    AOStarSearch(Graph<> *);
-    ~AOStarSearch();
-
-    AOStarState operator()(Graph<> *, Node*);
+    AOStarState operator()(Node*, NodeExpander&);
 
 
 private:
     std::vector<Node *> walkMarkedSubtree(Node* );
-    void expandNodes();
+    void expandNodes(NodeExpander&);
     void expandNode(Node*);
     void reviseCosts();
     bool flagSolutionTree(Node *, AOStarState *);
@@ -42,15 +38,7 @@ private:
     std::vector< Node* > min_ors;
     Node* min_and;
 
-    Graph<> * ao_graph;
-
-};
-
-AOStarSearch::AOStarSearch(Graph<> * graph){
-    ao_graph = graph;
-}
-
-AOStarSearch::~AOStarSearch(){} 
+}; 
 
 /* Obtain node to be exapnded along the current search path. 
     Use class-wide data structures for efficiency reasons.
@@ -146,18 +134,16 @@ std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
 
 /* Exapnad set of nodes. Use class-wide data structures for efficiency reasons.
 **/
-void AOStarSearch::expandNodes(){
+void AOStarSearch::expandNodes(NodeExpander & expander){
     
-    // std::cout << "MINORS: " << std::endl;
     // Go through the best-case minOr nodes. Expand if possible. 
     // Mark nodes as they are part of the current best-path.
     // If a node is terminal, flag it solved so that it is not investigated further.
+    temp_or_nodes.clear();
+
     for(std::size_t j = 0; j < min_ors.size(); j++){
         
-
         Node * n = min_ors[j];
-
-        int final_cost = INT_MAX; // Set cost to a high value for the minimization
         
         // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
         if(!n->hasSuccessor()){
@@ -165,10 +151,13 @@ void AOStarSearch::expandNodes(){
         }
         else{
             if(n->data_.expanded == false)
-                expandNode(n);
+                temp_or_nodes.push_back(n);
             n->data_.marked = true;     // Mark Node because it becomes member of optimal tree.
         }
     }
+
+    expander.expandNodes(temp_or_nodes);
+
 }
 
 
@@ -274,7 +263,7 @@ bool AOStarSearch::flagSolutionTree(Node * root, AOStarState * search_state){
     @start: root node to begin the search at.
     \return: true if successfull.
 **/
-AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
+AOStarState AOStarSearch::operator()(Node * root, NodeExpander & expander){
 
     AOStarState search_state;
     search_state.valid = false;
@@ -288,7 +277,7 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
         root->data_.solved = true;
     }
 
-    expandNode(root);
+    expander.expandNode(root);
 
     // Select a non-terminal leaf node from the marked sub-tree
     while(root->data_.solved == false){     
@@ -297,7 +286,7 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
         // Obtain set of nodes which have not been expanded/marked yet.
         walkMarkedSubtree(root);
 
-        expandNodes();
+        expandNodes(expander);
 
         reviseCosts();        
 
@@ -311,46 +300,4 @@ AOStarState AOStarSearch::operator()(Graph<> * graph, Node * root){
     search_state.total_cost = root->data_.cost;
 
     return search_state;
-}
-
-/* Function which performs the node expansion.
-**/
-void AOStarSearch::expandNode(Node* node){
-
-    // Expand children and-nod es.
-    // for (auto & and_node  : node->getSuccessorNodes()){
-        
-    //     std::cout << "Expanding action " << and_node->data_.name << std::endl;
-
-    //     std::size_t expansion_dimension;
-    //     std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
-
-    //     for (size_t i = 0; i < expansion_dimension; i++){
-    //         NodeData rdata;
-            
-    //         // Appending the string. 
-    //         // std::string name_append = std::to_string(i);
-    //         rdata.name = and_node->data_.name;
-    //         rdata.type = and_node->data_.type;
-    //         rdata.marked = false;
-    //         rdata.solved = false;
-
-    //         std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
-    //         std::cout << "Cost: "; std::cin >> rdata.cost;
-
-    //         ao_graph->insertNode(and_node->id_ * 100 + i , rdata);
-
-    //         int source_id = and_node->getPredecessorNodes().front()->id_;
-    //         int expanded_and_id = and_node->id_ * 100 + i;
-
-    //         ao_graph->insertEdge( 0, source_id, expanded_and_id);
-
-    //         for (auto & successor_or  : and_node->getSuccessorNodes()){
-    //             ao_graph->insertEdge( 0, expanded_and_id, successor_or->id_);
-    //         }
-    //         // ao_graph->print();
-
-    //     }
-    // }
-    node->data_.expanded = true;
 }

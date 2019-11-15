@@ -50,6 +50,7 @@ public:
     // TODO: implement as friend. For template might be complications.
     void print();
     void reset(); 
+    Node * root_;
 
 private:
 

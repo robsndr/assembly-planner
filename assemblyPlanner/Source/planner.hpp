@@ -3,13 +3,6 @@
 #include "aostar.hpp"
 #include "bfs.hpp"
 
-class ActionCostAssigner{
-public:
-
-
-private:
-};
-
 class Planner{
 public:
     Planner();
@@ -34,16 +27,17 @@ void Planner::operator()(Graph<> * graph, Node* root, std::unordered_map<std::st
 
     // search_graph = new Graph<>();
 
-    Node * tree_root = BFS(root);
-    // Node * tree_root = root;
+    Graph<> * tree = bfs(root);
+    Node * tree_root = tree->root_;
 
+    NodeExpander expander(tree, cost_map);
 
     int a = 1;
     
     while(a != 0){
         
-        AOStarSearch aostar(graph);
-        AOStarState state = aostar(graph, tree_root);
+        AOStarSearch aostar;
+        AOStarState state = aostar(tree_root, expander);
 
         for (auto node : state.solution_sequence){
             std::cout << "Action:  " << node->data_.name << std::endl;

@@ -5,7 +5,7 @@
 #include "graph.hpp"
 #include <queue>
 
-Node * BFS(Node * root){ 
+Graph<> * bfs(Node * root){ 
   
     // Create a queue for BFS 
     std::queue<Node* > queue;
@@ -17,6 +17,7 @@ Node * BFS(Node * root){
     Graph<> * search_tree = new Graph<>;
     std::size_t node_count = 0;
     Node* new_root = search_tree->insertNode(node_count, root->data_);
+    search_tree->root_ = new_root;
     queue2.push(new_root);
 
 
@@ -40,6 +41,7 @@ Node * BFS(Node * root){
         }
     }
 
+    // search_tree->print();
     // Retrun root of newly created graph.
-    return new_root;
+    return search_tree;
 } 

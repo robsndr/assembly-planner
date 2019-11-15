@@ -90,6 +90,7 @@
         "__tree": "cpp",
         "queue": "cpp",
         "stack": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "__functional_03": "cpp"
     }
 }
