@@ -1,5 +1,6 @@
 #include <string>
 #include <cmath>
+#include<set>
 
 enum class NodeType{AND, OR};
 
@@ -45,11 +46,20 @@ public:
     };
 
     void addMapping(std::string action, std::string agent, double cost){
+        // Lets insert four elements
+        const bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
+        if(!is_in)
+            vector_of_agents_.push_back(agent);    
+        set_of_agents_.insert(agent);
         cost_map_[action][agent] = cost;
     };
 
+
     std::size_t number_of_actions_;
     std::size_t number_of_agents_;
+
+    std::vector<std::string> vector_of_agents_;
+    std::set<std::string> set_of_agents_;
     std::unordered_map< std::string, std::unordered_map< std::string, double > > cost_map_;
 
 };

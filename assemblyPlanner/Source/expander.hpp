@@ -1,6 +1,8 @@
 #include <vector>
 #include "graph.hpp"
-
+#include <set>
+#include <algorithm>
+#include <numeric>
 
 class NodeExpander{
 public:
@@ -10,17 +12,35 @@ public:
     void expandNodes(std::vector<Node*> &);
 
     void createNodeActionTable(std::vector<Node*> &);
-    void generateAssignments();
-    std::vector< std::vector<std::string> > generateActionCombinationSets(std::vector<Node*> & );
-    void NodeExpander::generateAgentCombinationSets( std::vector<std::string>, int );
 
 private:
+
+    void assignAgentsToActions(std::vector<std::string> & agents, int k);
+    void generateAgentActionAssignments(std::vector<Node*> & );
+    void generateActionCombinationSets(std::vector<Node*> & );
+    void generateAgentCombinationSets( std::vector<std::string> &, int );
+
     Graph<> * search_tree_;
     CostMap cost_map_;
 
     std::unordered_map<std::string, std::vector<std::string> > node_actions_; // First entry denotes node.
                                                                              // Second entry denotes action.
     std::vector<std::string> temp_nodes;
+
+
+
+    std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
+
+    // Data Structures needed to calculate the agent combinations
+    // Defines as class-wide objects to facilitate reuse between iterations.
+    std::vector< std::vector<std::string> > temp_agent_combinations_;
+    std::vector<std::string> temp_agent_set_;
+
+    // Data Structures needed for the Action-Combination Generation.
+    // Defined here to create them once and reuse without repeating allocation.
+    std::vector< std::vector<std::string> > temp_action_combinations_;
+    std::vector<std::string> temp_action_set_;
+
 
 };
 
@@ -35,13 +55,8 @@ NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
 void NodeExpander::expandNodes(std::vector<Node*> & nodes){
     // Expand multiple nodes at once.
 
-    // createNodeActionTable(nodes);
+    generateAgentActionAssignments(nodes);
 
-    generateActionCombinationSets(nodes);
-
-    // for( auto &node : nodes){
-    //     // expandNode(node);
-    // }
 }
 
 /* Function which performs the node expansion on a single OR.
@@ -109,22 +124,71 @@ void NodeExpander::createNodeActionTable(std::vector<Node*> & nodes){
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
-void NodeExpander::generateAssignments( ){
-    
+void NodeExpander::generateAgentActionAssignments(std::vector<Node*> & nodes){
+
+    int l = std::min(nodes.size(), cost_map_.number_of_agents_);
+
+    generateActionCombinationSets(nodes);
+    assignAgentsToActions(cost_map_.vector_of_agents_, 2);
+
+    // for (size_t j = 0; j < l; j++){
+    //     std::cout << "Brun" << std::endl;
+    //     generateAgentCombinationSets(cost_map_.vector_of_agents_, j);
+    // }
+
+
+
 }
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
-void NodeExpander::generateAgentCombinationSets( std::vector<std::string> agents, int k){
+void NodeExpander::assignAgentsToActions(std::vector<std::string> & agents, int k){
     
+    int n = agents.size();
+
+    // Create selector vector
+    std::vector<int> d(n);
+    std::iota(d.begin(),d.end(),0);
+    std::cout << "These are the Possible Permutations: " << std::endl;
+    do
+    {
+        for (int i = 0; i < k; i++){
+            std::cout << agents[d[i]] << " ";
+        }
+        std::cout << std::endl;
+        std::reverse(d.begin()+k,d.end());
+    } while (next_permutation(d.begin(),d.end()));
+}
+
+/* Function which performs the generation of assignments of workers to actions.
+**/
+void NodeExpander::generateAgentCombinationSets( std::vector<std::string> & agents, int k){
+    
+    int n = agents.size();
+
+    // Create selector vector
+    std::vector<bool> v(n);
+    std::fill(v.begin(), v.begin() + k, true);
+
+    do {
+        for (int i = 0; i < n; ++i) {
+            if (v[i]) {
+                std::cout << agents[i] << " ";
+                temp_agent_set_.push_back(agents[i]);
+            }
+        }
+        temp_agent_combinations_.push_back(temp_agent_set_);
+        std::cout << "\n";
+    } while (std::prev_permutation(v.begin(), v.end()));
+    std::cout << "--------------" << std::endl;
 }
 
 /* Function which performs the generation the possible action combinations
 **/
-std::vector< std::vector<std::string> > NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){ 
+void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){ 
 
-    std::vector< std::vector<std::string> > action_sets;
-    std::vector<std::string> temp_action_set;
+
+    temp_action_combinations_.clear();
     std::string temp_action_name;
 
     // number of arrays 
@@ -136,14 +200,14 @@ std::vector< std::vector<std::string> > NodeExpander::generateActionCombinationS
         indices[i] = 0; 
   
     while (1) { 
-  
+        temp_action_set_.clear();
         // print current combination 
         for (int i = 0; i < n; i++){
             temp_action_name = nodes[i]->getSuccessorNodes()[indices[i]]->data_.name;
-            temp_action_set.push_back(temp_action_name);
+            temp_action_set_.push_back(temp_action_name);
             std::cout << temp_action_name << " "; 
         }
-        action_sets.push_back(temp_action_set);
+        temp_action_combinations_.push_back(temp_action_set_);
         std::cout << std::endl; 
   
         // find the rightmost array that has more 
@@ -157,7 +221,7 @@ std::vector< std::vector<std::string> > NodeExpander::generateActionCombinationS
         // no such array is found so no more  
         // combinations left 
         if (next < 0) 
-            return action_sets; 
+            return; 
   
         // if found move to next element in that  
         // array 
