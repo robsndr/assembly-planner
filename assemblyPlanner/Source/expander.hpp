@@ -16,6 +16,8 @@ public:
 
 private:
 
+    void createAssignmentNodes(std::vector<Node*> & );
+
     void assignAgentsToActions(std::vector<std::string> & , std::vector<std::string> & );
     void generateAgentActionAssignments(std::vector<Node*> & );
     void generateActionCombinationSets(std::vector<Node*> & );
@@ -55,10 +57,24 @@ NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
 **/
 void NodeExpander::expandNodes(std::vector<Node*> & nodes){
     // Expand multiple nodes at once.
+    std::cout << "NodeSize: " << nodes.size() << std::endl;
 
     generateAgentActionAssignments(nodes);
 
+    printAssignments();        
+
 }
+
+// void NodeExplorer::createAssignmentNodes(std::vector<Node*> & or_nodes){
+
+//     std::vector<Node*> actions;
+//     for (auto &x : or_nodes){
+//         actions.push_back(x);
+//     }
+
+
+    
+// }
 
 /* Function which performs the node expansion on a single OR.
 **/
@@ -131,9 +147,10 @@ void NodeExpander::generateAgentActionAssignments(std::vector<Node*> & nodes){
 
     generateActionCombinationSets(nodes);
 
+    agent_action_assignements_.clear();
+
     for (size_t j = 1; j <= l; j++){
         // std::cout << "Brun" << std::endl;
-        agent_action_assignements_.clear();
 
         generateAgentCombinationSets(cost_map_.vector_of_agents_, j);
         
@@ -143,7 +160,6 @@ void NodeExpander::generateAgentActionAssignments(std::vector<Node*> & nodes){
             }
         }
 
-        printAssignments();        
     }
 
 }

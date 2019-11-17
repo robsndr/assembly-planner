@@ -27,7 +27,8 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
     // search_graph = new Graph<>();
 
-    Graph<> * tree = bfs(root);
+    BFS bfs_graph_converter;
+    Graph<> * tree = bfs_graph_converter.run(root);
     Node * tree_root = tree->root_;
 
     NodeExpander expander(tree, costs_);
