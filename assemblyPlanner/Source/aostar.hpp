@@ -121,12 +121,12 @@ std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
         } 
     }
 
-    std::cout << "---------" << std::endl;
-    for (auto const& x : min_ors){
-        std::cout << "MinOR: " << x->data_.name << std::endl;
-        // std::cout << "Solved: " << x->data_.solved << std::endl;
-        // std::cout << "Terminal: " << x->data_.terminal << std::endl;
-    }
+    // std::cout << "---------" << std::endl;
+    // for (auto const& x : min_ors){
+    //     std::cout << "MinOR: " << x->data_.name << std::endl;
+    //     // std::cout << "Solved: " << x->data_.solved << std::endl;
+    //     // std::cout << "Terminal: " << x->data_.terminal << std::endl;
+    // }
 
     return ors_found;
 }
@@ -277,7 +277,9 @@ AOStarState AOStarSearch::operator()(Node * root, NodeExpander & expander){
         root->data_.solved = true;
     }
 
-    expander.expandNode(root);
+    temp_or_nodes.clear();
+    temp_or_nodes.push_back(root);
+    expander.expandNodes(temp_or_nodes);
 
     // Select a non-terminal leaf node from the marked sub-tree
     while(root->data_.solved == false){     
