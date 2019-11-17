@@ -51,7 +51,7 @@ public:
         if(!is_in)
             vector_of_agents_.push_back(agent);    
         set_of_agents_.insert(agent);
-        cost_map_[action][agent] = cost;
+        map_[action][agent] = cost;
     };
 
 
@@ -60,6 +60,6 @@ public:
 
     std::vector<std::string> vector_of_agents_;
     std::set<std::string> set_of_agents_;
-    std::unordered_map< std::string, std::unordered_map< std::string, double > > cost_map_;
+    std::unordered_map< std::string, std::unordered_map< std::string, double > > map_;
 
 };

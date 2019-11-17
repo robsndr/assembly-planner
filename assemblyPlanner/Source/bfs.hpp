@@ -13,10 +13,6 @@ public:
 
     Graph<> * run(Node * );
 
-private:
-
-    std::string getUniqueName(std::string);
-    std::unordered_map<std::string, std::size_t> name_index_;
 };
 
 Graph<> * BFS::run(Node * root){ 
@@ -29,8 +25,7 @@ Graph<> * BFS::run(Node * root){
 
     // Create search tree.
     Graph<> * search_tree = new Graph<>;
-    std::size_t node_count = 0;
-    Node* new_root = search_tree->insertNode(node_count, root->data_);
+    Node* new_root = search_tree->insertNode(root->data_);
     search_tree->root_ = new_root;
     queue2.push(new_root);
 
@@ -47,12 +42,13 @@ Graph<> * BFS::run(Node * root){
 
         // Insert node from original Graph to currently built tree.
         for (auto x : temp->getSuccessorNodes()){
-            node_count++;
 
             node_data = x->data_;
-            node_data.name = getUniqueName(node_data.name);
-            queue2.push(search_tree->insertNode(node_count, node_data));
-            search_tree->insertEdge(0, temp2->id_, node_count);
+            // node_data.name = getUniqueName(node_data.name);
+
+            Node * new_node = search_tree->insertNode(node_data);
+            queue2.push(new_node);
+            search_tree->insertEdge(0, temp2->id_, new_node->id_);
 
             queue.push(x);
         }
@@ -62,22 +58,3 @@ Graph<> * BFS::run(Node * root){
     // Retrun root of newly created graph.
     return search_tree;
 } 
-
-/* Generates a unique identifier for a given node.
-    As the graph is converted towards a tree, nodes can be repeated.
-    Therefore a unique identifier for every node is needed.
-**/
-std::string BFS::getUniqueName(std::string node_name){
-    
-    std::unordered_map<std::string, std::size_t>::iterator it;
-    it = name_index_.find(node_name);
-
-    if (it != name_index_.end()){
-        name_index_[node_name]++;
-    }
-    else{
-        name_index_[node_name] = 0;
-    }
-
-    return node_name + "_x" + std::to_string(name_index_[node_name]);
-}

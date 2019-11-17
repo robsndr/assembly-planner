@@ -28,8 +28,8 @@ private:
 
     std::unordered_map<std::string, std::vector<std::string> > node_actions_; // First entry denotes node.
                                                                              // Second entry denotes action.
+    
     std::vector<std::string> temp_nodes;
-
 
 
     std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
@@ -43,6 +43,7 @@ private:
     // Defined here to create them once and reuse without repeating allocation.
     std::vector< std::vector<std::string> > temp_action_combinations_;
     std::vector<std::string> temp_action_set_;
+    std::unordered_map<std::string, Node*> action_pointer_map_;
 
 
 };
@@ -59,68 +60,116 @@ void NodeExpander::expandNodes(std::vector<Node*> & nodes){
     // Expand multiple nodes at once.
     std::cout << "NodeSize: " << nodes.size() << std::endl;
 
-    generateAgentActionAssignments(nodes);
+    // generateAgentActionAssignments(nodes);
 
-    printAssignments();        
+    // printAssignments();        
 
 }
 
-// void NodeExplorer::createAssignmentNodes(std::vector<Node*> & or_nodes){
+void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
 
-//     std::vector<Node*> actions;
-//     for (auto &x : or_nodes){
-//         actions.push_back(x);
-//     }
-
+    // std::vector<Node*> actions;
+    // for (auto &x : or_nodes){
+    //     actions.push_back(x);
+    // }
 
     
-// }
+    // std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
+    // NodeData rdata;
+
+
+    // for (auto &assignment : agent_action_assignements_){
+    //     for (auto &agent_action : assignment){
+    //         std::string agent = agent_action.first;
+    //         std::string action = agent_action.second;
+
+
+    //         Node * action_node = action_pointer_map_[action];
+            
+
+    //         rdata.name   = action;
+    //         rdata.worker = agent;
+    //         rdata.expanded = true;
+    //         rdata.cost = cost_map_.map_[action][agent];
+    //         rdata.type = NodeType::AND;
+    //         rdata.marked = false;
+    //         rdata.solved = false;
+    //         Node * new_action_node = search_tree_->insertNode( , rdata);
+
+    //     }
+    // }
+        // std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
+        // std::cout << "Cost: "; std::cin >> rdata.cost;
+
+        // search_tree_->insertNode(and_node->id_ * 100 + i , rdata);
+
+        // int source_id = and_node->getPredecessorNodes().front()->id_;
+        // int expanded_and_id = and_node->id_ * 100 + i;
+
+        // std::cout << "source_id " << source_id << std::endl;
+        // std::cout << "destination_id " << source_id << std::endl;
+
+
+        // search_tree_->insertEdge( 0, source_id, expanded_and_id);
+
+        // for (auto & successor_or  : and_node->getSuccessorNodes()){
+        //     search_tree_->insertEdge( 0, expanded_and_id, successor_or->id_);
+        // }
+
+        // search_tree_->print();
+
+
+        // }
+        // node->data_.expanded = true;
+
+    
+}
 
 /* Function which performs the node expansion on a single OR.
 **/
-void NodeExpander::expandNode(Node* node){
+// void NodeExpander::expandNode(Node* node){
 
-    // Expand children and-nod es.
-    for (auto & and_node  : node->getSuccessorNodes()){
+//     // Expand children and-nod es.
+//     for (auto & and_node  : node->getSuccessorNodes()){
         
-        std::cout << "Expanding action " << and_node->data_.name << std::endl;
+//         std::cout << "Expanding action " << and_node->data_.name << std::endl;
 
-        std::size_t expansion_dimension;
-        std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
+//         std::size_t expansion_dimension;
+//         std::cout << "Expansion dimension: "; std::cin >> expansion_dimension;
 
-        for (size_t i = 0; i < expansion_dimension; i++){
-            NodeData rdata;
+//         for (size_t i = 0; i < expansion_dimension; i++){
+//             NodeData rdata;
             
-            // Appending the string. 
-            rdata.name = and_node->data_.name;
-            rdata.type = and_node->data_.type;
-            rdata.marked = false;
-            rdata.solved = false;
+//             // Appending the string. 
+//             rdata.name = and_node->data_.name;
+//             rdata.type = and_node->data_.type;
+//             rdata.marked = false;
+//             rdata.solved = false;
 
-            std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
-            std::cout << "Cost: "; std::cin >> rdata.cost;
+//             std::cout << "Input cost for Action. Node: " << and_node->data_.name << std::endl;
+//             std::cout << "Cost: "; std::cin >> rdata.cost;
 
-            search_tree_->insertNode(and_node->id_ * 100 + i , rdata);
+//             search_tree_->insertNode(and_node->id_ * 100 + i , rdata);
 
-            int source_id = and_node->getPredecessorNodes().front()->id_;
-            int expanded_and_id = and_node->id_ * 100 + i;
+//             int source_id = and_node->getPredecessorNodes().front()->id_;
+//             int expanded_and_id = and_node->id_ * 100 + i;
 
-            std::cout << "source_id " << source_id << std::endl;
-            std::cout << "destination_id " << source_id << std::endl;
+//             std::cout << "source_id " << source_id << std::endl;
+//             std::cout << "destination_id " << source_id << std::endl;
 
 
-            search_tree_->insertEdge( 0, source_id, expanded_and_id);
+//             search_tree_->insertEdge( 0, source_id, expanded_and_id);
 
-            for (auto & successor_or  : and_node->getSuccessorNodes()){
-                search_tree_->insertEdge( 0, expanded_and_id, successor_or->id_);
-            }
+//             for (auto & successor_or  : and_node->getSuccessorNodes()){
+//                 search_tree_->insertEdge( 0, expanded_and_id, successor_or->id_);
+//             }
 
-            search_tree_->print();
+//             search_tree_->print();
 
-        }
-    }
-    node->data_.expanded = true;
-}
+//         }
+//     }
+//     node->data_.expanded = true;
+// }
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
@@ -224,7 +273,6 @@ void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){
 
 
     temp_action_combinations_.clear();
-    std::string temp_action_name;
 
     // number of arrays 
     int n = nodes.size(); 
@@ -238,8 +286,9 @@ void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){
         temp_action_set_.clear();
         // print current combination 
         for (int i = 0; i < n; i++){
-            temp_action_name = nodes[i]->getSuccessorNodes()[indices[i]]->data_.name;
-            temp_action_set_.push_back(temp_action_name);
+            Node* and_node = nodes[i]->getSuccessorNodes()[indices[i]];
+            action_pointer_map_[and_node->data_.name] = and_node;
+            temp_action_set_.push_back(and_node->data_.name);
             // std::cout << temp_action_name << " "; 
         }
         temp_action_combinations_.push_back(temp_action_set_);
@@ -270,6 +319,8 @@ void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){
     } 
 } 
 
+/* Debug functionality. Prints the current state of the assignment vector.
+**/
 void NodeExpander::printAssignments(){
 
     std::cout << std::endl << "***************Print current assignments: ********************" << std::endl;

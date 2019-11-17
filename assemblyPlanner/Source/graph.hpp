@@ -25,6 +25,8 @@ public:
     std::size_t numberOfEdgesFromNode(const std::size_t);
     std::size_t numberOfEdgesToNode(const std::size_t);
 
+    Node* getNode(std::size_t);
+
     // Access specific nodes/vertices.
     Edge * edgeFromNode(const std::size_t, const std::size_t) const;
     Edge * edgeToNode(const std::size_t, const std::size_t) const;
@@ -34,7 +36,8 @@ public:
 
     // manipulation
     // inserttion
-    Node* insertNode( const std::size_t, const NodeData);
+    // Node* insertNode( const std::size_t, const NodeData);
+    Node* insertNode( const NodeData);
     std::size_t insertNodes(const std::vector<Node*>& );
     std::size_t insertEdge(  const EdgeData, const std::size_t , const std::size_t);
     std::size_t insertEdges( const EdgeData, 
@@ -56,6 +59,7 @@ private:
 
     std::size_t findEdgeIndexHelper( Edge * );
 
+    std::size_t free_node_id_;
     std::unordered_map< std::size_t, Node* > nodes_;
     std::vector< Edge* > edges_;
     Visitor visitor_;
@@ -74,7 +78,9 @@ Graph<Visitor>::Graph(
 :   nodes_(),
     edges_(),
     visitor_(visitor)
-{}
+{
+    free_node_id_ = 0;
+}
 
 /* Construct a graph with preallocating memory for given Edges.
     @numberOfVertices: Number of vertices.
@@ -92,8 +98,7 @@ Graph<Visitor>::Graph(
     edges_(),
     visitor_(visitor)
 {
-    // edges_.reserve(numberOfEdges);
-    // visitor_.insertVertices("0", );
+    free_node_id_ = 0;
 }
     
 /* Get the number of nodes.
@@ -140,6 +145,15 @@ Graph<Visitor>::numberOfEdgesToNode(
         return 0;
     }
     return nodes_[node]->numberOfPredecessors();
+}
+
+/* Get the number of edges that are incident to a given node.
+    @node: string-id of a node.
+**/
+template<typename Visitor>
+inline Node* 
+Graph<Visitor>::getNode(std::size_t node_id) { 
+    return nodes_[node_id];
 }
 
 /* Get the pointer to the j`th edge that originates from a given node.
@@ -215,11 +229,27 @@ Graph<Visitor>::nodesToNode(
     @data: data asociated with the created node.
     \return: number of nodes present in the graph.
 **/
+// template<typename Visitor>
+// inline Node *
+// Graph<Visitor>::insertNode(std::size_t nodeId , NodeData data) {
+//  Node * tempNode = new Node(nodeId, data);
+//     nodes_.insert(std::make_pair(nodeId ,tempNode));
+//     free_node_id_ = ++;
+//     // visitor_.insertVertex(nodeId);
+//     return tempNode;
+// }
+
+/* Insert an additional Node.
+    @node: string-id of the newly inserted node.
+    @data: data asociated with the created node.
+    \return: number of nodes present in the graph.
+**/
 template<typename Visitor>
 inline Node *
-Graph<Visitor>::insertNode(std::size_t nodeId , NodeData data) {
- Node * tempNode = new Node(nodeId, data);
-    nodes_.insert(std::make_pair(nodeId ,tempNode));
+Graph<Visitor>::insertNode(NodeData data) {
+    Node * tempNode = new Node(free_node_id_, data);
+    nodes_.insert(std::make_pair(free_node_id_ ,tempNode));
+    free_node_id_++;
     // visitor_.insertVertex(nodeId);
     return tempNode;
 }
@@ -235,6 +265,7 @@ Graph<Visitor>::insertNodes(
 ) {
     for(auto const node: nodes){
         nodes_.insert(std::make_pair(node->id_, node));
+        free_node_id_++;
     }
     std::size_t position = nodes_.size();
     // for(const auto nd: nodes){

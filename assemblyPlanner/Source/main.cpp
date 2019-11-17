@@ -47,130 +47,127 @@ int main(void){
     // graph_gen.insertAnd(22, "a12", 10);
 
 
-    graph_gen.insertAnd(2, "a1", 50);
-    graph_gen.insertAnd(3, "a2", 50);
-    graph_gen.insertAnd(4, "a3", 50);
+    std::unordered_map<std::string, std::size_t> id_map;
 
-    graph_gen.insertOr(5, "ABCDEF");
-    graph_gen.insertAnd(6, "a4", 10);
+    id_map["ABCDEFGH"] = graph_gen.insertOr("ABCDEFGH");
 
-    graph_gen.insertOr(7, "CDEFGH");
-    graph_gen.insertAnd(8, "a5", 5);
+    id_map["a1"] = graph_gen.insertAnd("a1", 50);
+    id_map["a2"] = graph_gen.insertAnd("a2", 50);
+    id_map["a3"] = graph_gen.insertAnd("a3", 50);
 
-    graph_gen.insertOr(9, "ABCD");
-    graph_gen.insertAnd(10, "a6", 10);
+    id_map["ABCDEF"] = graph_gen.insertOr("ABCDEF");
+    id_map["a4"] = graph_gen.insertAnd("a4", 10);
 
-    graph_gen.insertOr(11, "CDEF");
-    graph_gen.insertAnd(12, "a7", 5);
+    id_map["CDEFGH"] = graph_gen.insertOr("CDEFGH");
+    id_map["a5"] = graph_gen.insertAnd("a5", 5);
 
-    graph_gen.insertOr(13, "EFGH");
-    graph_gen.insertAnd(14, "a8", 5);
+    id_map["ABCD"] = graph_gen.insertOr("ABCD");
+    id_map["a6"] = graph_gen.insertAnd("a6", 10);
+
+    id_map["CDEF"] = graph_gen.insertOr("CDEF");
+    id_map["a7"] = graph_gen.insertAnd("a7", 5);
+
+    id_map["EFGH"] = graph_gen.insertOr("EFGH");
+    id_map["a8"] = graph_gen.insertAnd("a8", 5);
 
 
-    graph_gen.insertOr(15, "AB");
-    graph_gen.insertAnd(16, "a9", 20);
+    id_map["AB"] = graph_gen.insertOr("AB");
+    id_map["a9"] = graph_gen.insertAnd("a9", 20);
 
-    graph_gen.insertOr(17, "CD");
-    graph_gen.insertAnd(18, "a10", 10);
+    id_map["CD"] = graph_gen.insertOr("CD");
+    id_map["a10"] = graph_gen.insertAnd("a10", 10);
 
-    graph_gen.insertOr(19, "EF");
-    graph_gen.insertAnd(20, "a11", 10);
+    id_map["EF"] = graph_gen.insertOr("EF");
+    id_map["a11"] = graph_gen.insertAnd("a11", 10);
 
-    graph_gen.insertOr(21, "GH");
-    graph_gen.insertAnd(22, "a12", 10);
+    id_map["GH"] = graph_gen.insertOr("GH");
+    id_map["a12"] = graph_gen.insertAnd("a12", 10);
 
-    graph_gen.insertOr(23, "A");
-    graph_gen.insertOr(24, "B");
-    graph_gen.insertOr(25, "C");
-    graph_gen.insertOr(26, "D");
-    graph_gen.insertOr(27, "E");
-    graph_gen.insertOr(28, "F");
-    graph_gen.insertOr(29, "G");
-    graph_gen.insertOr(30, "H");
-
-    Graph<> * graph = graph_gen.generate();
+    id_map["A"] = graph_gen.insertOr("A");
+    id_map["B"] = graph_gen.insertOr("B");
+    id_map["C"] = graph_gen.insertOr("C");
+    id_map["D"] = graph_gen.insertOr("D");
+    id_map["E"] = graph_gen.insertOr("E");
+    id_map["F"] = graph_gen.insertOr("F");
+    id_map["G"] = graph_gen.insertOr("G");
+    id_map["H"] = graph_gen.insertOr("H");
     
-    NodeData rdata;
-    rdata.name = "ABCDEFGH";
-    rdata.type = NodeType::OR;
-    rdata.cost = 3;
-    Node * root = graph->insertNode(1, rdata);
-
+    Graph<> * graph = graph_gen.graph;
 
     // Insert edges
     // ABCDEFGH
-    graph->insertEdge(0,1,2);
-    graph->insertEdge(0,1,3);
-    graph->insertEdge(0,1,4);
+    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a1"]);
+    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
+    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
 
     //a1
-    graph->insertEdge(0,2,5);
-    graph->insertEdge(0,2,21);
+    graph->insertEdge(0, id_map["a1"], id_map["ABCDEF"]);
+    graph->insertEdge(0, id_map["a1"], id_map["GH"]);
 
     //a2
-    graph->insertEdge(0,3,9);
-    graph->insertEdge(0,3,13);
+    graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
+    graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
 
     //a3
-    graph->insertEdge(0,4,15);
-    graph->insertEdge(0,4,7);
+    graph->insertEdge(0, id_map["a3"], id_map["AB"]);
+    graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
 
     //ABCDEF
-    graph->insertEdge(0,5,6);
+    graph->insertEdge(0, id_map["ABCDEF"], id_map["a4"]);
 
     //CDEFGH
-    graph->insertEdge(0,7,8);
+    graph->insertEdge(0, id_map["CDEFGH"], id_map["a5"]);
 
     //a4
-    graph->insertEdge(0,6,15);
-    graph->insertEdge(0,6,11);
+    graph->insertEdge(0, id_map["a4"], id_map["AB"]);
+    graph->insertEdge(0, id_map["a4"], id_map["CDEF"]);
 
     //a5
-    graph->insertEdge(0,8,11);
-    graph->insertEdge(0,8,21);
+    graph->insertEdge(0, id_map["a5"], id_map["CDEF"]);
+    graph->insertEdge(0, id_map["a5"], id_map["GH"]);
 
     //ABCD
-    graph->insertEdge(0,9,10);
+    graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
 
     //CDEF
-    graph->insertEdge(0,11,12);
+    graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
 
     //EFGH
-    graph->insertEdge(0,13,14);
+    graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
 
     //a6
-    graph->insertEdge(0,10,15);
-    graph->insertEdge(0,10,17);
+    graph->insertEdge(0, id_map["a6"], id_map["AB"]);
+    graph->insertEdge(0, id_map["a6"], id_map["CD"]);
 
     //a7
-    graph->insertEdge(0,12,17);
-    graph->insertEdge(0,12,19);
+    graph->insertEdge(0, id_map["a7"], id_map["CD"]);
+    graph->insertEdge(0, id_map["a7"], id_map["EF"]);
 
     //a8
-    graph->insertEdge(0,14,19);
-    graph->insertEdge(0,14,21);
+    graph->insertEdge(0, id_map["a8"], id_map["EF"]);
+    graph->insertEdge(0, id_map["a8"], id_map["GH"]);
 
     // AB, CD, EF, GH
-    graph->insertEdge(0,15,16);
-    graph->insertEdge(0,17,18);
-    graph->insertEdge(0,19,20);
-    graph->insertEdge(0,21,22);
+    graph->insertEdge(0, id_map["AB"], id_map["a9"]);
+    graph->insertEdge(0, id_map["CD"], id_map["a10"]);
+    graph->insertEdge(0, id_map["EF"], id_map["a11"]);
+    graph->insertEdge(0, id_map["GH"], id_map["a12"]);
 
     //a9 -> A, B
-    graph->insertEdge(0,16,23);
-    graph->insertEdge(0,16,24);
+    graph->insertEdge(0, id_map["a9"], id_map["A"]);
+    graph->insertEdge(0, id_map["a9"], id_map["B"]);
 
     //a10 -> C, D
-    graph->insertEdge(0,18,25);
-    graph->insertEdge(0,18,26);
+    graph->insertEdge(0, id_map["a10"], id_map["C"]);
+    graph->insertEdge(0, id_map["a10"], id_map["D"]);
 
     //a11 -> E, F
-    graph->insertEdge(0,20,27);
-    graph->insertEdge(0,20,28);
+    graph->insertEdge(0, id_map["a11"], id_map["E"]);
+    graph->insertEdge(0, id_map["a11"], id_map["F"]);
 
     //a12 -> G, H
-    graph->insertEdge(0,22,29);
-    graph->insertEdge(0,22,30);
+    graph->insertEdge(0, id_map["a12"], id_map["G"]);
+    graph->insertEdge(0, id_map["a12"], id_map["H"]);
 
 
     CostMap action_cost_map(12, 3);
@@ -229,10 +226,12 @@ int main(void){
     action_cost_map.addMapping("a12", "r2", 10);
     action_cost_map.addMapping("a12", "h",  10);
 
+    Node* root = graph->getNode(id_map["ABCDEFGH"]);
+
     Planner planner;
     planner(graph, root, action_cost_map);
 
-    // graph->print();
+    graph->print();
 
     return 0;
 }

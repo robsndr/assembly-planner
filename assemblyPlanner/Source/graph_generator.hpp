@@ -7,10 +7,9 @@ public:
     GraphGenerator(/* args */);
     ~GraphGenerator();
 
-    void insertAnd(std::size_t, std::string, double);
-    void insertOr(std::size_t, std::string);
-
-    Graph<> * generate();
+    std::size_t insertAnd(std::string, double);
+    std::size_t insertOr(std::string);
+    Graph<> * graph;
 
 private:
     std::vector< Node* > and_;
@@ -18,15 +17,15 @@ private:
     
 };
 
-GraphGenerator::GraphGenerator(/* args */)
-{
+GraphGenerator::GraphGenerator(/* args */){
+    graph = new Graph();
 }
 
 GraphGenerator::~GraphGenerator()
 {
 }
 
-void GraphGenerator::insertAnd(std::size_t id, std::string name, double cost){
+std::size_t GraphGenerator::insertAnd(std::string name, double cost){
     NodeData data;
     data.name = name;
     data.type = NodeType::AND;
@@ -34,11 +33,11 @@ void GraphGenerator::insertAnd(std::size_t id, std::string name, double cost){
     data.marked = false;
     data.solved = false;
 
-    Node * temp= new Node(id,data);
-    and_.push_back(temp);
+    Node * inserted_node = graph->insertNode(data);
+    return inserted_node->id_;
 }
 
-void GraphGenerator::insertOr(std::size_t id, std::string name){
+std::size_t GraphGenerator::insertOr(std::string name){
     NodeData data;
     data.name = name;
     data.type = NodeType::AND;
@@ -46,13 +45,6 @@ void GraphGenerator::insertOr(std::size_t id, std::string name){
     data.marked = false;
     data.solved = false;
 
-    Node * temp= new Node(id,data);
-    or_.push_back(temp);
-}
-
-Graph<> * GraphGenerator::generate(){
-    Graph<> * graph = new Graph();
-    graph->insertNodes(and_); 
-    graph->insertNodes(or_);    
-    return graph;
+    Node * inserted_node = graph->insertNode(data);
+    return inserted_node->id_;
 }
