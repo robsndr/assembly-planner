@@ -12,10 +12,11 @@ public:
     void expandNodes(std::vector<Node*> &);
 
     void createNodeActionTable(std::vector<Node*> &);
+    void printAssignments();
 
 private:
 
-    void assignAgentsToActions(std::vector<std::string> & agents, int k);
+    void assignAgentsToActions(std::vector<std::string> & , std::vector<std::string> & );
     void generateAgentActionAssignments(std::vector<Node*> & );
     void generateActionCombinationSets(std::vector<Node*> & );
     void generateAgentCombinationSets( std::vector<std::string> &, int );
@@ -126,61 +127,79 @@ void NodeExpander::createNodeActionTable(std::vector<Node*> & nodes){
 **/
 void NodeExpander::generateAgentActionAssignments(std::vector<Node*> & nodes){
 
-    int l = std::min(nodes.size(), cost_map_.number_of_agents_);
+    std::size_t l = std::min(nodes.size(), cost_map_.number_of_agents_);
 
     generateActionCombinationSets(nodes);
-    assignAgentsToActions(cost_map_.vector_of_agents_, 2);
 
-    // for (size_t j = 0; j < l; j++){
-    //     std::cout << "Brun" << std::endl;
-    //     generateAgentCombinationSets(cost_map_.vector_of_agents_, j);
-    // }
+    for (size_t j = 1; j <= l; j++){
+        // std::cout << "Brun" << std::endl;
+        agent_action_assignements_.clear();
 
+        generateAgentCombinationSets(cost_map_.vector_of_agents_, j);
+        
+        for (auto &agents : temp_agent_combinations_){
+            for (auto &actions : temp_action_combinations_){
+                assignAgentsToActions(agents, actions);
+            }
+        }
 
+        printAssignments();        
+    }
 
 }
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
-void NodeExpander::assignAgentsToActions(std::vector<std::string> & agents, int k){
+void NodeExpander::assignAgentsToActions(std::vector<std::string> & cur_agents, std::vector<std::string> & cur_actions ){
     
-    int n = agents.size();
+    int n = cur_actions.size();
+    int k = cur_agents.size();
+
+    // std::cout << "Agent size: " << k << std::endl;
+    // std::cout << "Action size: " << n << std::endl;
+
+
+    std::unordered_map<std::string, std::string> assignment;
 
     // Create selector vector
     std::vector<int> d(n);
     std::iota(d.begin(),d.end(),0);
-    std::cout << "These are the Possible Permutations: " << std::endl;
-    do
-    {
+    // std::cout << "These are the Possible Permutations: " << std::endl;
+    do{
         for (int i = 0; i < k; i++){
-            std::cout << agents[d[i]] << " ";
+            // std::cout << cur_actions[d[i]] << " ";
+            assignment[cur_agents[i]] = cur_actions[d[i]];
         }
-        std::cout << std::endl;
+        agent_action_assignements_.push_back(assignment);
+        // std::cout << std::endl;
         std::reverse(d.begin()+k,d.end());
     } while (next_permutation(d.begin(),d.end()));
+
+
 }
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
 void NodeExpander::generateAgentCombinationSets( std::vector<std::string> & agents, int k){
     
+    
     int n = agents.size();
-
+    temp_agent_combinations_.clear();
+    
     // Create selector vector
     std::vector<bool> v(n);
     std::fill(v.begin(), v.begin() + k, true);
-
     do {
+        temp_agent_set_.clear();
         for (int i = 0; i < n; ++i) {
             if (v[i]) {
-                std::cout << agents[i] << " ";
+                // std::cout << agents[i] << " ";
                 temp_agent_set_.push_back(agents[i]);
             }
         }
         temp_agent_combinations_.push_back(temp_agent_set_);
-        std::cout << "\n";
+        // std::cout << "\n";
     } while (std::prev_permutation(v.begin(), v.end()));
-    std::cout << "--------------" << std::endl;
 }
 
 /* Function which performs the generation the possible action combinations
@@ -205,10 +224,10 @@ void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){
         for (int i = 0; i < n; i++){
             temp_action_name = nodes[i]->getSuccessorNodes()[indices[i]]->data_.name;
             temp_action_set_.push_back(temp_action_name);
-            std::cout << temp_action_name << " "; 
+            // std::cout << temp_action_name << " "; 
         }
         temp_action_combinations_.push_back(temp_action_set_);
-        std::cout << std::endl; 
+        // std::cout << std::endl; 
   
         // find the rightmost array that has more 
         // elements left after the current element  
@@ -234,3 +253,18 @@ void NodeExpander::generateActionCombinationSets( std::vector<Node*> & nodes ){
             indices[i] = 0; 
     } 
 } 
+
+void NodeExpander::printAssignments(){
+
+    std::cout << std::endl << "***************Print current assignments: ********************" << std::endl;
+
+    for (auto const& assignment : agent_action_assignements_){
+        for (auto const&  elem: assignment){
+            std::cout << elem.first  << " : " << elem.second << std::endl ;
+        }
+        std::cout << "----------" << std::endl; 
+    }
+
+    std::cout << "**************************************************************" << std::endl << std::endl;
+
+}
