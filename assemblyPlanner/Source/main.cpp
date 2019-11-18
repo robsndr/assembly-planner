@@ -14,40 +14,41 @@ int main(void){
 
     GraphGenerator graph_gen;
 
-    // graph_gen.insertAnd(2, "a1", 20);
-    // graph_gen.insertAnd(3, "a2", 5);
-    // graph_gen.insertAnd(4, "a3", 15);
-
-    // graph_gen.insertOr(5, "ABCDEF");
-    // graph_gen.insertAnd(6, "a4", 10);
-
-    // graph_gen.insertOr(7, "CDEFGH");
-    // graph_gen.insertAnd(8, "a5", 5);
-
-    // graph_gen.insertOr(9, "ABCD");
-    // graph_gen.insertAnd(10, "a6", 3);
-
-    // graph_gen.insertOr(11, "CDEF");
-    // graph_gen.insertAnd(12, "a7", 5);
-
-    // graph_gen.insertOr(13, "EFGH");
-    // graph_gen.insertAnd(14, "a8", 5);
-
-
-    // graph_gen.insertOr(15, "AB");
-    // graph_gen.insertAnd(16, "a9", 5);
-
-    // graph_gen.insertOr(17, "CD");
-    // graph_gen.insertAnd(18, "a10", 5);
-
-    // graph_gen.insertOr(19, "EF");
-    // graph_gen.insertAnd(20, "a11", 10);
-
-    // graph_gen.insertOr(21, "GH");
-    // graph_gen.insertAnd(22, "a12", 10);
-
-
     std::unordered_map<std::string, std::size_t> id_map;
+
+    // id_map["a1"] = graph_gen.insertAnd("a1", 20);
+    // id_map["a2"] = graph_gen.insertAnd("a2", 5);
+    // id_map["a3"] = graph_gen.insertAnd("a3", 15);
+
+    // id_map["ABCDEF"] = graph_gen.insertOr("ABCDEF");
+    // id_map["a4"]     = graph_gen.insertAnd("a4", 10);
+
+    // id_map["CDEFGH"] = graph_gen.insertOr("CDEFGH");
+    // id_map["a5"] = graph_gen.insertAnd("a5", 5);
+
+    // id_map["ABCD"] = graph_gen.insertOr("ABCD");
+    // id_map["a6"] = graph_gen.insertAnd("a6", 3);
+
+    // id_map["CDEF"] = graph_gen.insertOr("CDEF");
+    // id_map["a7"] = graph_gen.insertAnd("a7", 5);
+
+    // id_map["EFGH"] = graph_gen.insertOr("EFGH");
+    // id_map["a8"] = graph_gen.insertAnd("a8", 5);
+
+
+    // id_map["AB"] = graph_gen.insertOr("AB");
+    // id_map["a9"] = graph_gen.insertAnd("a9", 5);
+
+    // id_map["CD"] = graph_gen.insertOr("CD");
+    // id_map["a10"] = graph_gen.insertAnd("a10", 5);
+
+    // id_map["EF"] = graph_gen.insertOr("EF");
+    // id_map["a11"] = graph_gen.insertAnd("a11", 10);
+
+    // id_map["GH"] = graph_gen.insertOr("GH");
+    // id_map["a12"] = graph_gen.insertAnd("a12", 10);
+
+
 
     id_map["ABCDEFGH"] = graph_gen.insertOr("ABCDEFGH");
 
