@@ -1,3 +1,6 @@
+#ifndef BFSH_HPP
+#define BFSH_HPP
+
 #include <iostream>
 #include <climits>
 #include <set>
@@ -58,3 +61,5 @@ Graph<> * BFS::run(Node * root){
     // Retrun root of newly created graph.
     return search_tree;
 } 
+
+#endif

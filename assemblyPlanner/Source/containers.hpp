@@ -1,3 +1,7 @@
+#ifndef CONTAINERS_HPP
+#define CONTAINERS_HPP
+
+
 #include <string>
 #include <cmath>
 #include<set>
@@ -6,6 +10,21 @@ enum class NodeType{AND, OR};
 
 class NodeData{
 public:
+
+    NodeData(){}
+
+    NodeData(const NodeData & copied){
+        name     = copied.name;
+        worker   = copied.worker;
+        expanded = copied.expanded;
+        cost     = copied.cost;
+        type     = copied.type;
+        marked   = copied.marked;
+        solved   = copied.solved;
+        solution = copied.solution;
+
+    }
+
     double cost = 0;
     NodeType type;
 
@@ -16,6 +35,8 @@ public:
     bool marked = false;
     bool solved = false;;
     bool solution = false;
+
+    bool debug = false;
 
     void reset(){
         // marked = false;
@@ -63,3 +84,5 @@ public:
     std::unordered_map< std::string, std::unordered_map< std::string, double > > map_;
 
 };
+
+#endif

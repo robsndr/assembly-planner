@@ -8,7 +8,7 @@
 #include "planner.hpp"
 // #include "bfs.hpp"
 
-
+#include "dotwriter.hpp"
 
 int main(void){
 
@@ -140,15 +140,15 @@ int main(void){
     graph->insertEdge(0, id_map["a6"], id_map["AB"]);
     graph->insertEdge(0, id_map["a6"], id_map["CD"]);
 
-    //a7
-    graph->insertEdge(0, id_map["a7"], id_map["CD"]);
-    graph->insertEdge(0, id_map["a7"], id_map["EF"]);
+    // //a7
+    // graph->insertEdge(0, id_map["a7"], id_map["CD"]);
+    // graph->insertEdge(0, id_map["a7"], id_map["EF"]);
 
     //a8
     graph->insertEdge(0, id_map["a8"], id_map["EF"]);
     graph->insertEdge(0, id_map["a8"], id_map["GH"]);
 
-    // AB, CD, EF, GH
+    // // AB, CD, EF, GH
     graph->insertEdge(0, id_map["AB"], id_map["a9"]);
     graph->insertEdge(0, id_map["CD"], id_map["a10"]);
     graph->insertEdge(0, id_map["EF"], id_map["a11"]);
@@ -232,7 +232,9 @@ int main(void){
     Planner planner;
     planner(graph, root, action_cost_map);
 
-    graph->print();
+
+    DotWriter dot;
+    graph->print(dot);
 
     return 0;
 }

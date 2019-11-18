@@ -1,3 +1,6 @@
+#ifndef EXPANDER_HPP
+#define EXPANDER_HPP
+
 #include <vector>
 #include "graph.hpp"
 #include <set>
@@ -42,8 +45,6 @@ private:
     // Defined here to create them once and reuse without repeating allocation.
     std::vector< std::vector<  std::tuple<std::string, Node*> > > temp_action_combinations_;
     std::vector< std::tuple<std::string, Node*> > temp_action_set_;
-    std::unordered_map<std::string, Node*> action_pointer_map_;
-
 
 };
 
@@ -57,45 +58,70 @@ NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
 **/
 void NodeExpander::expandNodes(std::vector<Node*> & nodes){
     // Expand multiple nodes at once.
+    if(nodes.size() > 0)
     std::cout << "NodeSize: " << nodes.size() << std::endl;
 
     generateAgentActionAssignments(nodes);
 
-    printAssignments();        
+    // printAssignments(); 
+
+    createAssignmentNodes(nodes);       
 
 }
 
 void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
-
-    // std::vector<Node*> actions;
-    // for (auto &x : or_nodes){
-    //     actions.push_back(x);
-    // }
-
     
+    for (auto & node : or_nodes){
+        node->data_.expanded = true;
+    }
+
     // std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
-    // NodeData rdata;
+    
+    std::set<Node* > nodes_to_delete_;
 
+    NodeData ndata;
 
-    // for (auto &assignment : agent_action_assignements_){
-    //     for (auto &agent_action : assignment){
-    //         std::string agent = agent_action.first;
-    //         std::string action = agent_action.second;
-
-
-    //         Node * action_node = action_pointer_map_[action];
+    for (auto &cur_assignments : agent_action_assignements_){
+        for (auto &agent_action_assignment : cur_assignments){
+            std::string agent  = std::get<0>(agent_action_assignment);
+            std::string action = std::get<1>(agent_action_assignment);
+            Node * action_ptr  = std::get<2>(agent_action_assignment);
             
+            nodes_to_delete_.insert(action_ptr);
 
-    //         rdata.name   = action;
-    //         rdata.worker = agent;
-    //         rdata.expanded = true;
-    //         rdata.cost = cost_map_.map_[action][agent];
-    //         rdata.type = NodeType::AND;
-    //         rdata.marked = false;
-    //         rdata.solved = false;
-    //         Node * new_action_node = search_tree_->insertNode( , rdata);
+            ndata.name   = action;
+            ndata.worker = agent;
+            ndata.expanded = true;
+            ndata.cost = cost_map_.map_[action][agent];
+            ndata.type = NodeType::AND;
+            ndata.marked = false;
+            ndata.solved = false;
+           
+            Node * new_action_node = search_tree_->insertNode(ndata);
+            search_tree_->insertEdge(0, action_ptr->getPredecessorNodes()[0]->id_, new_action_node->id_);
 
-    //     }
+            for (auto & or_successor : action_ptr->getSuccessorNodes()){
+
+                // search_tree_->eraseEdge(action_ptr->getPredecessorNodes()[0]->id_, action_ptr->id_);
+
+                nodes_to_delete_.insert(or_successor);
+                Node * inserted = search_tree_->insertNode(*or_successor);
+                inserted->data_.expanded = false;
+                
+                for (auto & follower : or_successor->getSuccessorNodes()){
+                    search_tree_->insertEdge(0, inserted->id_,  follower->id_);
+                }
+                
+                search_tree_->insertEdge(0, new_action_node->id_, inserted->id_);
+            }
+        }
+    }
+
+    // std::cout << "LALALA" << std::endl;
+
+    // search_tree_->print();
+    // for (auto & node_delete : nodes_to_delete_){
+        
     // }
 }
 
@@ -138,7 +164,7 @@ void NodeExpander::expandNode(Node* node){
                 search_tree_->insertEdge( 0, expanded_and_id, successor_or->id_);
             }
 
-            search_tree_->print();
+            // search_tree_->print();
 
         }
     }
@@ -283,7 +309,8 @@ void NodeExpander::printAssignments(){
 
     for (auto const& assignment : agent_action_assignements_){
         for (auto const&  elem: assignment){
-            std::cout << std::get<0>(elem)  << " : " << std::get<1>(elem) << std::endl ;
+            std::cout << std::get<0>(elem)  << " : " << std::get<1>(elem)
+                                            << " : " << std::get<2>(elem)->data_.name << std::endl ;
         }
         std::cout << "----------" << std::endl; 
     }
@@ -291,3 +318,4 @@ void NodeExpander::printAssignments(){
     std::cout << "**************************************************************" << std::endl << std::endl;
 
 }
+#endif

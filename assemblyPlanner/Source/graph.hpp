@@ -10,7 +10,7 @@
 #include <memory>
 #include "node.hpp"
 #include "visitor.hpp"
-
+#include "dotwriter.hpp"
 
 template<typename Visitor = VerboseGraphVisitor<std::size_t> >
 class Graph{
@@ -38,6 +38,7 @@ public:
     // inserttion
     // Node* insertNode( const std::size_t, const NodeData);
     Node* insertNode( const NodeData);
+    Node* insertNode(const Node & );
     std::size_t insertNodes(const std::vector<Node*>& );
     std::size_t insertEdge(  const EdgeData, const std::size_t , const std::size_t);
     std::size_t insertEdges( const EdgeData, 
@@ -51,7 +52,7 @@ public:
     std::pair<bool, std::size_t> findEdge( const std::size_t, const std::size_t );
 
     // TODO: implement as friend. For template might be complications.
-    void print();
+    void print(DotWriter &);
     void reset(); 
     Node * root_;
 
@@ -229,15 +230,16 @@ Graph<Visitor>::nodesToNode(
     @data: data asociated with the created node.
     \return: number of nodes present in the graph.
 **/
-// template<typename Visitor>
-// inline Node *
-// Graph<Visitor>::insertNode(std::size_t nodeId , NodeData data) {
-//  Node * tempNode = new Node(nodeId, data);
-//     nodes_.insert(std::make_pair(nodeId ,tempNode));
-//     free_node_id_ = ++;
-//     // visitor_.insertVertex(nodeId);
-//     return tempNode;
-// }
+template<typename Visitor>
+inline Node *
+Graph<Visitor>::insertNode(const Node & node) {
+    NodeData ndata = node.data_;
+    Node * tempNode = new Node(free_node_id_, ndata);
+    nodes_.insert(std::make_pair(free_node_id_ , tempNode));
+    free_node_id_++;
+    // visitor_.insertVertex(nodeId);
+    return tempNode;
+}
 
 /* Insert an additional Node.
     @node: string-id of the newly inserted node.
@@ -484,14 +486,17 @@ Graph<Visitor>::eraseNode(
 */ 
 template<typename Visitor>
 void
-Graph<Visitor>::print() 
-{
+Graph<Visitor>::print(DotWriter & writer){
+
+    writer.write(nodes_);
+
     std::cout << std::endl << std::endl;
     std::cout << "************************  Current Node configuration  ************************" << std::endl;
     std::cout << "Number of Nodes in Graph: " << numberOfNodes()
               << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
     for (auto const& x : nodes_){
         // if(x.second->data_.solution && x.second->data_.type == NodeType::AND)
+        if(x.second->hasSuccessor() || x.second->hasPredecessor())
             x.second->print();
     }
     // std::cout << "Current Edge configuration:" << std::endl;

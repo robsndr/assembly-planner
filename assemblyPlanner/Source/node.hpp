@@ -1,3 +1,6 @@
+#ifndef NODEH_HPP
+#define NODEH_HPP
+
 #include <iostream>
 #include <stdio.h>
 #include <vector>
@@ -223,9 +226,11 @@ Node::print() {
         std::cout << "    " << x->id_;
     }
     std::cout <<  std::endl;
-    std::cout << "    Marked: " << data_.marked;
-    std::cout <<  std::endl;
     std::cout << "    Name: " << data_.name;
+    std::cout <<  std::endl;
+    std::cout << "    Worker: " << data_.worker;
+    std::cout <<  std::endl;
+    std::cout << "    Marked: " << data_.marked;
     std::cout <<  std::endl;
     std::cout << "    Solved: " << data_.solved;
     std::cout <<  std::endl;
@@ -240,3 +245,5 @@ inline void
 Edge::print(){
     std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
 }
+
+#endif

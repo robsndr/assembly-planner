@@ -1,3 +1,7 @@
+#ifndef AOSTARH_HPP
+#define AOSTARH_HPP
+
+
 #include <iostream>
 #include <climits>
 #include <set>
@@ -303,3 +307,5 @@ AOStarState AOStarSearch::operator()(Node * root, NodeExpander & expander){
 
     return search_state;
 }
+
+#endif

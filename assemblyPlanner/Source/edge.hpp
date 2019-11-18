@@ -1,3 +1,7 @@
+#ifndef EDGEH_HPP
+#define EDGEH_HPP
+
+
 /*Forward declaration of Node so Conector knows about it
 **/
 #include <iostream>
@@ -82,3 +86,5 @@ inline void
 Edge::setSource(Node* node){
     from_ = node;
 }
+
+#endif
