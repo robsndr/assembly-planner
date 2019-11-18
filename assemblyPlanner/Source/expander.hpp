@@ -11,14 +11,15 @@ class NodeExpander{
 public:
     NodeExpander(Graph<> *, CostMap&);
     // void operator()(std::vector<Node*> &);
-    void expandNode(Node * node);
-    void expandNodes(std::vector<Node*> &);
+    void expandNode(Node * );
+    void expandNodes(std::vector<Node*> &, std::vector<Node*> &);
 
     void printAssignments();
 
 private:
 
-    void createAssignmentNodes(std::vector<Node*> & );
+    void createAssignmentNodes(std::vector<Node*> &, std::vector<Node*> &);
+    std::vector<Node* > copySearchSubtree(std::vector<Node*> & );
 
     void assignAgentsToActions(std::vector<std::string> & , std::vector<std::tuple<std::string, Node*> >  & );
     void generateAgentActionAssignments(std::vector<Node*> & );
@@ -56,20 +57,26 @@ NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
 
 /* Function which performs the node expansion.
 **/
-void NodeExpander::expandNodes(std::vector<Node*> & nodes){
+void NodeExpander::expandNodes(std::vector<Node*> & nodes, std::vector<Node*> & search_stack){
     // Expand multiple nodes at once.
     if(nodes.size() > 0)
     std::cout << "NodeSize: " << nodes.size() << std::endl;
 
+    for (auto &i : search_stack){
+        std::cout << "Stack: " << i->data_.name << std::endl;
+    }
+    
+
+
     generateAgentActionAssignments(nodes);
 
-    // printAssignments(); 
+    printAssignments(); 
 
-    createAssignmentNodes(nodes);       
+    createAssignmentNodes(nodes, search_stack);       
 
 }
 
-void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
+void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes, std::vector<Node*> & search_stack){
     
     for (auto & node : or_nodes){
         node->data_.expanded = true;
@@ -82,7 +89,11 @@ void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
     NodeData ndata;
 
     for (auto &cur_assignments : agent_action_assignements_){
-        for (auto &agent_action_assignment : cur_assignments){
+        
+        std::vector<Node* > subtree = copySearchSubtree(search_stack);
+
+        for (auto &agent_action_assignment : cur_assignments){    
+
             std::string agent  = std::get<0>(agent_action_assignment);
             std::string action = std::get<1>(agent_action_assignment);
             Node * action_ptr  = std::get<2>(agent_action_assignment);
@@ -102,7 +113,6 @@ void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
 
             for (auto & or_successor : action_ptr->getSuccessorNodes()){
 
-                // search_tree_->eraseEdge(action_ptr->getPredecessorNodes()[0]->id_, action_ptr->id_);
 
                 nodes_to_delete_.insert(or_successor);
                 Node * inserted = search_tree_->insertNode(*or_successor);
@@ -120,10 +130,29 @@ void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
     // std::cout << "LALALA" << std::endl;
 
     // search_tree_->print();
-    // for (auto & node_delete : nodes_to_delete_){
+    for (auto & node_delete : nodes_to_delete_){
+        // search_tree_->eraseEdge(node_delete->getPredecessorNodes()[0]->id_, node_delete->id_);        
+    }
+}
+
+std::vector<Node* > NodeExpander::copySearchSubtree(std::vector<Node*> & search_stack){
+
+    // Node* stack_or_temp;
+    // Node* pred_and_temp;
+    // Node* pred_or;
+
+    // for (size_t i = 1; i < search_stack.size(); i++){
+    //     stack_or_temp = search_tree_->insertNode(search_stack[i]->data_);
+
+    //     for (auto &and_stack : stack_or_temp->getPredecessorNodes()){
+    //         pred_and_temp = search_tree_->insertNode(and_stack->data_);
+    //         pred_or  = and_stack->getPredecessorNodes()[0];
+    //         search_tree_->insertEdge(0, pred_or->id_, )
+    //     }
         
     // }
 }
+
 
 /* Function which performs the node expansion on a single OR.
 **/

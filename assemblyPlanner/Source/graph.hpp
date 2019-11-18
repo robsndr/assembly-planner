@@ -490,15 +490,15 @@ Graph<Visitor>::print(DotWriter & writer){
 
     writer.write(nodes_);
 
-    std::cout << std::endl << std::endl;
-    std::cout << "************************  Current Node configuration  ************************" << std::endl;
-    std::cout << "Number of Nodes in Graph: " << numberOfNodes()
-              << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
-    for (auto const& x : nodes_){
-        // if(x.second->data_.solution && x.second->data_.type == NodeType::AND)
-        if(x.second->hasSuccessor() || x.second->hasPredecessor())
-            x.second->print();
-    }
+    // std::cout << std::endl << std::endl;
+    // std::cout << "************************  Current Node configuration  ************************" << std::endl;
+    // std::cout << "Number of Nodes in Graph: " << numberOfNodes()
+    //           << "                   Number of Edges in Graph: " << numberOfEdges() << std::endl << std::endl;
+    // for (auto const& x : nodes_){
+    //     // if(x.second->data_.solution && x.second->data_.type == NodeType::AND)
+    //     if(x.second->hasSuccessor() || x.second->hasPredecessor())
+    //         x.second->print();
+    // }
     // std::cout << "Current Edge configuration:" << std::endl;
     // for (auto const& x : edges_){
     //     x->print();

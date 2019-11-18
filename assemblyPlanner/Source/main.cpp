@@ -98,20 +98,20 @@ int main(void){
     // Insert edges
     // ABCDEFGH
     graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a1"]);
-    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
-    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
+    // graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
+    // graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
 
     //a1
     graph->insertEdge(0, id_map["a1"], id_map["ABCDEF"]);
     graph->insertEdge(0, id_map["a1"], id_map["GH"]);
 
     //a2
-    graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
-    graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
+    // graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
+    // graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
 
     //a3
-    graph->insertEdge(0, id_map["a3"], id_map["AB"]);
-    graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
+    // graph->insertEdge(0, id_map["a3"], id_map["AB"]);
+    // graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
 
     //ABCDEF
     graph->insertEdge(0, id_map["ABCDEF"], id_map["a4"]);
@@ -128,102 +128,102 @@ int main(void){
     graph->insertEdge(0, id_map["a5"], id_map["GH"]);
 
     //ABCD
-    graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
+    // graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
 
     //CDEF
-    graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
+    // graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
 
     //EFGH
-    graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
+    // graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
 
     //a6
-    graph->insertEdge(0, id_map["a6"], id_map["AB"]);
-    graph->insertEdge(0, id_map["a6"], id_map["CD"]);
+    // graph->insertEdge(0, id_map["a6"], id_map["AB"]);
+    // graph->insertEdge(0, id_map["a6"], id_map["CD"]);
 
     // //a7
     // graph->insertEdge(0, id_map["a7"], id_map["CD"]);
     // graph->insertEdge(0, id_map["a7"], id_map["EF"]);
 
     //a8
-    graph->insertEdge(0, id_map["a8"], id_map["EF"]);
-    graph->insertEdge(0, id_map["a8"], id_map["GH"]);
+    // graph->insertEdge(0, id_map["a8"], id_map["EF"]);
+    // graph->insertEdge(0, id_map["a8"], id_map["GH"]);
 
-    // // AB, CD, EF, GH
-    graph->insertEdge(0, id_map["AB"], id_map["a9"]);
-    graph->insertEdge(0, id_map["CD"], id_map["a10"]);
-    graph->insertEdge(0, id_map["EF"], id_map["a11"]);
+    // // // AB, CD, EF, GH
+    // graph->insertEdge(0, id_map["AB"], id_map["a9"]);
+    // graph->insertEdge(0, id_map["CD"], id_map["a10"]);
+    // graph->insertEdge(0, id_map["EF"], id_map["a11"]);
     graph->insertEdge(0, id_map["GH"], id_map["a12"]);
 
-    //a9 -> A, B
+    // //a9 -> A, B
     graph->insertEdge(0, id_map["a9"], id_map["A"]);
     graph->insertEdge(0, id_map["a9"], id_map["B"]);
 
-    //a10 -> C, D
-    graph->insertEdge(0, id_map["a10"], id_map["C"]);
-    graph->insertEdge(0, id_map["a10"], id_map["D"]);
+    // //a10 -> C, D
+    // graph->insertEdge(0, id_map["a10"], id_map["C"]);
+    // graph->insertEdge(0, id_map["a10"], id_map["D"]);
 
-    //a11 -> E, F
-    graph->insertEdge(0, id_map["a11"], id_map["E"]);
-    graph->insertEdge(0, id_map["a11"], id_map["F"]);
+    // //a11 -> E, F
+    // graph->insertEdge(0, id_map["a11"], id_map["E"]);
+    // graph->insertEdge(0, id_map["a11"], id_map["F"]);
 
-    //a12 -> G, H
+    // //a12 -> G, H
     graph->insertEdge(0, id_map["a12"], id_map["G"]);
     graph->insertEdge(0, id_map["a12"], id_map["H"]);
 
 
-    CostMap action_cost_map(12, 3);
+    CostMap action_cost_map(12, 2);
 
-    action_cost_map.addMapping("a1", "r1", 999);
+    // action_cost_map.addMapping("a1", "r1", 999);
     action_cost_map.addMapping("a1", "r2", 999);
     action_cost_map.addMapping("a1", "h",  20);
 
-    action_cost_map.addMapping("a2", "r1", 999);
+    // action_cost_map.addMapping("a2", "r1", 999);
     action_cost_map.addMapping("a2", "r2", 999);
     action_cost_map.addMapping("a2", "h",  5);
 
-    action_cost_map.addMapping("a3", "r1", 999);
+    // action_cost_map.addMapping("a3", "r1", 999);
     action_cost_map.addMapping("a3", "r2", 999);
     action_cost_map.addMapping("a3", "h",  15);
 
-    action_cost_map.addMapping("a4", "r1", 10);
+    // action_cost_map.addMapping("a4", "r1", 10);
     action_cost_map.addMapping("a4", "r2", 10);
     action_cost_map.addMapping("a4", "h",  20);
 
-    action_cost_map.addMapping("a5", "r1", 5);
+    // action_cost_map.addMapping("a5", "r1", 5);
     action_cost_map.addMapping("a5", "r2", 5);
     action_cost_map.addMapping("a5", "h",  5);
 
-    action_cost_map.addMapping("a6", "r1", 20);
+    // action_cost_map.addMapping("a6", "r1", 20);
     action_cost_map.addMapping("a6", "r2", 10);
     action_cost_map.addMapping("a6", "h",  3);
 
 
-    action_cost_map.addMapping("a7", "r1", 10);
+    // action_cost_map.addMapping("a7", "r1", 10);
     action_cost_map.addMapping("a7", "r2", 5);
     action_cost_map.addMapping("a7", "h",  15);
 
 
-    action_cost_map.addMapping("a8", "r1", 99);
+    // action_cost_map.addMapping("a8", "r1", 99);
     action_cost_map.addMapping("a8", "r2", 5);
     action_cost_map.addMapping("a8", "h",  10);
 
 
-    action_cost_map.addMapping("a9", "r1", 20);
+    // action_cost_map.addMapping("a9", "r1", 20);
     action_cost_map.addMapping("a9", "r2", 20);
     action_cost_map.addMapping("a9", "h",  5);
 
 
-    action_cost_map.addMapping("a10", "r1", 10);
+    // action_cost_map.addMapping("a10", "r1", 10);
     action_cost_map.addMapping("a10", "r2", 10);
     action_cost_map.addMapping("a10", "h",  5);
 
 
-    action_cost_map.addMapping("a11", "r1", 10);
+    // action_cost_map.addMapping("a11", "r1", 10);
     action_cost_map.addMapping("a11", "r2", 10);
     action_cost_map.addMapping("a11", "h",  10);
 
 
-    action_cost_map.addMapping("a12", "r1", 10);
+    // action_cost_map.addMapping("a12", "r1", 10);
     action_cost_map.addMapping("a12", "r2", 10);
     action_cost_map.addMapping("a12", "h",  10);
 
@@ -233,7 +233,7 @@ int main(void){
     planner(graph, root, action_cost_map);
 
 
-    DotWriter dot;
+    DotWriter dot("origin.dot");
     graph->print(dot);
 
     return 0;

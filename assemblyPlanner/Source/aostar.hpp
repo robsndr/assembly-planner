@@ -160,7 +160,7 @@ void AOStarSearch::expandNodes(NodeExpander & expander){
         }
     }
 
-    expander.expandNodes(temp_or_nodes);
+    expander.expandNodes(temp_or_nodes, stack_);
 
 }
 
@@ -283,7 +283,7 @@ AOStarState AOStarSearch::operator()(Node * root, NodeExpander & expander){
 
     temp_or_nodes.clear();
     temp_or_nodes.push_back(root);
-    expander.expandNodes(temp_or_nodes);
+    expander.expandNodes(temp_or_nodes, stack_);
 
     // Select a non-terminal leaf node from the marked sub-tree
     while(root->data_.solved == false){     

@@ -43,19 +43,19 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     while(a != 0){
         
         AOStarSearch aostar;
-        // AOStarState state = aostar(tree_root, expander);
+        AOStarState state = aostar(tree_root, expander);
 
-        // for (auto node : state.solution_sequence){
-        //     std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
-        // }
+        for (auto node : state.solution_sequence){
+            std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
+        }
         
 
         std::cout << "Run next iteration? " << std::endl;
         std::cin >> a; 
     }
 
-    // DotWriter writer;
-    // tree->print(writer);
+    DotWriter writer("tree.dot");
+    tree->print(writer);
 
 }
 

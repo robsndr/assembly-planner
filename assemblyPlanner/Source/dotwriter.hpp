@@ -12,14 +12,14 @@ private:
     void writeNodeId(Node*);
 
 public:
-    DotWriter();
+    DotWriter(std::string name);
     ~DotWriter();
 
     void write(std::unordered_map< std::size_t, Node* > &);
 };
 
-DotWriter::DotWriter(){
-    fs.open ("test.dot", std::fstream::out);
+DotWriter::DotWriter(std::string name){
+    fs.open (name, std::fstream::out);
 
     fs << "digraph G {" << std::endl;
 }
@@ -58,7 +58,8 @@ void DotWriter::writeNode(Node* node){
 void DotWriter::writeNodeId(Node* node){
     fs << "  "  << node->id_ 
                 << " [label=\"" 
-                << node->data_.name
+                << node->data_.name << "\n" 
+                << node->data_.worker 
                 << "\"];"
                 << std::endl;
 }
