@@ -6,6 +6,7 @@
 #include <set>
 #include <algorithm>
 #include <numeric>
+#include "bfs.hpp"
 
 class NodeExpander{
 public:
@@ -47,6 +48,8 @@ private:
     std::vector< std::vector<  std::tuple<std::string, Node*> > > temp_action_combinations_;
     std::vector< std::tuple<std::string, Node*> > temp_action_set_;
 
+    int iteration = 0;
+
 };
 
 
@@ -77,62 +80,75 @@ void NodeExpander::expandNodes(std::vector<Node*> & nodes, std::vector<Node*> & 
 }
 
 void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes, std::vector<Node*> & search_stack){
+
+    BFS bfs;
+
+    std::cout << "ROOOT   " << search_tree_->root_->data_.name << std::endl;
+
+    Graph<> * newone = bfs.run(search_tree_->root_, true);
+
+    std::string filename = "Sub" + std::to_string(iteration) + ".dot";
+    iteration++;
+
+    DotWriter writer(filename);
+
+    newone->print(writer);
+
+    // for (auto & node : or_nodes){
+    //     node->data_.expanded = true;
+    // }
+
+    // // std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
     
-    for (auto & node : or_nodes){
-        node->data_.expanded = true;
-    }
+    // std::set<Node* > nodes_to_delete_;
 
-    // std::vector< std::unordered_map<std::string, std::string> > agent_action_assignements_;
-    
-    std::set<Node* > nodes_to_delete_;
+    // NodeData ndata;
 
-    NodeData ndata;
-
-    for (auto &cur_assignments : agent_action_assignements_){
+    // for (auto &cur_assignments : agent_action_assignements_){
         
-        std::vector<Node* > subtree = copySearchSubtree(search_stack);
+    //     std::vector<Node* > subtree = copySearchSubtree(search_stack);
 
-        for (auto &agent_action_assignment : cur_assignments){    
+    //     for (auto &agent_action_assignment : cur_assignments){    
 
-            std::string agent  = std::get<0>(agent_action_assignment);
-            std::string action = std::get<1>(agent_action_assignment);
-            Node * action_ptr  = std::get<2>(agent_action_assignment);
+    //         std::string agent  = std::get<0>(agent_action_assignment);
+    //         std::string action = std::get<1>(agent_action_assignment);
+    //         Node * action_ptr  = std::get<2>(agent_action_assignment);
             
-            nodes_to_delete_.insert(action_ptr);
+    //         nodes_to_delete_.insert(action_ptr);
 
-            ndata.name   = action;
-            ndata.worker = agent;
-            ndata.expanded = true;
-            ndata.cost = cost_map_.map_[action][agent];
-            ndata.type = NodeType::AND;
-            ndata.marked = false;
-            ndata.solved = false;
+    //         ndata.name   = action;
+    //         ndata.worker = agent;
+    //         ndata.expanded = true;
+    //         ndata.cost = cost_map_.map_[action][agent];
+    //         ndata.type = NodeType::AND;
+    //         ndata.marked = false;
+    //         ndata.solved = false;
            
-            Node * new_action_node = search_tree_->insertNode(ndata);
-            search_tree_->insertEdge(0, action_ptr->getPredecessorNodes()[0]->id_, new_action_node->id_);
+    //         Node * new_action_node = search_tree_->insertNode(ndata);
+    //         search_tree_->insertEdge(0, action_ptr->getPredecessorNodes()[0]->id_, new_action_node->id_);
 
-            for (auto & or_successor : action_ptr->getSuccessorNodes()){
+    //         for (auto & or_successor : action_ptr->getSuccessorNodes()){
 
 
-                nodes_to_delete_.insert(or_successor);
-                Node * inserted = search_tree_->insertNode(*or_successor);
-                inserted->data_.expanded = false;
+    //             nodes_to_delete_.insert(or_successor);
+    //             Node * inserted = search_tree_->insertNode(*or_successor);
+    //             inserted->data_.expanded = false;
                 
-                for (auto & follower : or_successor->getSuccessorNodes()){
-                    search_tree_->insertEdge(0, inserted->id_,  follower->id_);
-                }
+    //             for (auto & follower : or_successor->getSuccessorNodes()){
+    //                 search_tree_->insertEdge(0, inserted->id_,  follower->id_);
+    //             }
                 
-                search_tree_->insertEdge(0, new_action_node->id_, inserted->id_);
-            }
-        }
-    }
+    //             search_tree_->insertEdge(0, new_action_node->id_, inserted->id_);
+    //         }
+    //     }
+    // }
 
-    // std::cout << "LALALA" << std::endl;
+    // // std::cout << "LALALA" << std::endl;
 
-    // search_tree_->print();
-    for (auto & node_delete : nodes_to_delete_){
-        // search_tree_->eraseEdge(node_delete->getPredecessorNodes()[0]->id_, node_delete->id_);        
-    }
+    // // search_tree_->print();
+    // for (auto & node_delete : nodes_to_delete_){
+    //     // search_tree_->eraseEdge(node_delete->getPredecessorNodes()[0]->id_, node_delete->id_);        
+    // }
 }
 
 std::vector<Node* > NodeExpander::copySearchSubtree(std::vector<Node*> & search_stack){

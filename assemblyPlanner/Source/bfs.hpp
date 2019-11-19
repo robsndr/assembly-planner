@@ -14,11 +14,11 @@ class BFS{
 public:
     BFS(){}
 
-    Graph<> * run(Node * );
+    Graph<> * run(Node *, bool );
 
 };
 
-Graph<> * BFS::run(Node * root){ 
+Graph<> * BFS::run(Node * root, bool marked_subtree = 0){ 
   
     // Create a queue for BFS 
     std::queue<Node* > queue;
@@ -36,24 +36,27 @@ Graph<> * BFS::run(Node * root){
 
     while(!queue.empty()){ 
 
-        // Dequeue a vertex from queue
+        // Queue of old nodes
         Node* temp = queue.front();  
         queue.pop(); 
 
+        // Queue of newNodes
         Node* temp2 = queue2.front();  
         queue2.pop(); 
 
         // Insert node from original Graph to currently built tree.
         for (auto x : temp->getSuccessorNodes()){
+            
+            if(!marked_subtree || x->data_.marked ){
+                node_data = x->data_;
+                // node_data.name = getUniqueName(node_data.name);
 
-            node_data = x->data_;
-            // node_data.name = getUniqueName(node_data.name);
+                Node * new_node = search_tree->insertNode(node_data);
+                queue2.push(new_node);
+                search_tree->insertEdge(0, temp2->id_, new_node->id_);
 
-            Node * new_node = search_tree->insertNode(node_data);
-            queue2.push(new_node);
-            search_tree->insertEdge(0, temp2->id_, new_node->id_);
-
-            queue.push(x);
+                queue.push(x);
+            }
         }
     }
 

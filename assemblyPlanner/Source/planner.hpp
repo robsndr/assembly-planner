@@ -5,7 +5,6 @@
 #include <iostream>
 #include <unordered_map>
 #include "aostar.hpp"
-#include "bfs.hpp"
 #include "dotwriter.hpp"
 
 class Planner{

@@ -52,6 +52,8 @@ private:
 **/
 std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
     
+
+    Graph<> marked_subtree;
     // Select non terminal leaf node in marked subtree.
     // Begin withh root.
     Node * current_node = start_node;
