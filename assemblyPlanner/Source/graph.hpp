@@ -47,7 +47,7 @@ public:
 
     // manipulation
     // appending subgraphs
-    void appendSubgraph(Node * , Graph<> * );
+    std::unordered_map<std::size_t, std::size_t> appendSubgraph(Node * , Graph<> * );
 
     // manipulation
     // copy source graph
@@ -352,9 +352,10 @@ Graph<Visitor>::insertEdges(
 /* Append subgraph to current graph.
     @appendant_node: node after which the @subgraph should be appended.
     @subgraph: graph to append.
+    \return: index mapping. Map shows indicies of the appended graph after the operation.
 **/ 
 template<typename Visitor>
-inline void
+inline std::unordered_map<std::size_t, std::size_t>
 Graph<Visitor>::appendSubgraph(Node * appendant_node, Graph<> * subgraph){
 
     // free_node_id_ = 0;
@@ -364,6 +365,7 @@ Graph<Visitor>::appendSubgraph(Node * appendant_node, Graph<> * subgraph){
 
     for (auto &mapping : subgraph->nodes_){
         node = mapping.second;
+        index_map[node->id_] = free_node_id_;
         node->id_ = free_node_id_;
         nodes_.insert(std::make_pair(free_node_id_ ,node));
         free_node_id_++;
@@ -372,6 +374,8 @@ Graph<Visitor>::appendSubgraph(Node * appendant_node, Graph<> * subgraph){
     edges_.insert(edges_.end(), subgraph->edges_.begin(), subgraph->edges_.end());
 
     insertEdge(0, appendant_node->id_, subgraph->root_->id_);
+
+    return index_map;
 
 }
 
