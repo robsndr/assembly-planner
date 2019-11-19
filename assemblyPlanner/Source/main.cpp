@@ -229,17 +229,24 @@ int main(void){
 
     Node* root = graph->getNode(id_map["ABCDEFGH"]);
 
+    graph->root_ = root;
+
     Planner planner;
     planner(graph, root, action_cost_map);
 
 
     Graph graph_copy(*graph);
 
-    DotWriter dot("origin.dot");
-    graph->print(dot);
+
+
 
     DotWriter dot1("copy_graph.dot");
     graph_copy.print(dot1);
+
+    graph->appendSubgraph(root, &graph_copy);
+
+    DotWriter dot("origin.dot");
+    graph->print(dot);
 
     return 0;
 }

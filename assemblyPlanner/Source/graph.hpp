@@ -37,7 +37,6 @@ public:
 
     // manipulation
     // inserttion
-    // Node* insertNode( const std::size_t, const NodeData);
     Node* insertNode( const NodeData);
     Node* insertNode(const Node & );
     std::size_t insertNodes(const std::vector<Node*>& );
@@ -45,6 +44,10 @@ public:
     std::size_t insertEdges( const EdgeData, 
                              const std::size_t , 
                              const std::vector<std::size_t> & );
+
+    // manipulation
+    // appending subgraphs
+    void appendSubgraph(Node * , Graph<> * );
     
     // manipulation
     // removal
@@ -129,6 +132,8 @@ Graph<Visitor>::Graph(
         std::cout << "freeId: "   << free_node_id_ << std::endl;
 
     }
+
+    root_ = nodes_[index_map[graph.root_->id_]];
 
     for (auto &mapping : graph.nodes_){
 
@@ -369,6 +374,34 @@ Graph<Visitor>::insertEdges(
     }
     return edges_.size();
 }
+
+
+/* Append subgraph to current graph.
+    @appendant_node: node after which the @subgraph should be appended.
+    @subgraph: graph to append.
+**/ 
+template<typename Visitor>
+inline void
+Graph<Visitor>::appendSubgraph(Node * appendant_node, Graph<> * subgraph){
+
+    // free_node_id_ = 0;
+    
+    std::unordered_map<std::size_t, std::size_t> index_map;
+    Node * node;
+
+    for (auto &mapping : subgraph->nodes_){
+        node = mapping.second;
+        node->id_ = free_node_id_;
+        nodes_.insert(std::make_pair(free_node_id_ ,node));
+        free_node_id_++;
+    }
+
+    edges_.insert(edges_.end(), subgraph->edges_.begin(), subgraph->edges_.end());
+
+    insertEdge(0, appendant_node->id_, subgraph->root_->id_);
+
+}
+
 
 //TODO improve search to log time.
 /* Search for an edge (in LINEAR time!!!!).
