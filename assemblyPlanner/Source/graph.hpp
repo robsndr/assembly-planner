@@ -48,6 +48,10 @@ public:
     // manipulation
     // appending subgraphs
     void appendSubgraph(Node * , Graph<> * );
+
+    // manipulation
+    // copy source graph
+    std::unordered_map<std::size_t, std::size_t> copy(const Graph<>& );
     
     // manipulation
     // removal
@@ -115,37 +119,7 @@ inline
 Graph<Visitor>::Graph(
     const Graph<> & graph
 ){
-
-    free_node_id_ = 0;
-    
-    visitor_ = graph.visitor_;
-    std::unordered_map<std::size_t, std::size_t> index_map;
-
-    Node * node;
-    Node* new_node;
-
-    for (auto &mapping : graph.nodes_){
-        node = mapping.second;
-        new_node = insertNode(node->data_);
-        index_map[node->id_] = new_node->id_;
-        // std::cout << "newindex: " << new_node->id_ << std::endl;
-        // std::cout << "freeId: "   << free_node_id_ << std::endl;
-    }
-
-    root_ = nodes_[index_map[graph.root_->id_]];
-
-    for (auto &mapping : graph.nodes_){
-
-        node = mapping.second;
-
-        for (auto &predecessor : node->getPredecessorNodes()){
-            insertEdge(0, index_map[predecessor->id_], index_map[node->id_]);
-        }    
-
-        for (auto &successor : node->getSuccessorNodes()){
-            insertEdge(0, index_map[node->id_], index_map[successor->id_]);
-        }    
-    }
+    copy(graph);
 }
     
 /* Get the number of nodes.
@@ -401,6 +375,52 @@ Graph<Visitor>::appendSubgraph(Node * appendant_node, Graph<> * subgraph){
 
 }
 
+/* Clone a given graph.
+    @graph: source graph which should be copied. 
+            The resulting graph is a clone of the original one. 
+**/
+template<typename Visitor>
+std::unordered_map<std::size_t, std::size_t>
+Graph<Visitor>::copy(
+    const Graph<> & graph
+){
+
+    nodes_.clear();
+    edges_.clear();
+
+    free_node_id_ = 0;
+    
+    visitor_ = graph.visitor_;
+    std::unordered_map<std::size_t, std::size_t> index_map;
+
+    Node * node;
+    Node* new_node;
+
+    for (auto &mapping : graph.nodes_){
+        node = mapping.second;
+        new_node = insertNode(node->data_);
+        index_map[node->id_] = new_node->id_;
+        // std::cout << "newindex: " << new_node->id_ << std::endl;
+        // std::cout << "freeId: "   << free_node_id_ << std::endl;
+    }
+
+    root_ = nodes_[index_map[graph.root_->id_]];
+
+    for (auto &mapping : graph.nodes_){
+
+        node = mapping.second;
+
+        for (auto &predecessor : node->getPredecessorNodes()){
+            insertEdge(0, index_map[predecessor->id_], index_map[node->id_]);
+        }    
+
+        for (auto &successor : node->getSuccessorNodes()){
+            insertEdge(0, index_map[node->id_], index_map[successor->id_]);
+        }    
+    }
+
+    return index_map;
+}
 
 //TODO improve search to log time.
 /* Search for an edge (in LINEAR time!!!!).

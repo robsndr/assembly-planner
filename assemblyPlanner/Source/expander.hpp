@@ -18,9 +18,10 @@ public:
 private:
     void createAssignmentNodes(std::vector<Node*> &, std::vector<Node*> &);
 
-    std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
     Graph<> * search_tree_;
+    CostMap cost_map_;
     Combinator * assignment_generator;
+    std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
 
     std::size_t iteration = 0;
 };
@@ -28,6 +29,7 @@ private:
 
 NodeExpander::NodeExpander(Graph<> * tree, CostMap & costs){
     search_tree_ = tree;
+    cost_map_ = costs;
     assignment_generator = new Combinator(costs);
 }
 
@@ -80,19 +82,19 @@ void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes, std::vec
 
             std::string agent  = std::get<0>(agent_action_assignment);
             std::string action = std::get<1>(agent_action_assignment);
-            // Node * action_ptr  = std::get<2>(agent_action_assignment);
+            Node * action_ptr  = std::get<2>(agent_action_assignment);
             
             // nodes_to_delete_.insert(action_ptr);
 
-            // ndata.name   = action;
-            // ndata.worker = agent;
-            // ndata.expanded = true;
-            // ndata.cost = cost_map_.map_[action][agent];
-            // ndata.type = NodeType::AND;
-            // ndata.marked = false;
-            // ndata.solved = false;
+            ndata.name   = action;
+            ndata.worker = agent;
+            ndata.expanded = true;
+            ndata.cost = cost_map_.map_[action][agent];
+            ndata.type = NodeType::AND;
+            ndata.marked = false;
+            ndata.solved = false;
            
-            // Node * new_action_node = temp.insertNode(ndata);
+            Node * new_action_node = temp.insertNode(ndata);
             // search_tree_->insertEdge(0, action_ptr->getPredecessorNodes()[0]->id_, new_action_node->id_);
 
             // for (auto & or_successor : action_ptr->getSuccessorNodes()){
