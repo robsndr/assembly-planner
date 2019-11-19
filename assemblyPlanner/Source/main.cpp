@@ -98,20 +98,20 @@ int main(void){
     // Insert edges
     // ABCDEFGH
     graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a1"]);
-    // graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
-    // graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
+    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
+    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
 
     //a1
     graph->insertEdge(0, id_map["a1"], id_map["ABCDEF"]);
     graph->insertEdge(0, id_map["a1"], id_map["GH"]);
 
     //a2
-    // graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
-    // graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
+    graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
+    graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
 
     //a3
-    // graph->insertEdge(0, id_map["a3"], id_map["AB"]);
-    // graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
+    graph->insertEdge(0, id_map["a3"], id_map["AB"]);
+    graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
 
     //ABCDEF
     graph->insertEdge(0, id_map["ABCDEF"], id_map["a4"]);
@@ -128,30 +128,30 @@ int main(void){
     graph->insertEdge(0, id_map["a5"], id_map["GH"]);
 
     //ABCD
-    // graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
+    graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
 
     //CDEF
-    // graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
+    graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
 
     //EFGH
-    // graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
+    graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
 
     //a6
-    // graph->insertEdge(0, id_map["a6"], id_map["AB"]);
-    // graph->insertEdge(0, id_map["a6"], id_map["CD"]);
+    graph->insertEdge(0, id_map["a6"], id_map["AB"]);
+    graph->insertEdge(0, id_map["a6"], id_map["CD"]);
 
     // //a7
-    // graph->insertEdge(0, id_map["a7"], id_map["CD"]);
-    // graph->insertEdge(0, id_map["a7"], id_map["EF"]);
+    graph->insertEdge(0, id_map["a7"], id_map["CD"]);
+    graph->insertEdge(0, id_map["a7"], id_map["EF"]);
 
     //a8
-    // graph->insertEdge(0, id_map["a8"], id_map["EF"]);
-    // graph->insertEdge(0, id_map["a8"], id_map["GH"]);
+    graph->insertEdge(0, id_map["a8"], id_map["EF"]);
+    graph->insertEdge(0, id_map["a8"], id_map["GH"]);
 
     // // // AB, CD, EF, GH
-    // graph->insertEdge(0, id_map["AB"], id_map["a9"]);
-    // graph->insertEdge(0, id_map["CD"], id_map["a10"]);
-    // graph->insertEdge(0, id_map["EF"], id_map["a11"]);
+    graph->insertEdge(0, id_map["AB"], id_map["a9"]);
+    graph->insertEdge(0, id_map["CD"], id_map["a10"]);
+    graph->insertEdge(0, id_map["EF"], id_map["a11"]);
     graph->insertEdge(0, id_map["GH"], id_map["a12"]);
 
     // //a9 -> A, B
@@ -159,12 +159,12 @@ int main(void){
     graph->insertEdge(0, id_map["a9"], id_map["B"]);
 
     // //a10 -> C, D
-    // graph->insertEdge(0, id_map["a10"], id_map["C"]);
-    // graph->insertEdge(0, id_map["a10"], id_map["D"]);
+    graph->insertEdge(0, id_map["a10"], id_map["C"]);
+    graph->insertEdge(0, id_map["a10"], id_map["D"]);
 
     // //a11 -> E, F
-    // graph->insertEdge(0, id_map["a11"], id_map["E"]);
-    // graph->insertEdge(0, id_map["a11"], id_map["F"]);
+    graph->insertEdge(0, id_map["a11"], id_map["E"]);
+    graph->insertEdge(0, id_map["a11"], id_map["F"]);
 
     // //a12 -> G, H
     graph->insertEdge(0, id_map["a12"], id_map["G"]);
@@ -233,8 +233,13 @@ int main(void){
     planner(graph, root, action_cost_map);
 
 
+    Graph graph_copy(*graph);
+
     DotWriter dot("origin.dot");
     graph->print(dot);
+
+    DotWriter dot1("copy_graph.dot");
+    graph_copy.print(dot1);
 
     return 0;
 }
