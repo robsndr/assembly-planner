@@ -68,12 +68,13 @@ std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
     min_ors.clear();
     temp_storage.push(start_node);
 
+    std::cout << std::endl << std::endl << "START" << std::endl << std::endl;
     // Propagate downwards through all CONNECTED and MARKED Nodes
     while(!temp_storage.empty()){
         
-        // std::cout << "On Stack: " << current_node->data_.name << std::endl;
         current_node = temp_storage.front();
         temp_storage.pop();
+        std::cout << "On Stack: " << current_node->data_.name << std::endl;
         // If current node is terminal node skip propagation
         if(current_node->hasSuccessor()){
 
@@ -127,12 +128,12 @@ std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
         } 
     }
 
-    // std::cout << "---------" << std::endl;
-    // for (auto const& x : min_ors){
-    //     std::cout << "MinOR: " << x->data_.name << std::endl;
-    //     // std::cout << "Solved: " << x->data_.solved << std::endl;
-    //     // std::cout << "Terminal: " << x->data_.terminal << std::endl;
-    // }
+    std::cout << "---------" << std::endl;
+    for (auto const& x : min_ors){
+        std::cout << "MinOR: " << x->data_.name << std::endl;
+        // std::cout << "Solved: " << x->data_.solved << std::endl;
+        // std::cout << "Terminal: " << x->data_.terminal << std::endl;
+    }
 
     return ors_found;
 }
@@ -142,6 +143,7 @@ std::vector<Node *> AOStarSearch::walkMarkedSubtree(Node* start_node){
 **/
 void AOStarSearch::expandNodes(NodeExpander & expander){
     
+    std::cout << "EXPAND" << std::endl;
     // Go through the best-case minOr nodes. Expand if possible. 
     // Mark nodes as they are part of the current best-path.
     // If a node is terminal, flag it solved so that it is not investigated further.
@@ -150,7 +152,7 @@ void AOStarSearch::expandNodes(NodeExpander & expander){
     for(std::size_t j = 0; j < min_ors.size(); j++){
         
         Node * n = min_ors[j];
-        
+
         // If investigated OR-Node is a terminal node mark it solved. Otherwise update it's cost.
         if(!n->hasSuccessor()){
             n->data_.solved = true;

@@ -128,9 +128,8 @@ Graph<Visitor>::Graph(
         node = mapping.second;
         new_node = insertNode(node->data_);
         index_map[node->id_] = new_node->id_;
-        std::cout << "newindex: " << new_node->id_ << std::endl;
-        std::cout << "freeId: "   << free_node_id_ << std::endl;
-
+        // std::cout << "newindex: " << new_node->id_ << std::endl;
+        // std::cout << "freeId: "   << free_node_id_ << std::endl;
     }
 
     root_ = nodes_[index_map[graph.root_->id_]];

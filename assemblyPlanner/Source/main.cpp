@@ -243,7 +243,7 @@ int main(void){
     DotWriter dot1("copy_graph.dot");
     graph_copy.print(dot1);
 
-    graph->appendSubgraph(root, &graph_copy);
+    // graph->appendSubgraph(root, &graph_copy);
 
     DotWriter dot("origin.dot");
     graph->print(dot);

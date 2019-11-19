@@ -35,6 +35,9 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     Graph<> * tree = bfs_graph_converter.run(root);
     Node * tree_root = tree->root_;
 
+    // Graph<> * tree = graph;
+    // Node * tree_root = root;
+
     NodeExpander expander(tree, costs_);
 
     int a = 1;
