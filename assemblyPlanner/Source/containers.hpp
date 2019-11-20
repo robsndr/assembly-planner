@@ -5,6 +5,7 @@
 #include <string>
 #include <cmath>
 #include<set>
+#include <vector>
 
 enum class NodeType{AND, OR};
 
@@ -16,13 +17,11 @@ public:
     NodeData(const NodeData & copied){
         name     = copied.name;
         worker   = copied.worker;
-        expanded = copied.expanded;
         cost     = copied.cost;
         type     = copied.type;
         marked   = copied.marked;
-        solved   = copied.solved;
-        solution = copied.solution;
-
+        f_score  = INT_MAX;
+        g_score  = INT_MAX;
     }
 
     double cost = 0;
@@ -30,21 +29,34 @@ public:
 
     std::string name = "";
     std::string worker = "";
-
-    bool expanded = false;
+;
     bool marked = false;
-    bool solved = false;;
-    bool solution = false;
+    bool goal = false;
 
-    bool debug = false;
+    double g_score = 0;
+    double f_score = 0;
+    double h_score = 0;
+
+    std::vector<Node*> subassemblies;
+    std::vector<Node*> actions;
+
+
+    bool isGoal(){
+        return goal;     
+    }
+
+    void calc_hscore(){
+        h_score = log2f(name.length());
+    }
+
+    void calc_fscore(){
+        f_score = g_score + h_score;
+    }
 
     void reset(){
         // marked = false;
         if(type == NodeType::OR)
             cost = log2(name.length());
-
-        solved = false;
-        solution = false;
     }
 };
 

@@ -186,7 +186,7 @@ template<typename Visitor>
 inline std::vector<Node*> 
 Graph<Visitor>::getNodes(bool (*func)(Node*)) { 
 
-    std::vector<Node*> temp:
+    std::vector<Node*> temp;
     for (auto &x : nodes_){
         if(func(x))
             temp.push_back(x);

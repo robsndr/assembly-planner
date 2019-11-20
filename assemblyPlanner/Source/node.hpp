@@ -232,8 +232,6 @@ Node::print() {
     std::cout <<  std::endl;
     std::cout << "    Marked: " << data_.marked;
     std::cout <<  std::endl;
-    std::cout << "    Solved: " << data_.solved;
-    std::cout <<  std::endl;
     std::cout << "    Cost: " << data_.cost;
     std::cout << std::endl << std::endl;
 }

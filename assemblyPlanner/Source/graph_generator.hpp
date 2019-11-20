@@ -31,7 +31,6 @@ std::size_t GraphGenerator::insertAnd(std::string name, double cost){
     data.type = NodeType::AND;
     data.cost = cost;
     data.marked = false;
-    data.solved = false;
 
     Node * inserted_node = graph->insertNode(data);
     return inserted_node->id_;
@@ -43,7 +42,6 @@ std::size_t GraphGenerator::insertOr(std::string name){
     data.type = NodeType::AND;
     data.cost = log2(name.length());
     data.marked = false;
-    data.solved = false;
 
     Node * inserted_node = graph->insertNode(data);
     return inserted_node->id_;

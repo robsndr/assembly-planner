@@ -4,8 +4,8 @@
 
 #include <iostream>
 #include <unordered_map>
-#include "aostar.hpp"
 #include "dotwriter.hpp"
+#include "astar.hpp"
 
 class Planner{
 public:
@@ -29,27 +29,38 @@ Planner::~Planner(){}
 
 void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
-    // search_graph = new Graph<>();
+    NodeExpander * expander = new NodeExpander(graph, costs_);
+    search_graph = new Graph();
 
-    BFS bfs_graph_converter;
-    Graph<> * tree = bfs_graph_converter.run(root);
-    Node * tree_root = tree->root_;
+    Node * new_root = search_graph->insertNode(*root);
+    new_root->data_.name = "";
+    new_root->data_.subassemblies.push_back(root);
 
-    // Graph<> * tree = graph;
+    for (auto &x : root->getSuccessorNodes()){
+        new_root->data_.actions.push_back(x);    
+    }
+     
+
+
+    // BFS bfs_graph_converter;
+    // Graph<> * tree = bfs_graph_converter.run(root);
+    // Node * tree_root = tree->root_;
+
+    // Graph<> * tree = graph;s
     // Node * tree_root = root;
 
-    NodeExpander expander(tree, costs_);
 
     int a = 1;
     
     while(a != 0){
         
-        AOStarSearch aostar;
-        AOStarState state = aostar(tree_root, expander);
+        AStarSearch astar;
+        astar.search(graph, root, expander);
+        // AOStarState state = aostar(tree_root, expander);
 
-        for (auto node : state.solution_sequence){
-            std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
-        }
+        // for (auto node : state.solution_sequence){
+        //     std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
+        // }
         
 
         std::cout << "Run next iteration? " << std::endl;
@@ -57,7 +68,7 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     }
 
     DotWriter writer("tree.dot");
-    tree->print(writer);
+    // tree->print(writer);
 
 }
 
