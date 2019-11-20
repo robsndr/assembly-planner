@@ -27,6 +27,7 @@ public:
     std::size_t numberOfEdgesToNode(const std::size_t);
 
     Node* getNode(std::size_t);
+    std::vector<Node*> getNodes(bool (*)(Node*));
 
     // Access specific nodes/vertices.
     Edge * edgeFromNode(const std::size_t, const std::size_t) const;
@@ -62,14 +63,15 @@ public:
     // TODO: implement as friend. For template might be complications.
     void print(DotWriter &);
     void reset(); 
+
     Node * root_;
 
 private:
 
     std::size_t findEdgeIndexHelper( Edge * );
 
-    std::size_t free_node_id_;
     std::unordered_map< std::size_t, Node* > nodes_;
+    std::size_t free_node_id_;
     std::vector< Edge* > edges_;
     Visitor visitor_;
 
@@ -175,6 +177,21 @@ template<typename Visitor>
 inline Node* 
 Graph<Visitor>::getNode(std::size_t node_id) { 
     return nodes_[node_id];
+}
+
+/* Get the number of edges that are incident to a given node.
+    @node: string-id of a node.
+**/
+template<typename Visitor>
+inline std::vector<Node*> 
+Graph<Visitor>::getNodes(bool (*func)(Node*)) { 
+
+    std::vector<Node*> temp:
+    for (auto &x : nodes_){
+        if(func(x))
+            temp.push_back(x);
+    }
+    return temp;
 }
 
 /* Get the pointer to the j`th edge that originates from a given node.
@@ -574,7 +591,6 @@ Graph<Visitor>::eraseNode(
         delete edge_to_remove;
     }
 
-    
     delete node_to_remove;
 
     return true;

@@ -6,6 +6,7 @@
 #include "graph.hpp"
 #include <set>
 #include "bfs.hpp"
+#include "helpers.hpp"
 
 class NodeExpander{
 
@@ -95,21 +96,23 @@ void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes, std::vec
             ndata.solved = false;
            
             Node * new_action_node = temp.insertNode(ndata);
-            // search_tree_->insertEdge(0, action_ptr->getPredecessorNodes()[0]->id_, new_action_node->id_);
+            
+            std::vector<Node*> leafs = temp.getNodes(&helper::isLeafNode);
+            search_tree_->insertEdge(0, a->id_, new_action_node->id_);
 
-            // for (auto & or_successor : action_ptr->getSuccessorNodes()){
+            for (auto & or_successor : action_ptr->getSuccessorNodes()){
 
 
-            //     nodes_to_delete_.insert(or_successor);
-            //     Node * inserted = search_tree_->insertNode(*or_successor);
-            //     inserted->data_.expanded = false;
+                // nodes_to_delete_.insert(or_successor);
+                Node * inserted = temp.insertNode(*or_successor);
+                inserted->data_.expanded = false;
                 
-            //     for (auto & follower : or_successor->getSuccessorNodes()){
-            //         search_tree_->insertEdge(0, inserted->id_,  follower->id_);
-            //     }
+                for (auto & follower : or_successor->getSuccessorNodes()){
+                    search_tree_->insertEdge(0, inserted->id_,  follower->id_);
+                }
                 
-            //     search_tree_->insertEdge(0, new_action_node->id_, inserted->id_);
-            // }
+                search_tree_->insertEdge(0, new_action_node->id_, inserted->id_);
+            }
         }
     }
 
