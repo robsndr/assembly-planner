@@ -62,6 +62,7 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
 
         for (auto & edge : current->getSuccessors()){
             
+
             Node * child = edge->getDestination();
 
             if(child->data_.marked)
@@ -70,7 +71,7 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
             child->data_.g_score = current->data_.g_score + edge->data_.cost;
             child->data_.calc_hscore();
             child->data_.calc_fscore();
-            // std::cout << "g_score " << child->data_.g_score << std::endl;
+            // std::cout << "g_score " << edge->data_.cost << std::endl;
             // std::cout << "h_score " << child->data_.h_score << std::endl;
             // std::cout << "f_score " << child->data_.f_score << std::endl;
 

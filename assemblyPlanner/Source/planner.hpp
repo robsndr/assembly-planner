@@ -46,39 +46,28 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
     NodeExpander * expander = new NodeExpander(search_graph, costs_);
 
-    // BFS bfs_graph_converter;
-    // Graph<> * tree = bfs_graph_converter.run(root);
-    // Node * tree_root = tree->root_;
-
-    // Graph<> * tree = graph;s
-    // Node * tree_root = root;
-
-
     int a = 1;
     
-    while(a != 0){
         
-        AStarSearch astar;
-        Node * result = astar.search(search_graph, new_root, expander);
-        // AOStarState state = aostar(tree_root, expander);
+    AStarSearch astar;
+    Node * result = astar.search(search_graph, new_root, expander);
+    // AOStarState state = aostar(tree_root, expander);
 
 
-        for (auto &x : result->data_.subassemblies){
-            std::cout << "Subassemblies: " << x.second->data_.name << std::endl;
-        }
-        
-        while(result->hasPredecessor()){
+    for (auto &x : result->data_.subassemblies){
+        std::cout << "Subassemblies: " << x.second->data_.name << std::endl;
+    }
+    
+    while(result->hasPredecessor()){
+        for (auto &i : result->getPredecessors().front()->data_.agent_actions_){
             std::cout << "Action: ";
-            std::cout << result->getPredecessors().front()->data_.agent_actions_.front().first;
-            std::cout << "    Agent: ";
-            std::cout << result->getPredecessors().front()->data_.agent_actions_.front().second << std::endl;
-            result = result->getPredecessorNodes().front();
+            std::cout << i.first;
+            std::cout << " Agent: ";
+            std::cout << i.second << "    ";
         }
-        // std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
+        std::cout << std::endl;
         
-
-        std::cout << "Run next iteration? " << std::endl;
-        std::cin >> a; 
+        result = result->getPredecessorNodes().front();
     }
 
     DotWriter writer("tree.dot");

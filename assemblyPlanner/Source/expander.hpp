@@ -5,7 +5,6 @@
 #include "combinator.hpp"
 #include "graph.hpp"
 #include <set>
-#include "helpers.hpp"
 
 class NodeExpander{
 
@@ -70,6 +69,7 @@ void NodeExpander::expandNode(Node* node){
         EdgeData edata;
         edata.cost = 0;
 
+        double min_action_agent_cost_ = INT_MAX;
 
         for (auto &agent_action_assignment : cur_assignments){   
 
@@ -92,24 +92,27 @@ void NodeExpander::expandNode(Node* node){
                 }
             }
 
-            std::cout << edata.cost << "  "<< std::endl;
+            if(cost_map_.map_[action][agent] < min_action_agent_cost_){
+                min_action_agent_cost_ = cost_map_.map_[action][agent];
+            }
             edata.cost   += cost_map_.map_[action][agent];
+            // std::cout << "Action: " << action << "   Agent: " << agent << std::endl;
+            // std::cout << "Edge Cest: " << cost_map_.map_[action][agent] << "  "<< std::endl;
             edata.agent_actions_.push_back(std::make_pair(action, agent));
 
         }
 
-        // std::cout << std::endl << "SIZEE: " << ndata.subassemblies.size() << std::endl << std::endl;
+        ndata.minimum_cost_action = min_action_agent_cost_;
 
         Node * next_node = search_graph_->insertNode(ndata);
 
-        // std::cout << "NEXTNODE SUBASS:   " << next_node->data_.subassemblies.size();
         search_graph_->insertEdge(edata, node->id_, next_node->id_);
         
+        // DotWriter writer("ABC.dot");
+        // search_graph_->print(writer);
+        // std::cin.get();
 
     }
-    DotWriter writer("ABC.dot");
-    search_graph_->print(writer);
-    std::cin.get();
 
 }
 

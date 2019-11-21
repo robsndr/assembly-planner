@@ -26,8 +26,9 @@ public:
         marked   = copied.marked;
         subassemblies   = copied.subassemblies;
         actions         = copied.actions;
-        f_score  = INT_MAX;
-        g_score  = INT_MAX;
+        minimum_cost_action = copied.minimum_cost_action;
+        f_score  = 0;
+        g_score  = 0;
     }
 
     bool isGoal();
@@ -46,6 +47,8 @@ public:
     double g_score = 0;
     double f_score = 0;
     double h_score = 0;
+
+    double minimum_cost_action = 0;
 
     std::unordered_map<std::string, Node*> subassemblies;
     std::unordered_map<std::string, Node*> actions;
@@ -91,12 +94,12 @@ public:
         map_[action][agent] = cost;
     };
 
-
     std::size_t number_of_actions_;
     std::size_t number_of_agents_;
 
     std::vector<std::string> vector_of_agents_;
     std::set<std::string> set_of_agents_;
+
     std::unordered_map< std::string, std::unordered_map< std::string, double > > map_;
 
 };

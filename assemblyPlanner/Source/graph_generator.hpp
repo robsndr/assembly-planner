@@ -7,7 +7,7 @@ public:
     GraphGenerator(/* args */);
     ~GraphGenerator();
 
-    std::size_t insertAnd(std::string, double);
+    std::size_t insertAnd(std::string);
     std::size_t insertOr(std::string);
     Graph<> * graph;
 
@@ -25,11 +25,11 @@ GraphGenerator::~GraphGenerator()
 {
 }
 
-std::size_t GraphGenerator::insertAnd(std::string name, double cost){
+std::size_t GraphGenerator::insertAnd(std::string name){
     NodeData data;
     data.name = name;
     data.type = NodeType::AND;
-    data.cost = cost;
+    data.cost = 0;
     data.marked = false;
 
     Node * inserted_node = graph->insertNode(data);

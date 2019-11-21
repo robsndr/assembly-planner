@@ -59,7 +59,8 @@ void DotWriter::writeNodeId(Node* node){
     fs << "  "  << node->id_ 
                 << " [label=\"" 
                 << node->data_.name << "\n" 
-                << node->data_.f_score
+                << node->data_.f_score << std::endl 
+                << node->data_.h_score
                 << "\"];"
                 << std::endl;
 }
