@@ -10,15 +10,14 @@
 class NodeExpander{
 
 public:
-    NodeExpander(CostMap&);
+    NodeExpander(Graph<>*, CostMap&);
     ~NodeExpander();
 
     void expandNode(Node*);
 
 private:
-    void createAssignmentNodes(std::vector<Node*> &);
 
-    Graph<> * search_tree_;
+    Graph<> * search_graph_;
     CostMap cost_map_;
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
@@ -27,7 +26,8 @@ private:
 };
 
 
-NodeExpander::NodeExpander(CostMap & costs){
+NodeExpander::NodeExpander(Graph<>* graph, CostMap & costs){
+    search_graph_ = graph;
     cost_map_ = costs;
     assignment_generator = new Combinator(costs);
 }
@@ -39,9 +39,19 @@ NodeExpander::~NodeExpander(){
 /* Function which performs the node expansion.
 **/
 void NodeExpander::expandNode(Node* node){
-
     std::cout << "EXPAND " << node->data_.name;
-    assignments_ = assignment_generator->generateAgentActionAssignments(node->data_.subassemblies);
+    std::cout << "Subassembly Size " << node->data_.subassemblies.size(); 
+
+    std::cin.get();
+    std::vector<Node*> nodes;
+    nodes.reserve(node->data_.subassemblies.size());
+    for(auto nd : node->data_.subassemblies) {
+        std::cout << "Current subass:  " << nd.second->data_.name;
+        if(nd.second->hasSuccessor())
+            nodes.push_back(nd.second);  
+    } 
+
+    assignments_ = assignment_generator->generateAgentActionAssignments(nodes);
 
     // Node * inserted = search_tree_->insertNode(*root);
     // new_root->data_.name = "";
@@ -52,29 +62,51 @@ void NodeExpander::expandNode(Node* node){
     
     for (auto &cur_assignments : *assignments_){
 
+        NodeData ndata;
+        ndata.subassemblies = node->data_.subassemblies;
+        ndata.actions       = node->data_.actions;
+        ndata.marked = false;
+
+        EdgeData edata;
+        edata.cost = 0;
+
+
         for (auto &agent_action_assignment : cur_assignments){   
 
             std::string agent  = std::get<0>(agent_action_assignment);
             std::string action = std::get<1>(agent_action_assignment);
             Node * action_ptr  = std::get<2>(agent_action_assignment);
             
-            // nodes_to_delete_.insert(action_ptr);
-        
-            // Node * next_node = temp.insertNode(ndata);
-            // search_tree_->insertEdge(0, node->id_, next_node->id_);
+            std::string action_source = action_ptr->getPredecessorNodes()[0]->data_.name;
+            std::string action_dest   = action_ptr->getSuccessorNodes()[0]->data_.name;
+
+            ndata.name += action_source + "-" + action + "-" + agent + "     ";
+            ndata.subassemblies.erase(action_source);
+            ndata.actions.erase(action);
 
             for (auto & or_successor : action_ptr->getSuccessorNodes()){
-
+                std::cout << "  OR_NEXT: " << or_successor << std::endl;
+                ndata.subassemblies[or_successor->data_.name] = or_successor;
+                for (auto &following_action : or_successor->getSuccessorNodes()){
+                    ndata.actions[following_action->data_.name] = following_action; 
+                }
             }
+
+            edata.cost   += cost_map_.map_[action][agent];
+            edata.agent_actions_.push_back(std::make_pair(action, agent));
+
         }
+
+        std::cout << std::endl << "SIZEE: " << ndata.subassemblies.size() << std::endl << std::endl;
+
+        Node * next_node = search_graph_->insertNode(ndata);
+
+        std::cout << "NEXTNODE SUBASS:   " << next_node->data_.subassemblies.size();
+        search_graph_->insertEdge(edata, node->id_, next_node->id_);
+        
+        DotWriter writer("ABC.dot");
+        search_graph_->print(writer);
     }
-
-    // createAssignmentNodes(nodes);       
-
-}
-
-void NodeExpander::createAssignmentNodes(std::vector<Node*> & or_nodes){
-
 }
 
 

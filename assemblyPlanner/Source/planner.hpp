@@ -29,18 +29,18 @@ Planner::~Planner(){}
 
 void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
-    NodeExpander * expander = new NodeExpander(costs_);
 
     search_graph = new Graph<>();
     Node * new_root = search_graph->insertNode(root->data_);
     new_root->data_.name = "";
-    new_root->data_.subassemblies.push_back(root);
+    new_root->data_.subassemblies[root->data_.name] =  root;
 
     for (auto &x : root->getSuccessorNodes()){
-        new_root->data_.actions.push_back(x);    
+        new_root->data_.actions[x->data_.name] = x;    
     }
      
 
+    NodeExpander * expander = new NodeExpander(search_graph, costs_);
 
     // BFS bfs_graph_converter;
     // Graph<> * tree = bfs_graph_converter.run(root);

@@ -36,7 +36,6 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
     openSet.push(root);
 
     while (!openSet.empty()) {
-        
         current = openSet.top();
         openSet.pop();
 
@@ -45,6 +44,7 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
         }
 
         expander->expandNode(current);
+
         // closedSet.insert(current);
 
         current->data_.marked = true;
@@ -67,9 +67,12 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
             //         continue to beginning of for loop
             // child->data_.f_score = child.g + child.h
 
+            std::cout << "ChildSize";
+
             openSet.push(child);
 
         }
+        
     }
     
 }

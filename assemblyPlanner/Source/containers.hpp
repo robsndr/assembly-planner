@@ -7,6 +7,7 @@
 #include<set>
 #include <vector>
 #include "node.hpp"
+#include <unordered_map>
 
 class Node;
 
@@ -23,6 +24,8 @@ public:
         cost     = copied.cost;
         type     = copied.type;
         marked   = copied.marked;
+        subassemblies   = copied.subassemblies;
+        actions         = copied.actions;
         f_score  = INT_MAX;
         g_score  = INT_MAX;
     }
@@ -40,8 +43,8 @@ public:
     double f_score = 0;
     double h_score = 0;
 
-    std::vector<Node*> subassemblies;
-    std::vector<Node*> actions;
+    std::unordered_map<std::string, Node*> subassemblies;
+    std::unordered_map<std::string, Node*> actions;
 
 
     bool isGoal(){
@@ -69,7 +72,7 @@ class EdgeData {
 public:
     EdgeData(){}
 
-    std::string worker = "";
+    std::vector< std::pair<std::string, std::string> > agent_actions_;
     double cost = 0;
 };
 
