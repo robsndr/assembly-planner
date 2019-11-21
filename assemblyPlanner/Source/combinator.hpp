@@ -64,7 +64,7 @@ std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > *
     agent_action_assignements_.clear();
 
     for (size_t j = 1; j <= l; j++){
-        std::cout << "Brun" << std::endl;
+        // std::cout << "Brun" << std::endl;
 
         generateAgentCombinationSets(cost_map_.vector_of_agents_, j);
         
@@ -76,7 +76,7 @@ std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > *
 
     }
 
-    printAssignments(); 
+    // printAssignments(); 
 
     return &agent_action_assignements_;
 

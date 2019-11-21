@@ -9,9 +9,9 @@
 #include "node.hpp"
 #include <unordered_map>
 
-class Node;
-
 enum class NodeType{AND, OR};
+
+class Node;
 
 class NodeData{
 public:
@@ -30,6 +30,10 @@ public:
         g_score  = INT_MAX;
     }
 
+    bool isGoal();
+    void calc_hscore();
+    void calc_fscore();
+
     double cost = 0;
     NodeType type;
 
@@ -45,19 +49,6 @@ public:
 
     std::unordered_map<std::string, Node*> subassemblies;
     std::unordered_map<std::string, Node*> actions;
-
-
-    bool isGoal(){
-        return goal;     
-    }
-
-    void calc_hscore(){
-        h_score = log2f(name.length());
-    }
-
-    void calc_fscore(){
-        f_score = g_score + h_score;
-    }
 
     void reset(){
         // marked = false;

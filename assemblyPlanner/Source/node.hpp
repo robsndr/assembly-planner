@@ -244,4 +244,21 @@ Edge::print(){
     std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
 }
 
+bool NodeData::isGoal(){
+    return actions.empty();
+}
+
+void NodeData::calc_hscore(){
+    std::size_t maximum_length_subassembly = 0;
+    for (auto &x : subassemblies){
+        if(x.second->data_.name.length() > maximum_length_subassembly)
+            maximum_length_subassembly = x.second->data_.name.length();
+    }
+    h_score = log2f(maximum_length_subassembly);
+}
+
+void NodeData::calc_fscore(){
+    f_score = g_score + h_score;
+}
+
 #endif

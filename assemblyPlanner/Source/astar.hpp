@@ -40,7 +40,7 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
         openSet.pop();
 
         if (current->data_.isGoal()) {
-            break;
+            return;
         }
 
         expander->expandNode(current);
@@ -66,8 +66,6 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
             //     if the child.g is higher than the openList node's g
             //         continue to beginning of for loop
             // child->data_.f_score = child.g + child.h
-
-            std::cout << "ChildSize";
 
             openSet.push(child);
 

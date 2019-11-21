@@ -39,14 +39,14 @@ NodeExpander::~NodeExpander(){
 /* Function which performs the node expansion.
 **/
 void NodeExpander::expandNode(Node* node){
-    std::cout << "EXPAND " << node->data_.name;
-    std::cout << "Subassembly Size " << node->data_.subassemblies.size(); 
+    // std::cout << "EXPAND " << node->data_.name;
+    // std::cout << "Subassembly Size " << node->data_.subassemblies.size(); 
 
-    std::cin.get();
+    // std::cin.get();
     std::vector<Node*> nodes;
     nodes.reserve(node->data_.subassemblies.size());
     for(auto nd : node->data_.subassemblies) {
-        std::cout << "Current subass:  " << nd.second->data_.name;
+        // std::cout << "Current subass:  " << nd.second->data_.name;
         if(nd.second->hasSuccessor())
             nodes.push_back(nd.second);  
     } 
@@ -85,7 +85,7 @@ void NodeExpander::expandNode(Node* node){
             ndata.actions.erase(action);
 
             for (auto & or_successor : action_ptr->getSuccessorNodes()){
-                std::cout << "  OR_NEXT: " << or_successor << std::endl;
+                // std::cout << "  OR_NEXT: " << or_successor << std::endl;
                 ndata.subassemblies[or_successor->data_.name] = or_successor;
                 for (auto &following_action : or_successor->getSuccessorNodes()){
                     ndata.actions[following_action->data_.name] = following_action; 
@@ -97,11 +97,11 @@ void NodeExpander::expandNode(Node* node){
 
         }
 
-        std::cout << std::endl << "SIZEE: " << ndata.subassemblies.size() << std::endl << std::endl;
+        // std::cout << std::endl << "SIZEE: " << ndata.subassemblies.size() << std::endl << std::endl;
 
         Node * next_node = search_graph_->insertNode(ndata);
 
-        std::cout << "NEXTNODE SUBASS:   " << next_node->data_.subassemblies.size();
+        // std::cout << "NEXTNODE SUBASS:   " << next_node->data_.subassemblies.size();
         search_graph_->insertEdge(edata, node->id_, next_node->id_);
         
         DotWriter writer("ABC.dot");
