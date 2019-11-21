@@ -245,7 +245,13 @@ Edge::print(){
 }
 
 bool NodeData::isGoal(){
-    return actions.empty();
+    for (auto &x : subassemblies){
+        if(x.second->hasSuccessor()){
+            // std::cout << ;
+            return false;
+        }
+    }
+    return true;
 }
 
 void NodeData::calc_hscore(){

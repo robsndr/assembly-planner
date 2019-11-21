@@ -92,6 +92,7 @@ void NodeExpander::expandNode(Node* node){
                 }
             }
 
+            std::cout << edata.cost << "  "<< std::endl;
             edata.cost   += cost_map_.map_[action][agent];
             edata.agent_actions_.push_back(std::make_pair(action, agent));
 
@@ -104,9 +105,12 @@ void NodeExpander::expandNode(Node* node){
         // std::cout << "NEXTNODE SUBASS:   " << next_node->data_.subassemblies.size();
         search_graph_->insertEdge(edata, node->id_, next_node->id_);
         
-        DotWriter writer("ABC.dot");
-        search_graph_->print(writer);
+
     }
+    DotWriter writer("ABC.dot");
+    search_graph_->print(writer);
+    std::cin.get();
+
 }
 
 

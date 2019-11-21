@@ -7,13 +7,21 @@
 #include <queue>
 #include "expander.hpp"
 
+
+struct LessThan
+{
+  bool operator()(const Node* lhs, const Node* rhs) const{
+    return (lhs->data_.f_score ) > (rhs->data_.f_score);
+  }
+};
+
 class AStarSearch{
 private:
     /* data */
 public:
     AStarSearch(/* args */);
     ~AStarSearch();
-    void search(Graph<> *, Node * , NodeExpander *);
+    Node* search(Graph<> *, Node * , NodeExpander *);
 };
 
 AStarSearch::AStarSearch(/* args */){
@@ -23,12 +31,12 @@ AStarSearch::~AStarSearch(){
 }
 
 
-void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
+Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
     
     Node *current = nullptr;
 
-    auto cmp = [](Node* left, Node* right) { return (left->data_.f_score ) < (right->data_.f_score); };
-    std::priority_queue<Node*, std::vector<Node* >, decltype(cmp)> openSet(cmp);
+    // auto cmp = [](Node* left, Node* right) { return ; };
+    std::priority_queue<Node*, std::vector<Node* >, LessThan> openSet;
 
     // NodeSet closedSet;
     root->data_.calc_hscore();
@@ -39,8 +47,11 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
         current = openSet.top();
         openSet.pop();
 
+        //  std::cout << "Current f_score: " << current->data_.f_score << std::endl;
+
         if (current->data_.isGoal()) {
-            return;
+            std::cout << "GOAL";
+            return current;
         }
 
         expander->expandNode(current);
@@ -59,6 +70,11 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
             child->data_.g_score = current->data_.g_score + edge->data_.cost;
             child->data_.calc_hscore();
             child->data_.calc_fscore();
+            // std::cout << "g_score " << child->data_.g_score << std::endl;
+            // std::cout << "h_score " << child->data_.h_score << std::endl;
+            // std::cout << "f_score " << child->data_.f_score << std::endl;
+
+
 
 
             // This step might not be needed because tree characteristic of graph.
@@ -69,8 +85,10 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
 
             openSet.push(child);
 
+            // std::cout << "SIZEE: " << openSet.size();
+            
         }
         
     }
-    
+    return current;
 }

@@ -1,5 +1,5 @@
-#include <iostream>
 #include <stdio.h>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -176,57 +176,57 @@ int main(void){
 
     CostMap action_cost_map(12, 2);
 
-    // action_cost_map.addMapping("a1", "r1", 999);
+    action_cost_map.addMapping("a1", "r1", 999);
     action_cost_map.addMapping("a1", "r2", 999);
     action_cost_map.addMapping("a1", "h",  20);
 
-    // action_cost_map.addMapping("a2", "r1", 999);
+    action_cost_map.addMapping("a2", "r1", 999);
     action_cost_map.addMapping("a2", "r2", 999);
     action_cost_map.addMapping("a2", "h",  5);
 
-    // action_cost_map.addMapping("a3", "r1", 999);
+    action_cost_map.addMapping("a3", "r1", 999);
     action_cost_map.addMapping("a3", "r2", 999);
     action_cost_map.addMapping("a3", "h",  15);
 
-    // action_cost_map.addMapping("a4", "r1", 10);
+    action_cost_map.addMapping("a4", "r1", 10);
     action_cost_map.addMapping("a4", "r2", 10);
     action_cost_map.addMapping("a4", "h",  20);
 
-    // action_cost_map.addMapping("a5", "r1", 5);
+    action_cost_map.addMapping("a5", "r1", 5);
     action_cost_map.addMapping("a5", "r2", 5);
     action_cost_map.addMapping("a5", "h",  5);
 
-    // action_cost_map.addMapping("a6", "r1", 20);
+    action_cost_map.addMapping("a6", "r1", 20);
     action_cost_map.addMapping("a6", "r2", 10);
     action_cost_map.addMapping("a6", "h",  3);
 
 
-    // action_cost_map.addMapping("a7", "r1", 10);
+    action_cost_map.addMapping("a7", "r1", 10);
     action_cost_map.addMapping("a7", "r2", 5);
     action_cost_map.addMapping("a7", "h",  15);
 
 
-    // action_cost_map.addMapping("a8", "r1", 99);
+    action_cost_map.addMapping("a8", "r1", 99);
     action_cost_map.addMapping("a8", "r2", 5);
     action_cost_map.addMapping("a8", "h",  10);
 
 
-    // action_cost_map.addMapping("a9", "r1", 20);
+    action_cost_map.addMapping("a9", "r1", 20);
     action_cost_map.addMapping("a9", "r2", 20);
     action_cost_map.addMapping("a9", "h",  5);
 
 
-    // action_cost_map.addMapping("a10", "r1", 10);
+    action_cost_map.addMapping("a10", "r1", 10);
     action_cost_map.addMapping("a10", "r2", 10);
     action_cost_map.addMapping("a10", "h",  5);
 
 
-    // action_cost_map.addMapping("a11", "r1", 10);
+    action_cost_map.addMapping("a11", "r1", 10);
     action_cost_map.addMapping("a11", "r2", 10);
     action_cost_map.addMapping("a11", "h",  10);
 
 
-    // action_cost_map.addMapping("a12", "r1", 10);
+    action_cost_map.addMapping("a12", "r1", 10);
     action_cost_map.addMapping("a12", "r2", 10);
     action_cost_map.addMapping("a12", "h",  10);
 

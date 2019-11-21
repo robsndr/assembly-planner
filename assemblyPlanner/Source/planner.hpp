@@ -34,6 +34,10 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     Node * new_root = search_graph->insertNode(root->data_);
     new_root->data_.name = "";
     new_root->data_.subassemblies[root->data_.name] =  root;
+    new_root->data_.cost = 0;
+    new_root->data_.f_score = 0;
+    new_root->data_.g_score = 0;
+
 
     for (auto &x : root->getSuccessorNodes()){
         new_root->data_.actions[x->data_.name] = x;    
@@ -55,12 +59,22 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     while(a != 0){
         
         AStarSearch astar;
-        astar.search(search_graph, new_root, expander);
+        Node * result = astar.search(search_graph, new_root, expander);
         // AOStarState state = aostar(tree_root, expander);
 
-        // for (auto node : state.solution_sequence){
-        //     std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
-        // }
+
+        for (auto &x : result->data_.subassemblies){
+            std::cout << "Subassemblies: " << x.second->data_.name << std::endl;
+        }
+        
+        while(result->hasPredecessor()){
+            std::cout << "Action: ";
+            std::cout << result->getPredecessors().front()->data_.agent_actions_.front().first;
+            std::cout << "    Agent: ";
+            std::cout << result->getPredecessors().front()->data_.agent_actions_.front().second << std::endl;
+            result = result->getPredecessorNodes().front();
+        }
+        // std::cout << "Action: " << node->data_.name << "     Worker: " << node->data_.worker << std::endl;
         
 
         std::cout << "Run next iteration? " << std::endl;
