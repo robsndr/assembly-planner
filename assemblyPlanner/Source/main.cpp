@@ -97,78 +97,81 @@ int main(void){
 
     // Insert edges
     // ABCDEFGH
-    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a1"]);
-    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a2"]);
-    graph->insertEdge(0, id_map["ABCDEFGH"], id_map["a3"]);
+    EdgeData edata;
+    edata.cost = 0;
+
+    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a1"]);
+    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a2"]);
+    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a3"]);
 
     //a1
-    graph->insertEdge(0, id_map["a1"], id_map["ABCDEF"]);
-    graph->insertEdge(0, id_map["a1"], id_map["GH"]);
+    graph->insertEdge(edata, id_map["a1"], id_map["ABCDEF"]);
+    graph->insertEdge(edata, id_map["a1"], id_map["GH"]);
 
     //a2
-    graph->insertEdge(0, id_map["a2"], id_map["ABCD"]);
-    graph->insertEdge(0, id_map["a2"], id_map["EFGH"]);
+    graph->insertEdge(edata, id_map["a2"], id_map["ABCD"]);
+    graph->insertEdge(edata, id_map["a2"], id_map["EFGH"]);
 
     //a3
-    graph->insertEdge(0, id_map["a3"], id_map["AB"]);
-    graph->insertEdge(0, id_map["a3"], id_map["CDEFGH"]);
+    graph->insertEdge(edata, id_map["a3"], id_map["AB"]);
+    graph->insertEdge(edata, id_map["a3"], id_map["CDEFGH"]);
 
     //ABCDEF
-    graph->insertEdge(0, id_map["ABCDEF"], id_map["a4"]);
+    graph->insertEdge(edata, id_map["ABCDEF"], id_map["a4"]);
 
     //CDEFGH
-    graph->insertEdge(0, id_map["CDEFGH"], id_map["a5"]);
+    graph->insertEdge(edata, id_map["CDEFGH"], id_map["a5"]);
 
     //a4
-    graph->insertEdge(0, id_map["a4"], id_map["AB"]);
-    graph->insertEdge(0, id_map["a4"], id_map["CDEF"]);
+    graph->insertEdge(edata, id_map["a4"], id_map["AB"]);
+    graph->insertEdge(edata, id_map["a4"], id_map["CDEF"]);
 
     //a5
-    graph->insertEdge(0, id_map["a5"], id_map["CDEF"]);
-    graph->insertEdge(0, id_map["a5"], id_map["GH"]);
+    graph->insertEdge(edata, id_map["a5"], id_map["CDEF"]);
+    graph->insertEdge(edata, id_map["a5"], id_map["GH"]);
 
     //ABCD
-    graph->insertEdge(0, id_map["ABCD"], id_map["a6"]);
+    graph->insertEdge(edata, id_map["ABCD"], id_map["a6"]);
 
     //CDEF
-    graph->insertEdge(0, id_map["CDEF"], id_map["a7"]);
+    graph->insertEdge(edata, id_map["CDEF"], id_map["a7"]);
 
     //EFGH
-    graph->insertEdge(0, id_map["EFGH"], id_map["a8"]);
+    graph->insertEdge(edata, id_map["EFGH"], id_map["a8"]);
 
     //a6
-    graph->insertEdge(0, id_map["a6"], id_map["AB"]);
-    graph->insertEdge(0, id_map["a6"], id_map["CD"]);
+    graph->insertEdge(edata, id_map["a6"], id_map["AB"]);
+    graph->insertEdge(edata, id_map["a6"], id_map["CD"]);
 
     // //a7
-    graph->insertEdge(0, id_map["a7"], id_map["CD"]);
-    graph->insertEdge(0, id_map["a7"], id_map["EF"]);
+    graph->insertEdge(edata, id_map["a7"], id_map["CD"]);
+    graph->insertEdge(edata, id_map["a7"], id_map["EF"]);
 
     //a8
-    graph->insertEdge(0, id_map["a8"], id_map["EF"]);
-    graph->insertEdge(0, id_map["a8"], id_map["GH"]);
+    graph->insertEdge(edata, id_map["a8"], id_map["EF"]);
+    graph->insertEdge(edata, id_map["a8"], id_map["GH"]);
 
     // // // AB, CD, EF, GH
-    graph->insertEdge(0, id_map["AB"], id_map["a9"]);
-    graph->insertEdge(0, id_map["CD"], id_map["a10"]);
-    graph->insertEdge(0, id_map["EF"], id_map["a11"]);
-    graph->insertEdge(0, id_map["GH"], id_map["a12"]);
+    graph->insertEdge(edata, id_map["AB"], id_map["a9"]);
+    graph->insertEdge(edata, id_map["CD"], id_map["a10"]);
+    graph->insertEdge(edata, id_map["EF"], id_map["a11"]);
+    graph->insertEdge(edata, id_map["GH"], id_map["a12"]);
 
     // //a9 -> A, B
-    graph->insertEdge(0, id_map["a9"], id_map["A"]);
-    graph->insertEdge(0, id_map["a9"], id_map["B"]);
+    graph->insertEdge(edata, id_map["a9"], id_map["A"]);
+    graph->insertEdge(edata, id_map["a9"], id_map["B"]);
 
     // //a10 -> C, D
-    graph->insertEdge(0, id_map["a10"], id_map["C"]);
-    graph->insertEdge(0, id_map["a10"], id_map["D"]);
+    graph->insertEdge(edata, id_map["a10"], id_map["C"]);
+    graph->insertEdge(edata, id_map["a10"], id_map["D"]);
 
     // //a11 -> E, F
-    graph->insertEdge(0, id_map["a11"], id_map["E"]);
-    graph->insertEdge(0, id_map["a11"], id_map["F"]);
+    graph->insertEdge(edata, id_map["a11"], id_map["E"]);
+    graph->insertEdge(edata, id_map["a11"], id_map["F"]);
 
     // //a12 -> G, H
-    graph->insertEdge(0, id_map["a12"], id_map["G"]);
-    graph->insertEdge(0, id_map["a12"], id_map["H"]);
+    graph->insertEdge(edata, id_map["a12"], id_map["G"]);
+    graph->insertEdge(edata, id_map["a12"], id_map["H"]);
 
 
     CostMap action_cost_map(12, 2);

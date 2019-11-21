@@ -6,6 +6,9 @@
 #include <cmath>
 #include<set>
 #include <vector>
+#include "node.hpp"
+
+class Node;
 
 enum class NodeType{AND, OR};
 
@@ -60,8 +63,15 @@ public:
     }
 };
 
-typedef std::size_t EdgeData;
+// typedef std::size_t EdgeData;
 
+class EdgeData {
+public:
+    EdgeData(){}
+
+    std::string worker = "";
+    double cost = 0;
+};
 
 class CostMap{
 public:

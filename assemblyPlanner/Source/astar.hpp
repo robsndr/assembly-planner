@@ -44,7 +44,7 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
             break;
         }
 
-        // expander->expandNode(current);
+        expander->expandNode(current);
         // closedSet.insert(current);
 
         current->data_.marked = true;
@@ -56,7 +56,7 @@ void AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander){
             if(child->data_.marked)
                 continue;
             
-            child->data_.g_score = current->data_.g_score + edge->data_;
+            child->data_.g_score = current->data_.g_score + edge->data_.cost;
             child->data_.calc_hscore();
             child->data_.calc_fscore();
 

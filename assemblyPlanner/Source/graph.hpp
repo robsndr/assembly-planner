@@ -431,12 +431,16 @@ Graph<Visitor>::copy(
 
         node = mapping.second;
 
-        for (auto &predecessor : node->getPredecessorNodes()){
-            insertEdge(0, index_map[predecessor->id_], index_map[node->id_]);
+        for (auto &predecessor_edge : node->getPredecessors()){
+            insertEdge( predecessor_edge->data_, 
+                        index_map[predecessor_edge->getSource()->id_], 
+                        index_map[node->id_]);
         }    
 
-        for (auto &successor : node->getSuccessorNodes()){
-            insertEdge(0, index_map[node->id_], index_map[successor->id_]);
+        for (auto &successor_edge : node->getSuccessors()){
+            insertEdge( successor_edge->data_, 
+                        index_map[node->id_], 
+                        index_map[successor_edge->getDestination()->id_]);
         }    
     }
 

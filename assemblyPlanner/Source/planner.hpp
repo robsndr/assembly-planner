@@ -29,10 +29,10 @@ Planner::~Planner(){}
 
 void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
-    NodeExpander * expander = new NodeExpander(graph, costs_);
-    search_graph = new Graph();
+    NodeExpander * expander = new NodeExpander(costs_);
 
-    Node * new_root = search_graph->insertNode(*root);
+    search_graph = new Graph<>();
+    Node * new_root = search_graph->insertNode(root->data_);
     new_root->data_.name = "";
     new_root->data_.subassemblies.push_back(root);
 
@@ -55,7 +55,7 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     while(a != 0){
         
         AStarSearch astar;
-        astar.search(graph, root, expander);
+        astar.search(search_graph, new_root, expander);
         // AOStarState state = aostar(tree_root, expander);
 
         // for (auto node : state.solution_sequence){
