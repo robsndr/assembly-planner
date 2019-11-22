@@ -173,7 +173,7 @@ void Combinator::generateActionCombinationSets( std::vector<Node*> & nodes ){
         // no such array is found so no more  
         // combinations left 
         if (next < 0) 
-            return; 
+            break; 
   
         // if found move to next element in that  
         // array 
@@ -185,6 +185,8 @@ void Combinator::generateActionCombinationSets( std::vector<Node*> & nodes ){
         for (int i = next + 1; i < n; i++) 
             indices[i] = 0; 
     } 
+
+    delete[] indices;
 } 
 
 /* Debug functionality. Prints the current state of the assignment vector.

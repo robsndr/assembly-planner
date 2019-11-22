@@ -1,7 +1,6 @@
 #ifndef CONTAINERS_HPP
 #define CONTAINERS_HPP
 
-
 #include <string>
 #include <cmath>
 #include<set>
@@ -53,11 +52,6 @@ public:
     std::unordered_map<std::string, Node*> subassemblies;
     std::unordered_map<std::string, Node*> actions;
 
-    void reset(){
-        // marked = false;
-        if(type == NodeType::OR)
-            cost = log2(name.length());
-    }
 };
 
 // typedef std::size_t EdgeData;

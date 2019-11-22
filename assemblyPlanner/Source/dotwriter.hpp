@@ -25,7 +25,6 @@ DotWriter::DotWriter(std::string name){
 }
 
 DotWriter::~DotWriter(){
-    fs << "}";
     fs.close();
 }
 
@@ -38,6 +37,8 @@ void DotWriter::write(std::unordered_map< std::size_t, Node* > & nodes){
     for (auto const& x : nodes){
         writeNode(x.second);
     }
+    fs << "}";
+    fs.close();
 }
 
 void DotWriter::writeNode(Node* node){
@@ -59,8 +60,8 @@ void DotWriter::writeNodeId(Node* node){
     fs << "  "  << node->id_ 
                 << " [label=\"" 
                 << node->data_.name << "\n" 
-                << node->data_.f_score << std::endl 
-                << node->data_.h_score
+                << "F: " << node->data_.f_score << std::endl 
+                << "H: " << node->data_.h_score
                 << "\"];"
                 << std::endl;
 }

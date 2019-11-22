@@ -4,12 +4,12 @@
 
 class GraphGenerator{
 public:
-    GraphGenerator(/* args */);
+    GraphGenerator(Graph<> *);
     ~GraphGenerator();
 
     std::size_t insertAnd(std::string);
     std::size_t insertOr(std::string);
-    Graph<> * graph;
+    Graph<> * graph_;
 
 private:
     std::vector< Node* > and_;
@@ -17,8 +17,8 @@ private:
     
 };
 
-GraphGenerator::GraphGenerator(/* args */){
-    graph = new Graph();
+GraphGenerator::GraphGenerator(Graph<> * graph){
+    graph_ =graph;
 }
 
 GraphGenerator::~GraphGenerator()
@@ -32,7 +32,7 @@ std::size_t GraphGenerator::insertAnd(std::string name){
     data.cost = 0;
     data.marked = false;
 
-    Node * inserted_node = graph->insertNode(data);
+    Node * inserted_node = graph_->insertNode(data);
     return inserted_node->id_;
 }
 
@@ -43,6 +43,6 @@ std::size_t GraphGenerator::insertOr(std::string name){
     data.cost = log2(name.length());
     data.marked = false;
 
-    Node * inserted_node = graph->insertNode(data);
+    Node * inserted_node = graph_->insertNode(data);
     return inserted_node->id_;
 }

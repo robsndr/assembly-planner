@@ -73,6 +73,8 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     DotWriter writer("tree.dot");
     // tree->print(writer);
 
+    delete search_graph;
+    delete expander;
 }
 
 #endif

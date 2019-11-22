@@ -15,10 +15,11 @@
 template<typename Visitor = VerboseGraphVisitor<std::size_t> >
 class Graph{
 public:
-    // Construction
+    // Construction, Destruction
     Graph(const Visitor& = Visitor());
     Graph(const std::size_t, const std::size_t, const Visitor& = Visitor());
     Graph(const Graph<>& );
+    ~Graph();
 
     // General Information
     std::size_t numberOfNodes() const;
@@ -62,7 +63,6 @@ public:
 
     // TODO: implement as friend. For template might be complications.
     void print(DotWriter &);
-    void reset(); 
 
     Node * root_;
 
@@ -122,6 +122,22 @@ Graph<Visitor>::Graph(
     const Graph<> & graph
 ){
     copy(graph);
+}
+
+/* Destructor. 
+    Cleans-Up the dynamically allocated obejcts.. 
+**/
+template<typename Visitor>
+inline 
+Graph<Visitor>::~Graph(){
+    
+    for (auto &node : nodes_){
+        delete node.second;
+    }
+    
+    for (auto &edge : edges_){
+        delete edge;
+    }
 }
     
 /* Get the number of nodes.
@@ -623,17 +639,6 @@ Graph<Visitor>::print(DotWriter & writer){
     // }
     // std::cout << "************************r************************r************************" << std::endl;
     // std::cout << std::endl << std::endl;
-}
-
-
-template<typename Visitor>
-void
-Graph<Visitor>::reset() 
-{
-    for (auto const& x : nodes_){
-        if(x.second->data_.marked)
-            x.second->data_.reset();
-    }
 }
 
 
