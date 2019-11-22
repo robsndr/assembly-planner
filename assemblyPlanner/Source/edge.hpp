@@ -1,12 +1,10 @@
-#ifndef EDGEH_HPP
-#define EDGEH_HPP
+#pragma once
 
-
-/*Forward declaration of Node so Conector knows about it
-**/
 #include <iostream>
 #include "containers.hpp"
 
+/*Forward declaration of Node so Conector knows about it
+**/
 class Node;
 
 /* Edge data class. Represens the interconnections within the graph.
@@ -86,5 +84,3 @@ inline void
 Edge::setSource(Node* node){
     from_ = node;
 }
-
-#endif

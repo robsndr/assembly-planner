@@ -1,6 +1,4 @@
-#ifndef DOTWRITERH_HPP
-#define DOTWRITERH_HPP
-
+#pragma once
 
 #include <fstream>
 #include "node.hpp"
@@ -65,6 +63,3 @@ void DotWriter::writeNodeId(Node* node){
                 << "\"];"
                 << std::endl;
 }
-
-
-#endif

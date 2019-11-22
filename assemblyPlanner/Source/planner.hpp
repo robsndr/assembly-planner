@@ -1,6 +1,4 @@
-#ifndef PLANNERH_HPP
-#define PLANNERH_HPP
-
+#pragma once
 
 #include <iostream>
 #include <unordered_map>
@@ -38,21 +36,14 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     new_root->data_.f_score = 0;
     new_root->data_.g_score = 0;
 
-
     for (auto &x : root->getSuccessorNodes()){
         new_root->data_.actions[x->data_.name] = x;    
     }
-     
 
     NodeExpander * expander = new NodeExpander(search_graph, costs_);
-
-    int a = 1;
-    
         
     AStarSearch astar;
     Node * result = astar.search(search_graph, new_root, expander);
-    // AOStarState state = aostar(tree_root, expander);
-
 
     for (auto &x : result->data_.subassemblies){
         std::cout << "Subassemblies: " << x.second->data_.name << std::endl;
@@ -71,10 +62,7 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     }
 
     DotWriter writer("tree.dot");
-    // tree->print(writer);
 
     delete search_graph;
     delete expander;
 }
-
-#endif

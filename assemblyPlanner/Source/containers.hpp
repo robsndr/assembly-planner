@@ -1,9 +1,8 @@
-#ifndef CONTAINERS_HPP
-#define CONTAINERS_HPP
+#pragma once
 
 #include <string>
 #include <cmath>
-#include<set>
+#include <set>
 #include <vector>
 #include "node.hpp"
 #include <unordered_map>
@@ -97,5 +96,3 @@ public:
     std::unordered_map< std::string, std::unordered_map< std::string, double > > map_;
 
 };
-
-#endif

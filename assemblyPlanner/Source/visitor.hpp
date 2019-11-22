@@ -1,5 +1,4 @@
-#ifndef VISITOR_HPP
-#define VISITOR_HPP
+#pragma once
 
 #include <cstddef>
 #include <iostream>
@@ -43,5 +42,3 @@ struct VerboseGraphVisitor {
     void eraseEdge(const size_type a) const
         { std::cout << "removing edge " << a << std::endl; }
 };
-
-#endif // #ifndef VISITOR_HPP

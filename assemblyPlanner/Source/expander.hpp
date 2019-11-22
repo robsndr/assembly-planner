@@ -1,5 +1,4 @@
-#ifndef EXPANDER_HPP
-#define EXPANDER_HPP
+#pragma once
 
 #include <vector>
 #include "combinator.hpp"
@@ -115,6 +114,3 @@ void NodeExpander::expandNode(Node* node){
     }
 
 }
-
-
-#endif

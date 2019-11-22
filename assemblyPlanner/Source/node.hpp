@@ -1,5 +1,4 @@
-#ifndef NODEH_HPP
-#define NODEH_HPP
+#pragma once
 
 #include <iostream>
 #include <stdio.h>
@@ -267,5 +266,3 @@ void NodeData::calc_hscore(){
 void NodeData::calc_fscore(){
     f_score = g_score + h_score;
 }
-
-#endif

@@ -1,5 +1,4 @@
-#ifndef COMBINATORH_HPP
-#define COMBINATORH_HPP
+#pragma once
 
 #include <vector>
 #include <string>
@@ -207,5 +206,3 @@ void Combinator::printAssignments(){
     std::cout << "**************************************************************" << std::endl << std::endl;
 
 }
-
-#endif // COMBINATORH_HPP

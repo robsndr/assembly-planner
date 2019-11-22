@@ -1,5 +1,4 @@
-#ifndef GRAPH_HPP
-#define GRAPH_HPP
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -641,5 +640,3 @@ Graph<Visitor>::print(DotWriter & writer){
     // std::cout << std::endl << std::endl;
 }
 
-
-#endif //GRAPH_HPP
