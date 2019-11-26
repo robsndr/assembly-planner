@@ -12,8 +12,10 @@ __license__ = "MIT"
 
 def main():
     """ Main entry point of the app """
-    amf.AMFTree("cube_group.AMF")
-
+    amf_tree = amf.AMF("cube_group.AMF")
+    for instance in amf_tree.instances:
+        print("Current Instance: " + str(instance.id) 
+                + ", dx=" + str(instance.delta_x) + ", dy=" + str(instance.delta_y) + ", dz=" + str(instance.delta_z))
 
 
 

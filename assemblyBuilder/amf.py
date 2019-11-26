@@ -1,24 +1,25 @@
 import xml.etree.ElementTree as ET
 
 
-class AMFTree:
+class AMF:
     """ Class representing the XML-Based AMF-Tree.
     """
 
     def __init__(self, filename):
+        self.instances = list()
+        
         tree = ET.parse(filename)
         root_element = tree.getroot()
         print(root_element.attrib)
 
         # self.top_constellation = root_element.findall('constellation')
-        self.objects = {object_.attrib["id"]: object_ for object_ in root_element.findall('object')}
-        self.instances = list()
+        object_xml_elements = {object_.attrib["id"]: object_ for object_ in root_element.findall('object')}
 
         for _instance in root_element.iter('instance'):
             current_id = _instance.attrib["objectid"]
 
-            if current_id in self.objects.keys():
-                temp = Object(self.objects[current_id],
+            if current_id in object_xml_elements.keys():
+                temp = Object(object_xml_elements[current_id],
                               float(_instance.find("deltax").text.replace(',', '.')),
                               float(_instance.find("deltay").text.replace(',', '.')),
                               float(_instance.find("deltaz").text.replace(',', '.')))
