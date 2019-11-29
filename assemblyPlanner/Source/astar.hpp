@@ -39,8 +39,10 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
     std::priority_queue<Node*, std::vector<Node* >, LessThan> openSet;
 
     // NodeSet closedSet;
+    expander->expandNode(root);
     root->data_.calc_hscore();
     root->data_.calc_fscore(); 
+
     openSet.push(root);
 
     while (!openSet.empty()) {
@@ -48,13 +50,13 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
         openSet.pop();
 
         //  std::cout << "Current f_score: " << current->data_.f_score << std::endl;
+        // std::cout << "Current Node: " << current->data_.name << std::endl;
 
         if (current->data_.isGoal()) {
-            std::cout << "GOAL";
             return current;
         }
 
-        expander->expandNode(current);
+        // expander->expandNode(current);
 
         // closedSet.insert(current);
 
@@ -62,33 +64,26 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
 
         for (auto & edge : current->getSuccessors()){
             
-
             Node * child = edge->getDestination();
 
-            if(child->data_.marked)
-                continue;
+            expander->expandNode(child);
+
+
+            // if(child->data_.marked)
+            //     continue;
             
             child->data_.g_score = current->data_.g_score + edge->data_.cost;
             child->data_.calc_hscore();
             child->data_.calc_fscore();
-            // std::cout << "g_score " << edge->data_.cost << std::endl;
-            // std::cout << "h_score " << child->data_.h_score << std::endl;
-            // std::cout << "f_score " << child->data_.f_score << std::endl;
-
-
-
-
-            // This step might not be needed because tree characteristic of graph.
-            // if child.position is in the openList's nodes positions
-            //     if the child.g is higher than the openList node's g
-            //         continue to beginning of for loop
-            // child->data_.f_score = child.g + child.h
 
             openSet.push(child);
-
-            // std::cout << "SIZEE: " << openSet.size();
             
         }
+        // DotWriter writer("ABC.dot");
+        // graph->print(writer);
+        // std::cin.get();
+        // std::cout << "-----------------------" << std::endl;
+
         
     }
     return current;

@@ -25,6 +25,7 @@ public:
         subassemblies   = copied.subassemblies;
         actions         = copied.actions;
         minimum_cost_action = copied.minimum_cost_action;
+        applied_actions_ = copied.applied_actions_;
         f_score  = 0;
         g_score  = 0;
     }
@@ -46,7 +47,9 @@ public:
     double f_score = 0;
     double h_score = 0;
 
-    double minimum_cost_action = 0;
+    double minimum_cost_action = MAXFLOAT;
+
+    std::set<std::string> applied_actions_;
 
     std::unordered_map<std::string, Node*> subassemblies;
     std::unordered_map<std::string, Node*> actions;
@@ -80,10 +83,17 @@ public:
 
     void addMapping(std::string action, std::string agent, double cost){
         // Lets insert four elements
-        const bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
+        bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
         if(!is_in)
-            vector_of_agents_.push_back(agent);    
+            vector_of_agents_.push_back(agent); 
         set_of_agents_.insert(agent);
+
+
+        is_in = set_of_actions_.find(action) != set_of_actions_.end();
+        if(!is_in)
+            vector_of_actions_.push_back(action);        
+        set_of_actions_.insert(action);
+
         map_[action][agent] = cost;
     };
 
@@ -92,6 +102,9 @@ public:
 
     std::vector<std::string> vector_of_agents_;
     std::set<std::string> set_of_agents_;
+
+    std::vector<std::string> vector_of_actions_;
+    std::set<std::string> set_of_actions_;
 
     std::unordered_map< std::string, std::unordered_map< std::string, double > > map_;
 

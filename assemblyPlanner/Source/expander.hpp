@@ -58,17 +58,18 @@ void NodeExpander::expandNode(Node* node){
     //     std::cout << "Stack: " << i->data_.name << std::endl;
     // }
     
+    double min_action_agent_cost_ = node->data_.minimum_cost_action;
+
     for (auto &cur_assignments : *assignments_){
 
         NodeData ndata;
         ndata.subassemblies = node->data_.subassemblies;
         ndata.actions       = node->data_.actions;
-        ndata.marked = false;
+        ndata.marked        = false;
 
         EdgeData edata;
         edata.cost = 0;
 
-        double min_action_agent_cost_ = INT_MAX;
 
         for (auto &agent_action_assignment : cur_assignments){   
 
@@ -76,8 +77,8 @@ void NodeExpander::expandNode(Node* node){
             std::string action = std::get<1>(agent_action_assignment);
             Node * action_ptr  = std::get<2>(agent_action_assignment);
             
-            std::string action_source = action_ptr->getPredecessorNodes()[0]->data_.name;
-            std::string action_dest   = action_ptr->getSuccessorNodes()[0]->data_.name;
+            std::string action_source = action_ptr->getPredecessorNodes().front()->data_.name;
+            std::string action_dest   = action_ptr->getSuccessorNodes().front()->data_.name;
 
             ndata.name += action_source + "-" + action + "-" + agent + "     ";
             ndata.subassemblies.erase(action_source);
@@ -101,16 +102,16 @@ void NodeExpander::expandNode(Node* node){
 
         }
 
-        ndata.minimum_cost_action = min_action_agent_cost_;
 
         Node * next_node = search_graph_->insertNode(ndata);
 
         search_graph_->insertEdge(edata, node->id_, next_node->id_);
-        
-        // DotWriter writer("ABC.dot");
-        // search_graph_->print(writer);
-        // std::cin.get();
 
     }
 
+    // std::cout << "Minmum Agent-Action Cost: " << min_action_agent_cost_ << std::endl;
+
+    node->data_.minimum_cost_action = min_action_agent_cost_;
+    
+    
 }
