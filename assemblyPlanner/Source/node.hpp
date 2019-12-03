@@ -261,7 +261,7 @@ void NodeData::calc_hscore(){
     }
     // std::cout << "minimum cost action: " << minimum_cost_action << std::endl;
     // h_score = (log2f(maximum_length_subassembly)/subassemblies.size() * minimum_cost_action * minimum_cost_action);
-    h_score = ceil(ceil(log2(maximum_length_subassembly)) *  ceil(pow(minimum_cost_action, 4))) ;
+    h_score = log2f(maximum_length_subassembly) * minimum_cost_action;
 }
 
 void NodeData::calc_fscore(){

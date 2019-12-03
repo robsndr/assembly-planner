@@ -46,19 +46,23 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
     Node * result = astar.search(search_graph, new_root, expander);
     
 
-    std::cout << "Cost: " << result->data_.g_score << std::endl;
+    // std::cout << "Cost: " << result->data_.g_score << std::endl;
 
+    double cost = 0;
     while(result->hasPredecessor()){
         for (auto &i : result->getPredecessors().front()->data_.agent_actions_){
             std::cout << "Action: ";
             std::cout << i.first;
             std::cout << " Agent: ";
             std::cout << i.second << "    ";
+            cost += costs_.map_[i.first][i.second];
         }
         std::cout << std::endl;
         
         result = result->getPredecessorNodes().front();
     }
+
+    std::cout << "Cost: " << cost << std::endl;
 
 
     DotWriter writer("tree.dot");

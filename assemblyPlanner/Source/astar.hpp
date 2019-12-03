@@ -57,7 +57,6 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
         }
 
         // expander->expandNode(current);
-
         // closedSet.insert(current);
 
         current->data_.marked = true;
@@ -67,7 +66,6 @@ Node * AStarSearch::search(Graph<> * graph, Node* root, NodeExpander * expander)
             Node * child = edge->getDestination();
 
             expander->expandNode(child);
-
 
             // if(child->data_.marked)
             //     continue;

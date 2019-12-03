@@ -69,17 +69,15 @@ void NodeExpander::expandNode(Node* node){
 
         EdgeData edata;
         edata.cost = 0;
-
+        int iters = 0;
 
         for (auto &agent_action_assignment : cur_assignments){   
-
+            iters++;
             std::string agent  = std::get<0>(agent_action_assignment);
             std::string action = std::get<1>(agent_action_assignment);
             Node * action_ptr  = std::get<2>(agent_action_assignment);
             
             std::string action_source = action_ptr->getPredecessorNodes().front()->data_.name;
-            std::string action_dest   = action_ptr->getSuccessorNodes().front()->data_.name;
-
             ndata.name += action_source + "-" + action + "-" + agent + "     ";
             ndata.subassemblies.erase(action_source);
             ndata.actions.erase(action);
@@ -96,12 +94,9 @@ void NodeExpander::expandNode(Node* node){
                 min_action_agent_cost_ = cost_map_.map_[action][agent];
             }
             edata.cost   += cost_map_.map_[action][agent];
-            // std::cout << "Action: " << action << "   Agent: " << agent << std::endl;
-            // std::cout << "Edge Cest: " << cost_map_.map_[action][agent] << "  "<< std::endl;
             edata.agent_actions_.push_back(std::make_pair(action, agent));
-
         }
-
+        edata.cost = edata.cost / iters;
 
         Node * next_node = search_graph_->insertNode(ndata);
 
@@ -111,7 +106,5 @@ void NodeExpander::expandNode(Node* node){
 
     // std::cout << "Minmum Agent-Action Cost: " << min_action_agent_cost_ << std::endl;
 
-    node->data_.minimum_cost_action = min_action_agent_cost_;
-    
-    
+    node->data_.minimum_cost_action = min_action_agent_cost_;    
 }
