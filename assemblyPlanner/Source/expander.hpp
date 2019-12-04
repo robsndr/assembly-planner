@@ -59,6 +59,7 @@ void NodeExpander::expandNode(Node* node){
     // }
     
     double min_action_agent_cost_ = node->data_.minimum_cost_action;
+    double max_action_agent_cost_ = 0;
 
     for (auto &cur_assignments : *assignments_){
 

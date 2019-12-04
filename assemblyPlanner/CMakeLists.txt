@@ -7,6 +7,6 @@ include_directories ("${PROJECT_SOURCE_DIR}/Lib") # Search for function declarat
 add_subdirectory (Lib)                            # Ensures that Libararies are built.
 set (LIBS ${LIBS})
 
-add_executable(planner Source/main.cpp)
+add_executable(planner Source/main.cpp Lib/tinyxml2.cpp)
 target_link_libraries (planner  ${LIBS})
 

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <nodes>
+        <node name="ABCDEFGH" type="OR"/>
+        <node name="ABCDEF"   type="OR"/>
+        <node name="CDEFGH"   type="OR"/>
+        <node name="ABCD"     type="OR"/>
+        <node name="CDEF"     type="OR"/>
+        <node name="EFGH"     type="OR"/>
+        <node name="AB"       type="OR"/>
+        <node name="CD"       type="OR"/>
+        <node name="EF"       type="OR"/>
+        <node name="GH"       type="OR"/>
+        <node name="AB"       type="OR"/>
+        <node name="A"        type="OR"/>
+        <node name="B"        type="OR"/>
+        <node name="C"        type="OR"/>
+        <node name="D"        type="OR"/>
+        <node name="E"        type="OR"/>
+        <node name="F"        type="OR"/>
+        <node name="G"        type="OR"/>
+        <node name="H"        type="OR"/> 
+        <node name="a1"       type="AND"/>
+        <node name="a2"       type="AND"/>
+        <node name="a3"       type="AND"/>
+        <node name="a4"       type="AND"/>
+        <node name="a5"       type="AND"/>
+        <node name="a6"       type="AND"/>
+        <node name="a7"       type="AND"/>
+        <node name="a8"       type="AND"/>
+        <node name="a9"       type="AND"/>
+        <node name="a10"      type="AND"/>
+        <node name="a11"      type="AND"/>
+        <node name="a12"      type="AND"/>
+    </nodes>
+
+    <edges>
+        <edge start="ABCDEFGH"  end="a1"/>
+        <edge start="ABCDEFGH"  end="a2"/>
+        <edge start="ABCDEFGH"  end="a3"/>
+        <edge start="a1"        end="ABCDEF"/>
+        <edge start="a1"        end="GH"/>
+        <edge start="a2"        end="ABCD"/>
+        <edge start="a2"        end="EFGH"/>
+        <edge start="a3"        end="AB"/>
+        <edge start="a3"        end="CDEFGH"/>
+        <edge start="ABCDEF"    end="a4"/>
+        <edge start="CDEFGH"    end="a5"/>
+        <edge start="a4"        end="AB"/>
+        <edge start="a4"        end="CDEF"/>
+        <edge start="a5"        end="CDEF"/>
+        <edge start="a5"        end="GH"/>
+        <edge start="ABCD"      end="a6"/>
+        <edge start="CDEF"      end="a7"/>
+        <edge start="EFGH"      end="a8"/>
+        <edge start="a6"        end="AB"/>
+        <edge start="a6"        end="CD"/>
+        <edge start="a7"        end="CD"/>
+        <edge start="a7"        end="EF"/>    
+        <edge start="a8"        end="EF"/>
+        <edge start="a8"        end="GH"/>      
+        <edge start="AB"        end="a9"/>
+        <edge start="CD"        end="a10"/>
+        <edge start="EF"        end="a11"/>
+        <edge start="GH"        end="a12"/>
+        <edge start="a9"        end="A"/>
+        <edge start="a9"        end="B"/>
+        <edge start="a10"       end="C"/>
+        <edge start="a10"       end="D"/>  
+        <edge start="a11"       end="E"/>
+        <edge start="a11"       end="F"/>
+        <edge start="a12"       end="G"/>
+        <edge start="a12"       end="H"/>                                    
+    </edges>
+
+    <costmap>
+        <action name="a1">
+            <agent name="r1" cost="inf"/>
+            <agent name="r2" cost="inf"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a2">
+            <agent name="r1" cost="inf"/>
+            <agent name="r2" cost="inf"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a3">
+            <agent name="r1" cost="inf"/>
+            <agent name="r2" cost="inf"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a4">
+            <agent name="r1" cost="10"/>
+            <agent name="r2" cost="10"/>
+            <agent name="h"  cost="200"/>
+        </action>
+        <action name="a5">
+            <agent name="r1" cost="5"/>
+            <agent name="r2" cost="5"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a6">
+            <agent name="r1" cost="20"/>
+            <agent name="r2" cost="10"/>
+            <agent name="h"  cost="30"/>
+        </action>
+        <action name="a7">
+            <agent name="r1" cost="10"/>
+            <agent name="r2" cost="5"/>
+            <agent name="h"  cost="100"/>
+        </action>
+        <action name="a8">
+            <agent name="r1" cost="inf"/>
+            <agent name="r2" cost="5"/>
+            <agent name="h"  cost="100"/>
+        </action>
+        <action name="a9">
+            <agent name="r1" cost="20"/>
+            <agent name="r2" cost="20"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a10">
+            <agent name="r1" cost="10"/>
+            <agent name="r2" cost="10"/>
+            <agent name="h"  cost="50"/>
+        </action>
+        <action name="a11">
+            <agent name="r1" cost="10"/>
+            <agent name="r2" cost="10"/>
+            <agent name="h"  cost="100"/>
+        </action>
+        <action name="a12">
+            <agent name="r1" cost="10"/>
+            <agent name="r2" cost="10"/>
+            <agent name="h"  cost="100"/>
+        </action>                                                                      
+    </costmap>
+</assembly>
