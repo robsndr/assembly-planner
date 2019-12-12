@@ -1,285 +1,211 @@
-#include "tinyxml2.hpp"
-#include <string>
-#include "graph_generator.hpp"
+#pragma once
 
-using namespace tinyxml2;
+#include <string>
+#include <exception>
+#include <tuple>
+#include <vector>
+#include <sstream>
+
+#include "dotwriter.hpp"
+#include "tinyxml2.hpp"
+#include "graph_generator.hpp"
+#include "containers.hpp"
+
+bool is_float( std::string my_string ) {
+    std::istringstream iss(my_string);
+    float f;
+    iss >> std::noskipws >> f; 
+    return iss.eof() && !iss.fail(); 
+}
 
 class InputReader{
     
     public:
-        std::pair<Graph<>*,CostMap*> read(void);
-        Graph<> * read_assembly(void);
-        CostMap * read_costmap(void);
+        std::tuple<Graph<>*,CostMap*,bool> read(std::string);
 
         InputReader(std::string);
         ~InputReader();
     
     private:
+        int parse_nodes(tinyxml2::XMLNode*);
+        int parse_edges(tinyxml2::XMLNode*);
+        int parse_costmap(tinyxml2::XMLNode*);
 
+        tinyxml2::XMLElement* root;
+        tinyxml2::XMLDocument* doc;
+        GraphGenerator* graph_gen;
+        CostMap* cost_map;
 };
 
 InputReader::InputReader(std::string path){
-    XMLDocument doc;
-    doc.LoadFile(path.c_str());
-}
+    doc = new tinyxml2::XMLDocument;
+    tinyxml2::XMLError result = doc->LoadFile(path.c_str());
+    if (result != tinyxml2::XML_SUCCESS) 
+        throw std::runtime_error("Could not open XML file.");
 
-InputReader::~InputReader(){}
-
-
-
-std::pair<Graph<>*,CostMap*> InputReader::read(void){
-
-    Graph<>* assembly_read = read_assembly();
-    CostMap* costmap_read  = read_costmap();
-
-    return std::make_pair(assembly_read, costmap_read);
-}
-
-
-Graph<>* InputReader::read_assembly(void){
     Graph<>* graph = new Graph;
-    GraphGenerator graph_gen(graph);
-    std::unordered_map<std::string, std::size_t> id_map;
+    graph_gen = new GraphGenerator(graph);
+    cost_map = new CostMap;
+}
 
-    id_map["ABCDEFGH"] = graph_gen.insertOr("ABCDEFGH");
+InputReader::~InputReader(){
+    delete graph_gen;
+    delete cost_map;
+}
 
-    id_map["a1"] = graph_gen.insertAnd("a1");
-    id_map["a2"] = graph_gen.insertAnd("a2");
-    id_map["a3"] = graph_gen.insertAnd("a3");
+std::tuple<Graph<>*,CostMap*,bool> InputReader::read(std::string root_name){
 
-    id_map["ABCDEF"] = graph_gen.insertOr("ABCDEF");
-    id_map["a4"] = graph_gen.insertAnd("a4");
+    root = doc->FirstChildElement(root_name.c_str());
+    if (root == nullptr){
+        std::cerr << "XML: Could not find root element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["CDEFGH"] = graph_gen.insertOr("CDEFGH");
-    id_map["a5"] = graph_gen.insertAnd("a5");
+    tinyxml2::XMLElement * nodes_e = root->FirstChildElement("nodes");
+    if (nodes_e == nullptr){
+        std::cerr << "XML: Could not find nodes element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["ABCD"] = graph_gen.insertOr("ABCD");
-    id_map["a6"] = graph_gen.insertAnd("a6");
+    tinyxml2::XMLElement * edges_e = root->FirstChildElement("edges");
+    if (edges_e == nullptr){
+        std::cerr << "XML: Could not find edges element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["CDEF"] = graph_gen.insertOr("CDEF");
-    id_map["a7"] = graph_gen.insertAnd("a7");
+    tinyxml2::XMLElement * costmap_e = root->FirstChildElement("costmap");
+    if (costmap_e == nullptr){
+        std::cerr << "XML: Could not find costmap element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["EFGH"] = graph_gen.insertOr("EFGH");
-    id_map["a8"] = graph_gen.insertAnd("a8");
 
-    id_map["AB"] = graph_gen.insertOr("AB");
-    id_map["a9"] = graph_gen.insertAnd("a9");
 
-    id_map["CD"] = graph_gen.insertOr("CD");
-    id_map["a10"] = graph_gen.insertAnd("a10");
+    if(parse_nodes(nodes_e) == tinyxml2::XML_ERROR_PARSING){
+        std::cerr << "XML: Error Parsing Nodes." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["EF"] = graph_gen.insertOr("EF");
-    id_map["a11"] = graph_gen.insertAnd("a11");
+    if(parse_edges(edges_e) == tinyxml2::XML_ERROR_PARSING){
+        std::cerr << "XML: Error Parsing Nodes." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["GH"] = graph_gen.insertOr("GH");
-    id_map["a12"] = graph_gen.insertAnd("a12");
+    if(parse_costmap(costmap_e) == tinyxml2::XML_ERROR_PARSING){
+        std::cerr << "XML: Error Parsing Nodes." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    id_map["A"] = graph_gen.insertOr("A");
-    id_map["B"] = graph_gen.insertOr("B");
-    id_map["C"] = graph_gen.insertOr("C");
-    id_map["D"] = graph_gen.insertOr("D");
-    id_map["E"] = graph_gen.insertOr("E");
-    id_map["F"] = graph_gen.insertOr("F");
-    id_map["G"] = graph_gen.insertOr("G");
-    id_map["H"] = graph_gen.insertOr("H");
+    graph_gen->setRoot(root->Attribute("root"));
+    return std::make_tuple(graph_gen->graph_, cost_map, true);
+}
 
-    // Insert edges
-    // ABCDEFGH
-    EdgeData edata;
-    edata.cost = 0;
+int InputReader::parse_nodes(tinyxml2::XMLNode* nodes_root){
 
-    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a1"]);
-    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a2"]);
-    graph->insertEdge(edata, id_map["ABCDEFGH"], id_map["a3"]);
+    const char * attribute_text = nullptr;
 
-    //a1
-    graph->insertEdge(edata, id_map["a1"], id_map["ABCDEF"]);
-    graph->insertEdge(edata, id_map["a1"], id_map["GH"]);
+    for (tinyxml2::XMLElement* child = nodes_root->FirstChildElement("node"); 
+                        child != nullptr; child = child->NextSiblingElement("node")){
+                        
+        attribute_text = child->Attribute("name");
+        std::string node_name = attribute_text;
+        // if (attribute_text == NULL) 
+            // return tinyxml2::XML_ERROR_PARSING;
 
-    //a2
-    graph->insertEdge(edata, id_map["a2"], id_map["ABCD"]);
-    graph->insertEdge(edata, id_map["a2"], id_map["EFGH"]);
+        attribute_text = child->Attribute("type");
+        std::string node_type = attribute_text;
+        // if (attribute_text == NULL) 
+            // return tinyxml2::XML_ERROR_PARSING;
+        // std::cout << node_name << " " << node_type << std::endl;
 
-    //a3
-    graph->insertEdge(edata, id_map["a3"], id_map["AB"]);
-    graph->insertEdge(edata, id_map["a3"], id_map["CDEFGH"]);
+        if(node_type == "OR")
+            graph_gen->insertOr(node_name);
+        else if(node_type == "AND")
+            graph_gen->insertAnd(node_name);
+        else
+            return tinyxml2::XML_ERROR_PARSING;
+    }
 
-    //ABCDEF
-    graph->insertEdge(edata, id_map["ABCDEF"], id_map["a4"]);
-
-    //CDEFGH
-    graph->insertEdge(edata, id_map["CDEFGH"], id_map["a5"]);
-
-    //a4
-    graph->insertEdge(edata, id_map["a4"], id_map["AB"]);
-    graph->insertEdge(edata, id_map["a4"], id_map["CDEF"]);
-
-    //a5
-    graph->insertEdge(edata, id_map["a5"], id_map["CDEF"]);
-    graph->insertEdge(edata, id_map["a5"], id_map["GH"]);
-
-    //ABCD
-    graph->insertEdge(edata, id_map["ABCD"], id_map["a6"]);
-
-    //CDEF
-    graph->insertEdge(edata, id_map["CDEF"], id_map["a7"]);
-
-    //EFGH
-    graph->insertEdge(edata, id_map["EFGH"], id_map["a8"]);
-
-    //a6
-    graph->insertEdge(edata, id_map["a6"], id_map["AB"]);
-    graph->insertEdge(edata, id_map["a6"], id_map["CD"]);
-
-    // //a7
-    graph->insertEdge(edata, id_map["a7"], id_map["CD"]);
-    graph->insertEdge(edata, id_map["a7"], id_map["EF"]);
-
-    //a8
-    graph->insertEdge(edata, id_map["a8"], id_map["EF"]);
-    graph->insertEdge(edata, id_map["a8"], id_map["GH"]);
-
-    // // // AB, CD, EF, GH
-    graph->insertEdge(edata, id_map["AB"], id_map["a9"]);
-    graph->insertEdge(edata, id_map["CD"], id_map["a10"]);
-    graph->insertEdge(edata, id_map["EF"], id_map["a11"]);
-    graph->insertEdge(edata, id_map["GH"], id_map["a12"]);
-
-    // //a9 -> A, B
-    graph->insertEdge(edata, id_map["a9"], id_map["A"]);
-    graph->insertEdge(edata, id_map["a9"], id_map["B"]);
-
-    // //a10 -> C, D
-    graph->insertEdge(edata, id_map["a10"], id_map["C"]);
-    graph->insertEdge(edata, id_map["a10"], id_map["D"]);
-
-    // //a11 -> E, F
-    graph->insertEdge(edata, id_map["a11"], id_map["E"]);
-    graph->insertEdge(edata, id_map["a11"], id_map["F"]);
-
-    // //a12 -> G, H
-    graph->insertEdge(edata, id_map["a12"], id_map["G"]);
-    graph->insertEdge(edata, id_map["a12"], id_map["H"]);
-
-    Node* root = graph->getNode(id_map["ABCDEFGH"]);
-    graph->root_ = root;
-
-    return graph;
+    return tinyxml2::XML_SUCCESS;
 }
 
 
-CostMap* InputReader::read_costmap(void){
-    CostMap* action_cost_map = new CostMap(12, 3);
+int InputReader::parse_edges(tinyxml2::XMLNode* edges_root){
 
-    // action_cost_map->addMapping("a1", "r1", INT_MAX);
-    // action_cost_map->addMapping("a1", "r2", INT_MAX);
-    // action_cost_map->addMapping("a1", "h",  20);
+    const char * attribute_text = nullptr;
 
-    // action_cost_map->addMapping("a2", "r1", INT_MAX);
-    // action_cost_map->addMapping("a2", "r2", INT_MAX);
-    // action_cost_map->addMapping("a2", "h",  5);
+    for (tinyxml2::XMLElement* child = edges_root->FirstChildElement("edge"); 
+                        child != nullptr; child = child->NextSiblingElement("edge")){
+                        
+        attribute_text = child->Attribute("start");
+        std::string start_node = attribute_text;
+        // if (attribute_text == NULL) 
+            // return tinyxml2::XML_ERROR_PARSING;
 
-    // action_cost_map->addMapping("a3", "r1", INT_MAX);
-    // action_cost_map->addMapping("a3", "r2", INT_MAX);
-    // action_cost_map->addMapping("a3", "h",  15);
+        attribute_text = child->Attribute("end");
+        std::string end_node = attribute_text;
+        // if (attribute_text == NULL) 
+            // return tinyxml2::XML_ERROR_PARSING;
+        // std::cout << start_node << " " << end_node << std::endl;
 
-    // action_cost_map->addMapping("a4", "r1", 10);
-    // action_cost_map->addMapping("a4", "r2", 10);
-    // action_cost_map->addMapping("a4", "h",  20);
+        bool inserted = graph_gen->insertEdge(start_node, end_node);
+    }
 
-    // action_cost_map->addMapping("a5", "r1", 5);
-    // action_cost_map->addMapping("a5", "r2", 5);
-    // action_cost_map->addMapping("a5", "h",  5);
+    DotWriter dot("parsed.dot");
+    graph_gen->graph_->print(dot);
 
-    // action_cost_map->addMapping("a6", "r1", 20);
-    // action_cost_map->addMapping("a6", "r2", 10);
-    // action_cost_map->addMapping("a6", "h",  3);
+    return tinyxml2::XML_SUCCESS;
+}
 
+int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
 
-    // action_cost_map->addMapping("a7", "r1", 10);
-    // action_cost_map->addMapping("a7", "r2", 5);
-    // action_cost_map->addMapping("a7", "h",  15);
+    const char * attribute_text = nullptr;
 
+    for (tinyxml2::XMLElement* action = costmap_root->FirstChildElement("action"); 
+                        action != nullptr; action = action->NextSiblingElement("action")){
 
-    // action_cost_map->addMapping("a8", "r1", INT_MAX);
-    // action_cost_map->addMapping("a8", "r2", 5);
-    // action_cost_map->addMapping("a8", "h",  10);
+        attribute_text = action->Attribute("name");
+        // if (attribute_text == NULL) 
+            // return tinyxml2::XML_ERROR_PARSING;
+        std::string action_name = attribute_text;
+        // std::cout     << "  Agent: ";
+        
+        for (tinyxml2::XMLElement* agent = action->FirstChildElement("agent"); 
+                        agent != nullptr; agent = agent->NextSiblingElement("agent")){                  
+            
 
+            attribute_text = agent->Attribute("name");
+            std::string agent_name = attribute_text;
+            // if (attribute_text == NULL) 
+                // return tinyxml2::XML_ERROR_PARSING;
 
-    // action_cost_map->addMapping("a9", "r1", 20);
-    // action_cost_map->addMapping("a9", "r2", 20);
-    // action_cost_map->addMapping("a9", "h",  5);
+            attribute_text = agent->Attribute("cost");
+            std::string agent_action_cost = attribute_text;
+            // if (attribute_text == NULL) 
+                // return tinyxml2::XML_ERROR_PARSING;
 
+            // std::cout     << "  Agent: "  << agent_name 
+                        //   << "  Action: " << action_name << std::endl;
 
-    // action_cost_map->addMapping("a10", "r1", 10);
-    // action_cost_map->addMapping("a10", "r2", 10);
-    // action_cost_map->addMapping("a10", "h",  5);
+            if(agent_action_cost == "inf"){
+                cost_map->addMapping(action_name, agent_name, INT_MAX);
+            }
+            else if(is_float(agent_action_cost)){
+                cost_map->addMapping(action_name, agent_name, std::stod(agent_action_cost));
+            }
+            else{
+                std::cerr << "XML: Wrong value for cost."
+                          << "  Agent: "  << agent_name 
+                          << "  Action: " << action_name << std::endl;
+                
+                return tinyxml2::XML_ERROR_PARSING;
+            }
 
+        }
+    }
 
-    // action_cost_map->addMapping("a11", "r1", 10);
-    // action_cost_map->addMapping("a11", "r2", 10);
-    // action_cost_map->addMapping("a11", "h",  10);
+    DotWriter dot("parsed.dot");
+    graph_gen->graph_->print(dot);
 
-
-    // action_cost_map->addMapping("a12", "r1", 10);
-    // action_cost_map->addMapping("a12", "r2", 10);
-    // action_cost_map->addMapping("a12", "h",  10);
-
-
-    // Second mapping C2.
-    action_cost_map->addMapping("a1", "r1", INT_MAX);
-    action_cost_map->addMapping("a1", "r2", INT_MAX);
-    action_cost_map->addMapping("a1", "h",  50);
-
-    action_cost_map->addMapping("a2", "r1", INT_MAX);
-    action_cost_map->addMapping("a2", "r2", INT_MAX);
-    action_cost_map->addMapping("a2", "h",  50);
-
-    action_cost_map->addMapping("a3", "r1", INT_MAX);
-    action_cost_map->addMapping("a3", "r2", INT_MAX);
-    action_cost_map->addMapping("a3", "h",  50);
-
-    action_cost_map->addMapping("a4", "r1", 10);
-    action_cost_map->addMapping("a4", "r2", 10);
-    action_cost_map->addMapping("a4", "h",  200);
-
-    action_cost_map->addMapping("a5", "r1", 5);
-    action_cost_map->addMapping("a5", "r2", 5);
-    action_cost_map->addMapping("a5", "h",  50);
-
-    action_cost_map->addMapping("a6", "r1", 20);
-    action_cost_map->addMapping("a6", "r2", 10);
-    action_cost_map->addMapping("a6", "h",  30);
-
-
-    action_cost_map->addMapping("a7", "r1", 10);
-    action_cost_map->addMapping("a7", "r2", 5);
-    action_cost_map->addMapping("a7", "h",  100);
-
-
-    action_cost_map->addMapping("a8", "r1", INT_MAX);
-    action_cost_map->addMapping("a8", "r2", 5);
-    action_cost_map->addMapping("a8", "h",  100);
-
-
-    action_cost_map->addMapping("a9", "r1", 20);
-    action_cost_map->addMapping("a9", "r2", 20);
-    action_cost_map->addMapping("a9", "h",  50);
-
-
-    action_cost_map->addMapping("a10", "r1", 10);
-    action_cost_map->addMapping("a10", "r2", 10);
-    action_cost_map->addMapping("a10", "h",  50);
-
-
-    action_cost_map->addMapping("a11", "r1", 10);
-    action_cost_map->addMapping("a11", "r2", 10);
-    action_cost_map->addMapping("a11", "h",  100);
-
-
-    action_cost_map->addMapping("a12", "r1", 10);
-    action_cost_map->addMapping("a12", "r2", 10);
-    action_cost_map->addMapping("a12", "h",  100);
-
-    return action_cost_map;
+    return tinyxml2::XML_SUCCESS;
 }

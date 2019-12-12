@@ -9,4 +9,3 @@ set (LIBS ${LIBS})
 
 add_executable(planner Source/main.cpp Lib/tinyxml2.cpp)
 target_link_libraries (planner  ${LIBS})
-

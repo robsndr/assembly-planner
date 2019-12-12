@@ -76,11 +76,6 @@ public:
         number_of_actions_ = parent.number_of_actions_;
     }
 
-    CostMap(std::size_t actions, std::size_t agents){
-        number_of_actions_ = actions;
-        number_of_agents_  = agents;
-    };
-
     void addMapping(std::string action, std::string agent, double cost){
         // Lets insert four elements
         bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
@@ -95,6 +90,8 @@ public:
         set_of_actions_.insert(action);
 
         map_[action][agent] = cost;
+        number_of_actions_ = vector_of_actions_.size();
+        number_of_agents_  = vector_of_agents_.size(); 
     };
 
     std::size_t number_of_actions_;

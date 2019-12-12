@@ -29,13 +29,11 @@ DotWriter::~DotWriter(){
 void DotWriter::write(std::unordered_map< std::size_t, Node* > & nodes){
     
     for (auto const& x : nodes){
-        if(x.second->data_.h_score)
-            writeNodeId(x.second);
+        writeNodeId(x.second);
     }
 
     for (auto const& x : nodes){
-        if(x.second->data_.h_score)
-            writeNode(x.second);
+        writeNode(x.second);
     }
     fs << "}";
     fs.close();
@@ -45,14 +43,12 @@ void DotWriter::writeNode(Node* node){
     fs << "  " << node->id_ << " -> " << "{";
     std::vector<Node*> temp = node->getSuccessorNodes();
     for (std::size_t i = 0; i < node->numberOfSuccessors(); i++){
-        if(temp[i]->data_.h_score){
-            if(i!=node->numberOfSuccessors()-1){
-                fs  << temp[i]->id_
-                    << ", ";
-            }
-            else{
-                fs  << temp[i]->id_;
-            }
+        if(i!=node->numberOfSuccessors()-1){
+            fs  << temp[i]->id_
+                << ", ";
+        }
+        else{
+            fs  << temp[i]->id_;
         }
     }
     fs << "}" << std::endl;

@@ -8,34 +8,50 @@
 #include "planner.hpp"
 #include "dotwriter.hpp"
 #include "input_reader.hpp"
+#include "argparse.hpp"
 
-int main(void){
-
-
-    InputReader rdr("assembly1.xml");
-
+int main(int argc, char *argv[]){
     auto t1 = std::chrono::high_resolution_clock::now();
-    
-    Graph<> * assembly;
-    CostMap * cost_map;
 
-    std::tie(assembly, cost_map) = rdr.read();
+    argparse::ArgumentParser program("RSI Assembly Planner");
+    program.add_argument("Filename")
+           .help("Path to the XML assembly description.");
 
-    Planner planner;
-    planner(assembly, assembly->root_, *cost_map);
+    try {
+        program.parse_args(argc, argv);
+    }
+    catch (const std::runtime_error& err) {
+        std::cout << err.what() << std::endl;
+        std::cout << program;
+        exit(0);
+    }
+  
+    auto input = program.get<std::string>("Filename");
 
+    try{
+        InputReader rdr(input);
+        Graph<> * assembly;
+        CostMap * cost_map;
+        bool result;
 
-    // Graph graph_copy(*graph);
-    // DotWriter dot1("copy_graph.dot");
-    // graph_copy.print(dot1);
-    // graph.appendSubgraph(root, &graph_copy);
+        std::tie(assembly, cost_map, result) = rdr.read("assembly");
+        
+        if(!result){
+            std::cout << "Error in Input Reader." << std::endl;
+            return false;
+        }
 
-    // DotWriter dot("origin_graph.dot");
-    // graph.print(dot);
+        Planner planner;
+        planner(assembly, assembly->root_, *cost_map);
+    }
+    catch (const std::runtime_error& err) {
+        std::cout << "Could not open XML. File not found." << std::endl;
+        return 0;
+    }
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
     std::cout << "Duration: "<< duration << "ms.";
 
-    return 0;
+    return 1;
 }
