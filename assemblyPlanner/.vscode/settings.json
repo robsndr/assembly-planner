@@ -91,6 +91,7 @@
         "queue": "cpp",
         "stack": "cpp",
         "variant": "cpp",
-        "__functional_03": "cpp"
+        "__functional_03": "cpp",
+        "any": "cpp"
     }
 }

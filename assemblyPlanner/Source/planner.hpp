@@ -11,6 +11,8 @@ public:
     ~Planner();
     
     void operator()(Graph<> *, Node*, CostMap &);
+    std::vector<std::vector<std::tuple<std::string, std::string, double>>> assembly_plan_;
+
 
 private:
     std::vector<Node *> nodes_to_expand;
@@ -27,26 +29,21 @@ Planner::~Planner(){}
 
 void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
 
-
     search_graph = new Graph<>();
     Node * new_root = search_graph->insertNode(root->data_);
-    new_root->data_.name = "";
     new_root->data_.subassemblies[root->data_.name] =  root;
-    new_root->data_.cost = 0;
-    new_root->data_.f_score = 0;
-    new_root->data_.g_score = 0;
 
     for (auto &x : root->getSuccessorNodes()){
         new_root->data_.actions[x->data_.name] = x;    
     }
 
     NodeExpander * expander = new NodeExpander(search_graph, costs_);
-        
+
     AStarSearch astar;
     Node * result = astar.search(search_graph, new_root, expander);
-    
 
-    // std::cout << "Cost: " << result->data_.g_score << std::endl;
+    std::vector<std::tuple<std::string, std::string, double>> optimum;
+    assembly_plan_.clear();
 
     double cost = 0;
     while(result->hasPredecessor()){
@@ -56,16 +53,17 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
             std::cout << " Agent: ";
             std::cout << i.second << "    ";
             cost += costs_.map_[i.first][i.second];
+            optimum.push_back(std::make_tuple(i.first, i.second, cost));
         }
+        assembly_plan_.push_back(optimum);
+        optimum.clear();
+
         std::cout << std::endl;
         
         result = result->getPredecessorNodes().front();
     }
 
     std::cout << "Cost: " << cost << std::endl;
-
-
-    DotWriter writer("tree.dot");
 
     delete search_graph;
     delete expander;
