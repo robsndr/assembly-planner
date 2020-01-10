@@ -99,11 +99,11 @@ class CostMap : public BaseMap<double>{
 };
 
 
-class ReachMap : public BaseMap<bool>{
+class ReachMap : public BaseMap<double>{
     
     public:
     
-    void addMapping(std::string part, std::string agent, bool reach){
+    void addMapping(std::string part, std::string agent, double reach){
         // Lets insert four elements
         bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
         if(!is_in)

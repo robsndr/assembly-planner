@@ -12,11 +12,7 @@ class Node;
 class Edge{
 public:
     Edge( EdgeData );
-
-    Edge( EdgeData, 
-          Node *, 
-          Node *
-        );
+    Edge( EdgeData, Node *, Node *);
 
     Node* getDestination() const;
     Node* getSource() const;

@@ -17,6 +17,8 @@ public:
 
 private:
 
+    void insertInteraction(Node*);
+
     Graph<> * search_graph_;
     CostMap* costs_;
     ReachMap* reach_;
@@ -133,4 +135,13 @@ void NodeExpander::expandNode(Node* node){
     // Set the minum-agen-action cost for the curent supernode.
     // It is needed for the heuristic used by the A* algorithm.
     node->data_.minimum_cost_action = min_action_agent_cost_;    
+}
+
+
+/* Inserts interactions for atomic-subassemblies (parts).
+    Interactions are created for assignemnts where a given agent cannot reach a Part.
+    In this cas, another agent must pass hand_over the requested part. 
+**/ 
+void NodeExpander::insertInteraction(Node* node){
+
 }

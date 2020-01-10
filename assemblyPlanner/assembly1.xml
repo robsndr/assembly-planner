@@ -137,44 +137,45 @@
 
     <reachabilitymap>
         <part name="A">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="B">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="C">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="D">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="E">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="F">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>
         <part name="G">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>      
         <part name="H">
-            <agent name="r1" reachability="true"/>
-            <agent name="r2" reachability="true"/>
-            <agent name="h"  reachability="false"/>
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="inf"/>
         </part>                                                                                                  
     </reachabilitymap>
+                                              
 </assembly>

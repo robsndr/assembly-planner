@@ -190,15 +190,15 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
             
             std::string agent_name = agent->Attribute("name");
             
-            std::string agent_part_reach = agent->Attribute("reachability");
+            std::string agent_part_reach = agent->Attribute("handover_cost");
             std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 
-            if(agent_part_reach == "true"){
-                config->reach_->addMapping(part_name, agent_name, true);
+            if(agent_part_reach == "inf"){
+                config->reach_->addMapping(part_name, agent_name, INT_MAX);
             }
-            else if(agent_part_reach == "false"){
-                config->reach_->addMapping(part_name, agent_name, false);
+            else if(is_float(agent_part_reach)){
+                config->reach_->addMapping(part_name, agent_name, std::stod(agent_part_reach));
             }
             else{
                 std::cerr << "XML: Wrong value for cost."
