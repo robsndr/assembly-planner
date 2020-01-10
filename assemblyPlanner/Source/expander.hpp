@@ -8,7 +8,7 @@
 class NodeExpander{
 
 public:
-    NodeExpander(Graph<>*, CostMap&);
+    NodeExpander(Graph<>*, CostMap&, ReachMap&);
     ~NodeExpander();
 
     void expandNode(Node*);
@@ -17,6 +17,7 @@ private:
 
     Graph<> * search_graph_;
     CostMap cost_map_;
+    ReachMap reach_map_;
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
 
@@ -24,9 +25,10 @@ private:
 };
 
 
-NodeExpander::NodeExpander(Graph<>* graph, CostMap & costs){
+NodeExpander::NodeExpander(Graph<>* graph, CostMap & costs, ReachMap & reach){
     search_graph_ = graph;
     cost_map_ = costs;
+    reach_map_ = reach;
     assignment_generator = new Combinator(costs);
 }
 
@@ -40,7 +42,6 @@ void NodeExpander::expandNode(Node* node){
     // std::cout << "EXPAND " << node->data_.name;
     // std::cout << "Subassembly Size " << node->data_.subassemblies.size(); 
 
-    // std::cin.get();
     std::vector<Node*> nodes;
     nodes.reserve(node->data_.subassemblies.size());
     for(auto nd : node->data_.subassemblies) {

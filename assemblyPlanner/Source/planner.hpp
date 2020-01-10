@@ -10,7 +10,7 @@ public:
     Planner();
     ~Planner();
     
-    void operator()(Graph<> *, Node*, CostMap &);
+    void operator()(Graph<> *, Node*, CostMap&, ReachMap&);
     std::vector<std::vector<std::tuple<std::string, std::string, double>>> assembly_plan_;
 
 
@@ -27,7 +27,7 @@ Planner::Planner(){}
 Planner::~Planner(){}
 
 
-void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
+void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_, ReachMap & reach_){
 
     search_graph = new Graph<>();
     Node * new_root = search_graph->insertNode(root->data_);
@@ -37,7 +37,7 @@ void Planner::operator()(Graph<> * graph, Node* root, CostMap & costs_){
         new_root->data_.actions[x->data_.name] = x;    
     }
 
-    NodeExpander * expander = new NodeExpander(search_graph, costs_);
+    NodeExpander * expander = new NodeExpander(search_graph, costs_, reach_);
 
     AStarSearch astar;
     Node * result = astar.search(search_graph, new_root, expander);
