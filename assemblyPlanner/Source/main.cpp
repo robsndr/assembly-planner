@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 
         // std::cout << "Reach Map: " << std::endl;
         // std::cout << "- - - - - - - - -" << std::endl;
-        // for(auto & outer_map_pair : reach_map->map_) {
+        // for(auto & outer_map_pair : config->reach_->map_) {
         //     for(auto & inner_map_pair : outer_map_pair.second) {
         //         std::cout << inner_map_pair.first << " : " << inner_map_pair.second << std::endl;
         //     }
@@ -47,6 +47,7 @@ int main(int argc, char *argv[]){
 
         if(!result){
             std::cout << "Error in Input Reader." << std::endl;
+            std::cout << "/ Could not read Input File /." << std::endl;
             return false;
         }
 

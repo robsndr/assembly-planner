@@ -115,7 +115,14 @@ std::tuple<Graph<>*,Config*,bool> InputReader::read(std::string root_name){
         return std::make_tuple(nullptr, nullptr, false);
     }
 
-    graph_gen->setRoot(root->Attribute("root"));
+    const char * attribute_text = nullptr;
+    attribute_text = root->Attribute("root");
+    if (attribute_text == NULL) 
+       return std::make_tuple(nullptr, nullptr, false);
+   
+    if (!graph_gen->setRoot(attribute_text))
+        return std::make_tuple(nullptr, nullptr, false);
+
     return std::make_tuple(graph_gen->graph_, config, true);
 }
 
@@ -127,14 +134,16 @@ int InputReader::parse_nodes(tinyxml2::XMLNode* nodes_root){
                         child != nullptr; child = child->NextSiblingElement("node")){
                         
         attribute_text = child->Attribute("name");
+        if (attribute_text == NULL) 
+            return tinyxml2::XML_ERROR_PARSING;
         std::string node_name = attribute_text;
-        // if (attribute_text == NULL) 
-            // return tinyxml2::XML_ERROR_PARSING;
+
 
         attribute_text = child->Attribute("type");
+        if (attribute_text == NULL) 
+            return tinyxml2::XML_ERROR_PARSING;
         std::string node_type = attribute_text;
-        // if (attribute_text == NULL) 
-            // return tinyxml2::XML_ERROR_PARSING;
+
         // std::cout << node_name << " " << node_type << std::endl;
 
         if(node_type == "OR")
@@ -157,11 +166,13 @@ int InputReader::parse_edges(tinyxml2::XMLNode* edges_root){
                         child != nullptr; child = child->NextSiblingElement("edge")){
                         
         attribute_text = child->Attribute("start");
+        if (attribute_text == NULL) 
+            return tinyxml2::XML_ERROR_PARSING;
         std::string start_node = attribute_text;
-        // if (attribute_text == NULL) 
-            // return tinyxml2::XML_ERROR_PARSING;
 
         attribute_text = child->Attribute("end");
+        if (attribute_text == NULL) 
+            return tinyxml2::XML_ERROR_PARSING;
         std::string end_node = attribute_text;
         // if (attribute_text == NULL) 
             // return tinyxml2::XML_ERROR_PARSING;
@@ -188,9 +199,16 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
         for (tinyxml2::XMLElement* agent = part->FirstChildElement("agent"); 
                         agent != nullptr; agent = agent->NextSiblingElement("agent")){                  
             
-            std::string agent_name = agent->Attribute("name");
+            attribute_text = agent->Attribute("name");
+            if (attribute_text == NULL) 
+                return tinyxml2::XML_ERROR_PARSING;            
+            std::string agent_name = attribute_text;
             
-            std::string agent_part_reach = agent->Attribute("handover_cost");
+            attribute_text = agent->Attribute("handover_cost");
+            if (attribute_text == NULL) 
+                return tinyxml2::XML_ERROR_PARSING;
+            std::string agent_part_reach = attribute_text; 
+
             std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 
@@ -221,8 +239,8 @@ int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
                         action != nullptr; action = action->NextSiblingElement("action")){
 
         attribute_text = action->Attribute("name");
-        // if (attribute_text == NULL) 
-            // return tinyxml2::XML_ERROR_PARSING;
+        if (attribute_text == NULL) 
+            return tinyxml2::XML_ERROR_PARSING;
         std::string action_name = attribute_text;
         // std::cout     << "  Agent: ";
         
@@ -231,14 +249,15 @@ int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
             
 
             attribute_text = agent->Attribute("name");
-            // if (attribute_text == NULL) 
-                // return tinyxml2::XML_ERROR_PARSING;
+            if (attribute_text == NULL) 
+                return tinyxml2::XML_ERROR_PARSING;
             std::string agent_name = attribute_text;
 
             attribute_text = agent->Attribute("cost");
-            // if (attribute_text == NULL) 
-                // return tinyxml2::XML_ERROR_PARSING;
+            if (attribute_text == NULL) 
+                return tinyxml2::XML_ERROR_PARSING;
             std::string agent_action_cost = attribute_text;
+
             std::transform(agent_action_cost.begin(), agent_action_cost.end(), agent_action_cost.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 

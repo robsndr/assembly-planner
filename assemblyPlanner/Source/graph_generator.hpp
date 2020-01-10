@@ -30,8 +30,14 @@ GraphGenerator::~GraphGenerator(){
 }
 
 bool GraphGenerator::setRoot(std::string name){
-    graph_->root_ = graph_->getNode(id_map[name]);
-    return true;
+    if ( id_map.find(name) == id_map.end() ) {
+        std::cout << "Node with provided key does not exist in graph." << std::endl;
+        std::cout << "Check the root-key provided in the XML-input file." << std::endl;
+        return false;
+    } else {
+        graph_->root_ = graph_->getNode(id_map[name]);
+        return true;
+    }
 }
 
 std::size_t GraphGenerator::insertAnd(std::string name){
