@@ -53,6 +53,13 @@ std::size_t GraphGenerator::insertOr(std::string name){
     data.cost = log2(name.length());
     data.marked = false;
 
+    // Node is atomic if it is a leaf node. 
+    // Subassembly consists only of single part.
+    if(name.length() == 1)
+        data.atomic = true;
+    else
+        data.atomic = false;
+
     Node * inserted_node = graph_->insertNode(data);
     id_map[name] = inserted_node->id_;
     return inserted_node->id_;
