@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 #include <sstream>
+#include <algorithm>
+#include <cctype>
 
 #include "dotwriter.hpp"
 #include "tinyxml2.hpp"
@@ -30,6 +32,7 @@ class InputReader{
         int parse_nodes(tinyxml2::XMLNode*);
         int parse_edges(tinyxml2::XMLNode*);
         int parse_costmap(tinyxml2::XMLNode*);
+        int parse_reachmap(tinyxml2::XMLNode*);
 
         tinyxml2::XMLElement* root;
         tinyxml2::XMLDocument* doc;
@@ -82,6 +85,11 @@ std::tuple<Graph<>*,CostMap*,bool> InputReader::read(std::string root_name){
         return std::make_tuple(nullptr, nullptr, false);
     }
 
+    tinyxml2::XMLElement * reachmap_e = root->FirstChildElement("reachabilitymap");
+    if (costmap_e == nullptr){
+        std::cerr << "XML: Could not find reachabilitymap element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
 
     if(parse_nodes(nodes_e) == tinyxml2::XML_ERROR_PARSING){
@@ -95,6 +103,11 @@ std::tuple<Graph<>*,CostMap*,bool> InputReader::read(std::string root_name){
     }
 
     if(parse_costmap(costmap_e) == tinyxml2::XML_ERROR_PARSING){
+        std::cerr << "XML: Error Parsing Nodes." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
+
+    if(parse_reachmap(reachmap_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing Nodes." << std::endl;
         return std::make_tuple(nullptr, nullptr, false);
     }
@@ -160,6 +173,42 @@ int InputReader::parse_edges(tinyxml2::XMLNode* edges_root){
     return tinyxml2::XML_SUCCESS;
 }
 
+int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
+
+    const char * attribute_text = nullptr;
+
+    for (tinyxml2::XMLElement* part = reachmap_root->FirstChildElement("part"); 
+                        part != nullptr; part = part->NextSiblingElement("part")){
+
+        std::string part_name = part->Attribute("name");
+        
+        for (tinyxml2::XMLElement* agent = part->FirstChildElement("agent"); 
+                        agent != nullptr; agent = agent->NextSiblingElement("agent")){                  
+            
+            std::string agent_name = agent->Attribute("name");
+            std::string agent_part_reach = agent->Attribute("reachability");
+            std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
+                [](unsigned char c){ return std::tolower(c); });
+
+            if(agent_part_reach == "true"){
+                cost_map->addMapping(part_name, agent_name, true);
+            }
+            else if(agent_part_reach == "false"){
+                cost_map->addMapping(part_name, agent_name, false);
+            }
+            else{
+                std::cerr << "XML: Wrong value for cost."
+                          << "  Agent: "  << agent_name 
+                          << "  Part: " << part_name << std::endl;
+                
+                return tinyxml2::XML_ERROR_PARSING;
+            }
+
+        }
+    }
+    return tinyxml2::XML_SUCCESS;
+}
+
 int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
 
     const char * attribute_text = nullptr;
@@ -178,14 +227,16 @@ int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
             
 
             attribute_text = agent->Attribute("name");
-            std::string agent_name = attribute_text;
             // if (attribute_text == NULL) 
                 // return tinyxml2::XML_ERROR_PARSING;
+            std::string agent_name = attribute_text;
 
             attribute_text = agent->Attribute("cost");
-            std::string agent_action_cost = attribute_text;
             // if (attribute_text == NULL) 
                 // return tinyxml2::XML_ERROR_PARSING;
+            std::string agent_action_cost = attribute_text;
+            std::transform(agent_action_cost.begin(), agent_action_cost.end(), agent_action_cost.begin(),
+                [](unsigned char c){ return std::tolower(c); });
 
             // std::cout     << "  Agent: "  << agent_name 
                         //   << "  Action: " << action_name << std::endl;
