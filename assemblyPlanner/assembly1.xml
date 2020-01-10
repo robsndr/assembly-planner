@@ -134,4 +134,47 @@
             <agent name="h"  cost="100"/>
         </action>                                                                      
     </costmap>
+
+    <reachabilitymap>
+        <part name="A">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="B">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="C">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="D">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="E">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="F">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>
+        <part name="G">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>      
+        <part name="H">
+            <agent name="r1" reachability="true"/>
+            <agent name="r2" reachability="true"/>
+            <agent name="h"  reachability="false"/>
+        </part>                                                                                                  
+    </reachabilitymap>
 </assembly>

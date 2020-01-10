@@ -35,6 +35,8 @@ class InputReader{
         tinyxml2::XMLDocument* doc;
         GraphGenerator* graph_gen;
         CostMap* cost_map;
+        ReachMap* reach_map;
+
 };
 
 InputReader::InputReader(std::string path){
@@ -46,6 +48,7 @@ InputReader::InputReader(std::string path){
     Graph<>* graph = new Graph;
     graph_gen = new GraphGenerator(graph);
     cost_map = new CostMap;
+    reach_map = new ReachMap;
 }
 
 InputReader::~InputReader(){
