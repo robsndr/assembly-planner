@@ -20,6 +20,8 @@ private:
     Graph<> * search_graph_;
     CostMap* costs_;
     ReachMap* reach_;
+
+    // Assgnemtn generation object and assignemnt container
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
 };
