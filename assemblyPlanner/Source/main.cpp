@@ -32,10 +32,20 @@ int main(int argc, char *argv[]){
         InputReader rdr(input);
         Graph<> * assembly;
         CostMap * cost_map;
+        ReachMap * reach_map;
         bool result;
 
-        std::tie(assembly, cost_map, result) = rdr.read("assembly");
-        
+        std::tie(assembly, cost_map, reach_map, result) = rdr.read("assembly");
+
+        std::cout << "Reach Map: " << std::endl;
+        std::cout << "- - - - - - - - -" << std::endl;
+        for(auto & outer_map_pair : reach_map->map_) {
+            for(auto & inner_map_pair : outer_map_pair.second) {
+                std::cout << inner_map_pair.first << " : " << inner_map_pair.second << std::endl;
+            }
+            std::cout << "- - - - - - - - -" << std::endl;
+        }
+
         if(!result){
             std::cout << "Error in Input Reader." << std::endl;
             return false;

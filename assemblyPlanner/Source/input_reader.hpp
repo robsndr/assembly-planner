@@ -23,7 +23,7 @@ bool is_float( std::string my_string ) {
 class InputReader{
     
     public:
-        std::tuple<Graph<>*,CostMap*,bool> read(std::string);
+        std::tuple<Graph<>*,CostMap*,ReachMap*,bool> read(std::string);
 
         InputReader(std::string);
         ~InputReader();
@@ -48,10 +48,10 @@ InputReader::InputReader(std::string path){
     if (result != tinyxml2::XML_SUCCESS) 
         throw std::runtime_error("Could not open XML file.");
 
-    Graph<>* graph = new Graph;
-    graph_gen = new GraphGenerator(graph);
-    cost_map = new CostMap;
-    reach_map = new ReachMap;
+    Graph<>* graph  = new Graph;
+    graph_gen       = new GraphGenerator(graph);
+    cost_map        = new CostMap;
+    reach_map       = new ReachMap;
 }
 
 InputReader::~InputReader(){
@@ -59,61 +59,61 @@ InputReader::~InputReader(){
     delete cost_map;
 }
 
-std::tuple<Graph<>*,CostMap*,bool> InputReader::read(std::string root_name){
+std::tuple<Graph<>*,CostMap*,ReachMap*,bool> InputReader::read(std::string root_name){
 
     root = doc->FirstChildElement(root_name.c_str());
     if (root == nullptr){
         std::cerr << "XML: Could not find root element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * nodes_e = root->FirstChildElement("nodes");
     if (nodes_e == nullptr){
         std::cerr << "XML: Could not find nodes element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * edges_e = root->FirstChildElement("edges");
     if (edges_e == nullptr){
         std::cerr << "XML: Could not find edges element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * costmap_e = root->FirstChildElement("costmap");
     if (costmap_e == nullptr){
         std::cerr << "XML: Could not find costmap element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * reachmap_e = root->FirstChildElement("reachabilitymap");
     if (costmap_e == nullptr){
         std::cerr << "XML: Could not find reachabilitymap element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
 
     if(parse_nodes(nodes_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing Nodes." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     if(parse_edges(edges_e) == tinyxml2::XML_ERROR_PARSING){
-        std::cerr << "XML: Error Parsing Nodes." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        std::cerr << "XML: Error Parsing Edges." << std::endl;
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     if(parse_costmap(costmap_e) == tinyxml2::XML_ERROR_PARSING){
-        std::cerr << "XML: Error Parsing Nodes." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        std::cerr << "XML: Error Parsing CostMap." << std::endl;
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     if(parse_reachmap(reachmap_e) == tinyxml2::XML_ERROR_PARSING){
-        std::cerr << "XML: Error Parsing Nodes." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false);
+        std::cerr << "XML: Error Parsing ReachMap." << std::endl;
+        return std::make_tuple(nullptr, nullptr, nullptr, false);
     }
 
     graph_gen->setRoot(root->Attribute("root"));
-    return std::make_tuple(graph_gen->graph_, cost_map, true);
+    return std::make_tuple(graph_gen->graph_, cost_map, reach_map, true);
 }
 
 int InputReader::parse_nodes(tinyxml2::XMLNode* nodes_root){
@@ -186,15 +186,16 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
                         agent != nullptr; agent = agent->NextSiblingElement("agent")){                  
             
             std::string agent_name = agent->Attribute("name");
+            
             std::string agent_part_reach = agent->Attribute("reachability");
             std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 
             if(agent_part_reach == "true"){
-                cost_map->addMapping(part_name, agent_name, true);
+                reach_map->addMapping(part_name, agent_name, true);
             }
             else if(agent_part_reach == "false"){
-                cost_map->addMapping(part_name, agent_name, false);
+                reach_map->addMapping(part_name, agent_name, false);
             }
             else{
                 std::cerr << "XML: Wrong value for cost."

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <ostream>
 #include <cmath>
 #include <set>
 #include <vector>
@@ -15,20 +16,6 @@ class NodeData{
 public:
 
     NodeData(){}
-
-    NodeData(const NodeData & copied){
-        name     = copied.name;
-        worker   = copied.worker;
-        cost     = copied.cost;
-        type     = copied.type;
-        marked   = copied.marked;
-        subassemblies   = copied.subassemblies;
-        actions         = copied.actions;
-        minimum_cost_action = copied.minimum_cost_action;
-        applied_actions_ = copied.applied_actions_;
-        f_score  = 0;
-        g_score  = 0;
-    }
 
     bool isGoal();
     void calc_hscore();
@@ -134,4 +121,5 @@ class ReachMap : public BaseMap<bool>{
     std::size_t number_of_parts_;
     std::vector<std::string> vector_of_parts_;
     std::set<std::string> set_of_parts_;
+
 };
