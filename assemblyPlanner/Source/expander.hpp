@@ -8,7 +8,7 @@
 class NodeExpander{
 
 public:
-    NodeExpander(Graph<>*, CostMap&, ReachMap&);
+    NodeExpander(Graph<>*, Config*);
     ~NodeExpander();
 
     void expandNode(Node*);
@@ -16,8 +16,8 @@ public:
 private:
 
     Graph<> * search_graph_;
-    CostMap cost_map_;
-    ReachMap reach_map_;
+    CostMap* costs_;
+    ReachMap* reach_;
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
 
@@ -25,11 +25,11 @@ private:
 };
 
 
-NodeExpander::NodeExpander(Graph<>* graph, CostMap & costs, ReachMap & reach){
+NodeExpander::NodeExpander(Graph<>* graph, Config* config){
     search_graph_ = graph;
-    cost_map_ = costs;
-    reach_map_ = reach;
-    assignment_generator = new Combinator(costs);
+    costs_ = config->costs_;
+    reach_ = config->reach_;
+    assignment_generator = new Combinator(costs_);
 }
 
 NodeExpander::~NodeExpander(){
@@ -92,10 +92,10 @@ void NodeExpander::expandNode(Node* node){
                 }
             }
 
-            if(cost_map_.map_[action][agent] < min_action_agent_cost_){
-                min_action_agent_cost_ = cost_map_.map_[action][agent];
+            if(costs_->map_[action][agent] < min_action_agent_cost_){
+                min_action_agent_cost_ = costs_->map_[action][agent];
             }
-            edata.cost   += cost_map_.map_[action][agent];
+            edata.cost   += costs_->map_[action][agent];
             edata.agent_actions_.push_back(std::make_pair(action, agent));
         }
         edata.cost = edata.cost / iters;

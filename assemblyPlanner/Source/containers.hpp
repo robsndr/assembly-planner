@@ -123,3 +123,9 @@ class ReachMap : public BaseMap<bool>{
     std::set<std::string> set_of_parts_;
 
 };
+
+class Config{
+public:
+    CostMap* costs_;
+    ReachMap* reach_;
+};

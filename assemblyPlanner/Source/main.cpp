@@ -31,11 +31,10 @@ int main(int argc, char *argv[]){
     try{
         InputReader rdr(input);
         Graph<> * assembly;
-        CostMap * cost_map;
-        ReachMap * reach_map;
+        Config * config;
         bool result;
 
-        std::tie(assembly, cost_map, reach_map, result) = rdr.read("assembly");
+        std::tie(assembly, config, result) = rdr.read("assembly");
 
         // std::cout << "Reach Map: " << std::endl;
         // std::cout << "- - - - - - - - -" << std::endl;
@@ -52,7 +51,7 @@ int main(int argc, char *argv[]){
         }
 
         Planner planner;
-        planner(assembly, assembly->root_, *cost_map, *reach_map);
+        planner(assembly, assembly->root_, config);
     }
     catch (const std::runtime_error& err) {
         std::cout << "Could not open XML. File not found." << std::endl;

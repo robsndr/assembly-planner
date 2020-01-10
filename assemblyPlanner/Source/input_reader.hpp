@@ -23,7 +23,7 @@ bool is_float( std::string my_string ) {
 class InputReader{
     
     public:
-        std::tuple<Graph<>*,CostMap*,ReachMap*,bool> read(std::string);
+        std::tuple<Graph<>*,Config*,bool> read(std::string);
 
         InputReader(std::string);
         ~InputReader();
@@ -37,9 +37,8 @@ class InputReader{
         tinyxml2::XMLElement* root;
         tinyxml2::XMLDocument* doc;
         GraphGenerator* graph_gen;
-        CostMap* cost_map;
-        ReachMap* reach_map;
-
+        Graph<>* graph;
+        Config * config;
 };
 
 InputReader::InputReader(std::string path){
@@ -48,72 +47,76 @@ InputReader::InputReader(std::string path){
     if (result != tinyxml2::XML_SUCCESS) 
         throw std::runtime_error("Could not open XML file.");
 
-    Graph<>* graph  = new Graph;
-    graph_gen       = new GraphGenerator(graph);
-    cost_map        = new CostMap;
-    reach_map       = new ReachMap;
+    graph          = new Graph;
+    graph_gen      = new GraphGenerator(graph);
+    config         = new Config;
+    config->costs_ = new CostMap;
+    config->reach_ = new ReachMap;
 }
 
 InputReader::~InputReader(){
+    delete graph;
+    delete config->costs_;
+    delete config->reach_;
+    delete config;
     delete graph_gen;
-    delete cost_map;
 }
 
-std::tuple<Graph<>*,CostMap*,ReachMap*,bool> InputReader::read(std::string root_name){
+std::tuple<Graph<>*,Config*,bool> InputReader::read(std::string root_name){
 
     root = doc->FirstChildElement(root_name.c_str());
     if (root == nullptr){
         std::cerr << "XML: Could not find root element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * nodes_e = root->FirstChildElement("nodes");
     if (nodes_e == nullptr){
         std::cerr << "XML: Could not find nodes element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * edges_e = root->FirstChildElement("edges");
     if (edges_e == nullptr){
         std::cerr << "XML: Could not find edges element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * costmap_e = root->FirstChildElement("costmap");
     if (costmap_e == nullptr){
         std::cerr << "XML: Could not find costmap element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     tinyxml2::XMLElement * reachmap_e = root->FirstChildElement("reachabilitymap");
     if (costmap_e == nullptr){
         std::cerr << "XML: Could not find reachabilitymap element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
     if(parse_nodes(nodes_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing Nodes." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     if(parse_edges(edges_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing Edges." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     if(parse_costmap(costmap_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing CostMap." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     if(parse_reachmap(reachmap_e) == tinyxml2::XML_ERROR_PARSING){
         std::cerr << "XML: Error Parsing ReachMap." << std::endl;
-        return std::make_tuple(nullptr, nullptr, nullptr, false);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
     graph_gen->setRoot(root->Attribute("root"));
-    return std::make_tuple(graph_gen->graph_, cost_map, reach_map, true);
+    return std::make_tuple(graph_gen->graph_, config, true);
 }
 
 int InputReader::parse_nodes(tinyxml2::XMLNode* nodes_root){
@@ -192,10 +195,10 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
                 [](unsigned char c){ return std::tolower(c); });
 
             if(agent_part_reach == "true"){
-                reach_map->addMapping(part_name, agent_name, true);
+                config->reach_->addMapping(part_name, agent_name, true);
             }
             else if(agent_part_reach == "false"){
-                reach_map->addMapping(part_name, agent_name, false);
+                config->reach_->addMapping(part_name, agent_name, false);
             }
             else{
                 std::cerr << "XML: Wrong value for cost."
@@ -243,10 +246,10 @@ int InputReader::parse_costmap(tinyxml2::XMLNode* costmap_root){
                         //   << "  Action: " << action_name << std::endl;
 
             if(agent_action_cost == "inf"){
-                cost_map->addMapping(action_name, agent_name, INT_MAX);
+                config->costs_->addMapping(action_name, agent_name, INT_MAX);
             }
             else if(is_float(agent_action_cost)){
-                cost_map->addMapping(action_name, agent_name, std::stod(agent_action_cost));
+                config->costs_->addMapping(action_name, agent_name, std::stod(agent_action_cost));
             }
             else{
                 std::cerr << "XML: Wrong value for cost."
