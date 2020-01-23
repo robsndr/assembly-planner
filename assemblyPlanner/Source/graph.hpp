@@ -30,6 +30,7 @@ public:
 
     Node *getNode(std::size_t);
     std::vector<Node *> getNodes(bool (*)(Node *));
+    std::vector<Node *> getLeafNodes();
 
     // Access specific nodes/vertices.
     Edge *edgeFromNode(const std::size_t, const std::size_t) const;
@@ -206,12 +207,28 @@ template <typename Visitor>
 inline std::vector<Node *>
 Graph<Visitor>::getNodes(bool (*func)(Node *))
 {
-
     std::vector<Node *> temp;
     for (auto &x : nodes_)
     {
         if (func(x))
             temp.push_back(x);
+    }
+    return temp;
+}
+
+
+/* Get reference to all Nodes that don't have successors (leaves).
+    \return: vector containting references to all leaf-nodes present in the graph.
+**/
+template <typename Visitor>
+inline std::vector<Node *>
+Graph<Visitor>::getLeafNodes()
+{
+    std::vector<Node *> temp;
+    for (auto it = std::begin(nodes_); it != std::end(nodes_); it++) {
+        if(!it->second->hasSuccessor()){
+            temp.push_back(it->second);
+        }
     }
     return temp;
 }

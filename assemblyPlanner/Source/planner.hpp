@@ -13,7 +13,8 @@ class Planner
 {
 public:
     // Start Planning
-    void operator()(Graph<> *, Node *, Config *);
+    std::vector<std::vector<std::tuple<std::string, std::string, double>>>
+                                                    operator()(Graph<> *, Node *, Config *);
 
 private:
     // Container used to track the resulting optimal assembly sequence.
@@ -25,8 +26,10 @@ private:
     @graph: pointer to the original A/O graph obtained from the InputReader
     @root: pointer to the node the search should start at.
     @config: configuration contianing the cost_map and reachability_map.
+    \return: vector containing the assembly plan
 **/
-void Planner::operator()(Graph<> *graph, Node *root, Config *config)
+std::vector< std::vector< std::tuple< std::string, std::string, double >>> 
+Planner::operator()(Graph<> *graph, Node *root, Config *config)
 {
     // Create a new Graph.
     // It is a different Graph the the one passed as a function parameter.
@@ -78,4 +81,6 @@ void Planner::operator()(Graph<> *graph, Node *root, Config *config)
 
     delete search_graph;
     delete expander;
+
+    return assembly_plan_;
 }

@@ -9,7 +9,7 @@
 #include "dotwriter.hpp"
 #include "input_reader.hpp"
 #include "argparse.hpp"
-
+#include "franka_agent.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     program.add_argument("Filename")
         .help("Path to the XML assembly description.");
 
+    // Parse Input Block
     try
     {
         program.parse_args(argc, argv);
@@ -30,11 +31,14 @@ int main(int argc, char *argv[])
     }
 
     auto input = program.get<std::string>("Filename");
+    std::vector<std::vector<std::tuple<std::string, std::string, double>>> assembly_plan;
+
+    // Assembly Planning Block.
+    Graph<> *assembly;
 
     try
     {
         InputReader rdr(input);
-        Graph<> *assembly;
         Config *config;
         bool result;
 
@@ -48,11 +52,14 @@ int main(int argc, char *argv[])
         }
 
         Planner planner;
-        planner(assembly, assembly->root_, config);
+        assembly_plan = planner(assembly, assembly->root_, config);
+
+        FrankaAgent execution_agent(assembly);
+        bool success = execution_agent.exec(assembly_plan);
     }
     catch (const std::runtime_error &err)
     {
-        std::cout << "Could not open XML. File not found." << std::endl;
+        std::cout << "Runtime Error." << std::endl;
         return 0;
     }
 
