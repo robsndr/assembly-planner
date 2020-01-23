@@ -3,11 +3,13 @@
 #include <iostream>
 #include "containers.hpp"
 
-/*Forward declaration of Node so Conector knows about it
+/* Forward declaration of Node so Edge knows about it
 **/
 class Node;
 
 /* Edge data class. Represens the interconnections within the graph.
+    Edges can be used as a generalised container for any datatype.
+    Data contained within edges needs to be specified within the EdgeData class.
 **/
 class Edge
 {
@@ -20,8 +22,6 @@ public:
 
     void setDestination(Node *);
     void setSource(Node *);
-
-    void print();
 
     std::size_t id_;
     EdgeData data_;

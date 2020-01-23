@@ -7,12 +7,11 @@
 #include <string>
 #include <unordered_map>
 #include "edge.hpp"
-//TODO: Introduce Smart-Pointer instead.
 
-/*
-    Class representing the Nodes within the graph. 
-    It generalizes to AND/OR graphs so Connectors are used instead of edges.
-    Connectors can be seen as k-edges. One connector can reach up to k destination nodes.
+/* Class representing the Nodes within a graph. 
+    Nodes can represent any type of data-structure.
+    Their content can be specified inside the NodeData-class which can be extended with any structure.
+    Nodes are connected with Edges. 
 **/
 class Node
 {
@@ -60,6 +59,7 @@ Node::Node(std::size_t identifier, NodeData data)
 }
 
 /* Check if node has successors attached to it.
+    \return: boolean indicating if given Node has at least one successor.
 **/
 inline bool
 Node::hasSuccessor(void) const
@@ -68,6 +68,7 @@ Node::hasSuccessor(void) const
 }
 
 /* Check if node has predecessors attached to it.
+    \return: boolean indicating if given Node has at least one predecessor.
 **/
 inline bool
 Node::hasPredecessor(void) const
@@ -219,58 +220,37 @@ Node::getPredecessorNodes()
     return vecOfValues;
 }
 
-/* DEBUG
+/* DEBUG Function.
+    Can be extended to print the conntents/metainfo about a given Node.
 **/
 inline void
 Node::print()
 {
-    std::cout << "Node ID: " << id_ << std::endl;
-    std::cout << "    Parent Nodes: ";
-    for (auto const &x : getPredecessorNodes())
-    {
-        std::cout << "    " << x->id_;
-    }
-    std::cout << std::endl;
-
-    std::cout << "    Child Nodes:  ";
-    for (auto const &x : getSuccessorNodes())
-    {
-        std::cout << "    " << x->id_;
-    }
-    std::cout << std::endl;
-    std::cout << "    Name: " << data_.name;
-    std::cout << std::endl;
-    std::cout << "    Worker: " << data_.worker;
-    std::cout << std::endl;
-    std::cout << "    Marked: " << data_.marked;
-    std::cout << std::endl;
-    std::cout << "    Cost: " << data_.cost;
-    std::cout << std::endl
-              << std::endl;
 }
 
-/*
-    Class representing the Nodes within the graph. 
+/* Check if given sueprnode is Goal.
+    Check whether a given supernode inside the A* search has any subassemblies to continue the search.
+    Is declared as a member of the NodeData contained within Nodes.
+    Placed within this files due to linking issues.
+    //TODO: Move into containers.hpp and fix linking issues.
 **/
-inline void
-Edge::print()
-{
-    std::cout << "Edge:  " << getSource()->id_ << " ---> " << getDestination()->id_ << std::endl;
-}
-
 bool NodeData::isGoal()
 {
     for (auto &x : subassemblies)
     {
         if (x.second->hasSuccessor())
         {
-            // std::cout << ;
             return false;
         }
     }
     return true;
 }
 
+/* Calculate the h_Score needed for the A* search.
+    Is declared as a member of the NodeData contained within Nodes.
+    Placed within this files due to linking issues.
+    //TODO: Move into containers.hpp and fix linking issues.
+**/
 void NodeData::calc_hscore()
 {
     std::size_t maximum_length_subassembly = 0;
@@ -279,11 +259,14 @@ void NodeData::calc_hscore()
         if (x.second->data_.name.length() > maximum_length_subassembly)
             maximum_length_subassembly = x.second->data_.name.length();
     }
-    // std::cout << "minimum cost action: " << minimum_cost_action << std::endl;
-    // h_score = (log2f(maximum_length_subassembly)/subassemblies.size() * minimum_cost_action * minimum_cost_action);
     h_score = log2f(maximum_length_subassembly) * minimum_cost_action;
 }
 
+/* Calculate the f_Score needed for the A* search.
+    Is declared as a member of the NodeData contained within Nodes.
+    Placed within this files due to linking issues.
+    //TODO: Move into containers.hpp and fix linking issues.
+**/
 void NodeData::calc_fscore()
 {
     f_score = g_score + h_score;

@@ -1,10 +1,18 @@
 #pragma once
 
 #include <vector>
+#include <set>
 #include "combinator.hpp"
 #include "graph.hpp"
-#include <set>
 
+
+/* Class representing the node-expander.
+    During the A* search the supernodes need to be expanded.
+    This class handles the expansion-step and creates new hypernodes for the A* search_graph.
+    It is important to denote that the search itself is performed on a graph of "HyperNodes".
+    Every Hypernode contains references to the nodes of the original And/Or graph.
+    If interactions are necessary, their insertion into the HyperNodes is handled inside the Expander.
+**/
 class NodeExpander
 {
 
@@ -14,12 +22,18 @@ public:
     ~NodeExpander();
 
     // Node Expansion function.
+    // Called by the A*-search on evary iteration.
     void expandNode(Node *);
 
 private:
+
+    // Function used to create Interactions if subassemblies are not reachable.
     Node *createInteraction(Node *, std::string, double);
 
+    // Pointer to the graph of HyperNodes on which the A* search runs.
     Graph<> *search_graph_;
+
+    // Pointers to cost/reach maps provided by the InputReader.
     CostMap *costs_;
     ReachMap *reach_;
 
@@ -121,15 +135,14 @@ void NodeExpander::expandNode(Node *node)
             // For the currently applied assignement, update the subassemblies of the new supernode.
             for (auto &or_successor : action_ptr->getSuccessorNodes())
             {
-
-                // Part not reachable
-                // Add Interaction
                 bool part_reachable = std::get<0>(reach_->map_[or_successor->data_.name][agent]);
 
                 Node *successor;
 
                 if (!part_reachable)
                 {
+                    // Part not reachable
+                    // Add Interaction
                     std::string interaction_name = std::get<1>(reach_->map_[or_successor->data_.name][agent]);
                     double interaction_cost = costs_->map_[interaction_name][agent];
                     successor = createInteraction(or_successor, interaction_name, interaction_cost); // interaction inserted
@@ -169,31 +182,30 @@ void NodeExpander::expandNode(Node *node)
         search_graph_->insertEdge(edata, node->id_, next_node->id_);
     }
 
-    // std::cout << "Minmum Agent-Action Cost: " << min_action_agent_cost_ << std::endl;
-
     // Set the minum-agen-action cost for the curent supernode.
     // It is needed for the heuristic used by the A* algorithm.
     node->data_.minimum_cost_action = min_action_agent_cost_;
 }
 
-/* Inserts interactions for atomic-subassemblies (parts).
-    Interactions are created for assignemnts where a given agent cannot reach a Part.
-    In this cas, another agent must pass hand_over the requested part. 
+/* Returns interactions for subassemblies (parts).
+    Interactions are created for assignemnts where a given agent cannot reach a part (subassembly).
 **/
 Node *NodeExpander::createInteraction(Node *destination_or, std::string i_name, double i_cost)
 {
-
+    // Create interaction subassembly. It cotains same data as original one.
     NodeData tdata = destination_or->data_;
     tdata.name = destination_or->data_.name + "_prime";
     Node *or_prime = new Node(0, tdata);
     interaction_nodes.push_back(or_prime);
 
+    // Create node for interaction-Action.
     NodeData idata;
     idata.cost = i_cost;
     idata.name = i_name;
     Node *inter_action = new Node(0, idata);
     interaction_nodes.push_back(inter_action);
 
+    // Connect subassembly with the action.
     EdgeData edata;
     Edge *edge1 = new Edge(edata);
     interaction_edges.push_back(edge1);
@@ -202,11 +214,13 @@ Node *NodeExpander::createInteraction(Node *destination_or, std::string i_name, 
     or_prime->addSuccessor(edge1);
     inter_action->addPredecessor(edge1);
 
+    // Connect the created Interaction-action with the original or_successor
     Edge *edge2 = new Edge(edata);
     interaction_edges.push_back(edge2);
     edge2->setSource(inter_action);
     edge2->setDestination(destination_or);
     inter_action->addSuccessor(edge2);
 
+    // Return the interaction subassembly to insert into the current supernode.
     return or_prime;
 }

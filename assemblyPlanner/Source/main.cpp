@@ -12,7 +12,7 @@
 
 int main(int argc, char *argv[])
 {
-    auto t1 = std::chrono::high_resolution_clock::now();
+    // auto t1 = std::chrono::high_resolution_clock::now();
 
     argparse::ArgumentParser program("MSRM Assembly Planner");
     program.add_argument("Filename")
