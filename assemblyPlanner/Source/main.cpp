@@ -10,42 +10,38 @@
 #include "input_reader.hpp"
 #include "argparse.hpp"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
     auto t1 = std::chrono::high_resolution_clock::now();
 
     argparse::ArgumentParser program("MSRM Assembly Planner");
     program.add_argument("Filename")
-           .help("Path to the XML assembly description.");
+        .help("Path to the XML assembly description.");
 
-    try {
+    try
+    {
         program.parse_args(argc, argv);
     }
-    catch (const std::runtime_error& err) {
+    catch (const std::runtime_error &err)
+    {
         std::cout << err.what() << std::endl;
         std::cout << program;
         exit(0);
     }
-  
+
     auto input = program.get<std::string>("Filename");
 
-    try{
+    try
+    {
         InputReader rdr(input);
-        Graph<> * assembly;
-        Config * config;
+        Graph<> *assembly;
+        Config *config;
         bool result;
 
         std::tie(assembly, config, result) = rdr.read("assembly");
 
-        // std::cout << "Reach Map: " << std::endl;
-        // std::cout << "- - - - - - - - -" << std::endl;
-        // for(auto & outer_map_pair : config->reach_->map_) {
-        //     for(auto & inner_map_pair : outer_map_pair.second) {
-        //         std::cout << inner_map_pair.first << " : " << inner_map_pair.second << std::endl;
-        //     }
-        //     std::cout << "- - - - - - - - -" << std::endl;
-        // }
-
-        if(!result){
+        if (!result)
+        {
             std::cout << "Error in Input Reader." << std::endl;
             std::cout << "/ Could not read Input File /." << std::endl;
             return false;
@@ -54,7 +50,8 @@ int main(int argc, char *argv[]){
         Planner planner;
         planner(assembly, assembly->root_, config);
     }
-    catch (const std::runtime_error& err) {
+    catch (const std::runtime_error &err)
+    {
         std::cout << "Could not open XML. File not found." << std::endl;
         return 0;
     }

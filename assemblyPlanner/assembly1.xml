@@ -134,7 +134,7 @@
             <agent name="h"  cost="100"/>
         </action>    
         <action name="i0">
-            <agent name="r1" cost="8"/>
+            <agent name="r1" cost="inf"/>
             <agent name="r2" cost="8"/>
             <agent name="h"  cost="8"/>
         </action>                                                                     
@@ -227,9 +227,9 @@
             <agent name="h"  reachable="False" interaction="i0"/>
         </node>      
         <node name="H">
-            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r1" reachable="False" interaction="i0"/>
             <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
+            <agent name="h"  reachable="True" interaction=""/>
         </node>                                                                                                  
     </reachabilitymap>
                                               

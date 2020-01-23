@@ -9,67 +9,71 @@ class Node;
 
 /* Edge data class. Represens the interconnections within the graph.
 **/
-class Edge{
+class Edge
+{
 public:
-    Edge( EdgeData );
-    Edge( EdgeData, Node *, Node *);
+    Edge(EdgeData);
+    Edge(EdgeData, Node *, Node *);
 
-    Node* getDestination() const;
-    Node* getSource() const;
+    Node *getDestination() const;
+    Node *getSource() const;
 
-    void setDestination( Node* );
-    void setSource( Node* );
+    void setDestination(Node *);
+    void setSource(Node *);
 
     void print();
 
     std::size_t id_;
     EdgeData data_;
-    
+
 private:
-    Node* to_;
-    Node* from_;
+    Node *to_;
+    Node *from_;
 };
 
 /*
     Class representing the Nodes within the graph. 
-**/ 
-Edge::Edge( 
-    EdgeData data
-) {
-    data_ = data;
-}
-
-/*
-    Class representing the Nodes within the graph. 
-**/ 
+**/
 Edge::Edge(
-    EdgeData data, 
-    Node * source, 
-    Node * sink
-) {
+    EdgeData data)
+{
     data_ = data;
-    from_ = source;
-    to_   = sink;
 }
 
 /*
     Class representing the Nodes within the graph. 
 **/
-inline Node*  
-Edge::getDestination() const{
+Edge::Edge(
+    EdgeData data,
+    Node *source,
+    Node *sink)
+{
+    data_ = data;
+    from_ = source;
+    to_ = sink;
+}
+
+/*
+    Class representing the Nodes within the graph. 
+**/
+inline Node *
+Edge::getDestination() const
+{
     return to_;
 }
 
 /*
     Class representing the Nodes within the graph. 
 **/
-inline Node* 
-Edge::getSource() const{
+inline Node *
+Edge::getSource() const
+{
     return from_;
 }
 
 inline void
-Edge::setDestination(Node* node){
+Edge::setDestination(Node *node)
+{
     to_ = node;
 }
 
@@ -77,6 +81,7 @@ Edge::setDestination(Node* node){
     Class representing the Nodes within the graph. 
 **/
 inline void
-Edge::setSource(Node* node){
+Edge::setSource(Node *node)
+{
     from_ = node;
 }
