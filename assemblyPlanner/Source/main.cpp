@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]){
     auto t1 = std::chrono::high_resolution_clock::now();
 
-    argparse::ArgumentParser program("RSI Assembly Planner");
+    argparse::ArgumentParser program("MSRM Assembly Planner");
     program.add_argument("Filename")
            .help("Path to the XML assembly description.");
 
@@ -59,9 +59,9 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-    std::cout << "Duration: "<< duration << "ms.";
+    // auto t2 = std::chrono::high_resolution_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+    // std::cout << "Duration: "<< duration << "ms.";
 
     return 1;
 }

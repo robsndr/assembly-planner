@@ -141,97 +141,96 @@
     </costmap>
 
     <reachabilitymap>
-        <part name="ABCDEFGH">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="ABCDEF">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="CDEFGH">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="ABCD">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="CDEF">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="EFGH">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="AB">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="CD">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="EF">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-        <part name="GH">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="8"/>
-        </part>
-
-        <part name="A">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="B">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="C">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="D">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="E">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="F">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>
-        <part name="G">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>      
-        <part name="H">
-            <agent name="r1" handover_cost="8"/>
-            <agent name="r2" handover_cost="8"/>
-            <agent name="h"  handover_cost="inf"/>
-        </part>                                                                                                  
+        <node name="ABCDEFGH">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="ABCDEF">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="CDEFGH">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="ABCD">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="CDEF">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="EFGH">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="AB">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="CD">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="EF">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="GH">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="True" interaction=""/>
+        </node>
+        <node name="A">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="B">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="C">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="D">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="E">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="F">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>
+        <node name="G">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>      
+        <node name="H">
+            <agent name="r1" reachable="True" interaction=""/>
+            <agent name="r2" reachable="True" interaction=""/>
+            <agent name="h"  reachable="False" interaction="i0"/>
+        </node>                                                                                                  
     </reachabilitymap>
                                               
 </assembly>

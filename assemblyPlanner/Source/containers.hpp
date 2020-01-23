@@ -96,17 +96,16 @@ class CostMap : public BaseMap<double>{
 };
 
 
-class ReachMap : public BaseMap<double>{
+class ReachMap : public BaseMap<std::pair<bool, std::string>>{
     
     public:
     
-    void addMapping(std::string part, std::string agent, double reach){
+    void addMapping(std::string part, std::string agent, std::pair<bool, std::string> reach){
         // Lets insert four elements
         bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
         if(!is_in)
             vector_of_agents_.push_back(agent); 
         set_of_agents_.insert(agent);
-
 
         is_in = set_of_parts_.find(part) != set_of_parts_.end();
         if(!is_in)
@@ -114,8 +113,8 @@ class ReachMap : public BaseMap<double>{
         set_of_parts_.insert(part);
 
         map_[part][agent] = reach;
-        number_of_parts_ = vector_of_parts_.size();
-        number_of_agents_  = vector_of_agents_.size(); 
+        number_of_parts_  = vector_of_parts_.size();
+        number_of_agents_ = vector_of_agents_.size(); 
     };
 
     std::size_t number_of_parts_;

@@ -191,8 +191,8 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
 
     const char * attribute_text = nullptr;
 
-    for (tinyxml2::XMLElement* part = reachmap_root->FirstChildElement("part"); 
-                        part != nullptr; part = part->NextSiblingElement("part")){
+    for (tinyxml2::XMLElement* part = reachmap_root->FirstChildElement("node"); 
+                        part != nullptr; part = part->NextSiblingElement("node")){
 
         std::string part_name = part->Attribute("name");
         
@@ -204,19 +204,31 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode* reachmap_root){
                 return tinyxml2::XML_ERROR_PARSING;            
             std::string agent_name = attribute_text;
             
-            attribute_text = agent->Attribute("handover_cost");
+            attribute_text = agent->Attribute("reachable");
             if (attribute_text == NULL) 
                 return tinyxml2::XML_ERROR_PARSING;
             std::string agent_part_reach = attribute_text; 
 
+            attribute_text = agent->Attribute("interaction");
+            if (attribute_text == NULL) {
+                std::cout << "ERRRROR!" << std::endl;
+                return tinyxml2::XML_ERROR_PARSING;
+            }
+            std::string interaction = attribute_text; 
+
             std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
                 [](unsigned char c){ return std::tolower(c); });
 
-            if(agent_part_reach == "inf"){
-                config->reach_->addMapping(part_name, agent_name, INT_MAX);
+            std::transform(interaction.begin(), interaction.end(), interaction.begin(),
+                [](unsigned char c){ return std::tolower(c); });
+
+            if(agent_part_reach == "false"){
+                std::pair<bool, std::string> reach(false, interaction);
+                config->reach_->addMapping(part_name, agent_name, reach);
             }
-            else if(is_float(agent_part_reach)){
-                config->reach_->addMapping(part_name, agent_name, std::stod(agent_part_reach));
+            else if(agent_part_reach == "true"){
+                std::pair<bool, std::string> reach(true, interaction);
+                config->reach_->addMapping(part_name, agent_name, reach);
             }
             else{
                 std::cerr << "XML: Wrong value for cost."

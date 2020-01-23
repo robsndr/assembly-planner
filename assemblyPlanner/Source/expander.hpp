@@ -27,7 +27,11 @@ private:
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
 
-    std::vector<Node *> interactions;
+    // Vectors used to hold references to the created interactions.
+    // Needed to perform memory cleanup, as interactions are allocated in expander.
+    std::vector<Node *> interaction_nodes;
+    std::vector<Edge *> interaction_edges;
+
 };
 
 /* NodeExpander Constructor.
@@ -43,6 +47,13 @@ NodeExpander::NodeExpander(Graph<>* graph, Config* config){
 **/
 NodeExpander::~NodeExpander(){
     delete assignment_generator;
+
+    for(auto inode : interaction_nodes) {
+        delete inode;
+    } 
+    for(auto iedge : interaction_edges) {
+        delete iedge;
+    } 
 }
 
 /* Function which performs the node expansion.
@@ -105,7 +116,7 @@ void NodeExpander::expandNode(Node* node){
 
                 // Part not reachable 
                 // Add Interaction
-                if(reach_->map_[or_successor->data_.name][agent] == INT_MAX){
+                if(std::get<0>(reach_->map_[or_successor->data_.name][agent]) == false){
                     Node * interaction = createInteraction(action_ptr, or_successor);
 
                     ndata.subassemblies[interaction->data_.name] = interaction;
@@ -161,26 +172,27 @@ Node* NodeExpander::createInteraction(Node* source_and, Node* destination_or){
     NodeData tdata = destination_or->data_;
     tdata.name =  destination_or->data_.name + "_prime";
     Node * or_prime = new Node(0, tdata);
+    interaction_nodes.push_back(or_prime);
 
     NodeData idata;
     idata.cost = 8;
     idata.name = "i0";
     Node * inter_action = new Node(0, idata);
+    interaction_nodes.push_back(inter_action);
 
     EdgeData edata;
     Edge* edge1 = new Edge(edata);
+    interaction_edges.push_back(edge1);
     edge1->setSource(or_prime);
     edge1->setDestination(inter_action);
     or_prime->addSuccessor(edge1);
     inter_action->addPredecessor(edge1);
 
     Edge* edge2 = new Edge(edata);
+    interaction_edges.push_back(edge2);
     edge2->setSource(inter_action);
     edge2->setDestination(destination_or);
     inter_action->addSuccessor(edge2);
-    // inter_action->addPredecessor(edge1);
-    // or_prime->addSuccessor();
-
+    
     return or_prime;
-
 }
