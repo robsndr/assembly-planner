@@ -3,6 +3,9 @@
 #include <fstream>
 #include "node.hpp"
 
+/* Implements the writing of Dot_Files give a graph.
+    This feature can be used for debug, as graphs can be conviniently viewed using a Dot-Viewer.
+**/
 class DotWriter
 {
 private:

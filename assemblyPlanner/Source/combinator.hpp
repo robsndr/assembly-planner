@@ -2,9 +2,10 @@
 
 #include <vector>
 #include <string>
-#include "graph.hpp"
 #include <algorithm>
 #include <numeric>
+
+#include "graph.hpp"
 
 class Combinator
 {

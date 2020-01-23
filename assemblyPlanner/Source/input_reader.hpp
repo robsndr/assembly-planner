@@ -13,6 +13,8 @@
 #include "graph_generator.hpp"
 #include "containers.hpp"
 
+/* Check if a string represents a float-number.
+**/
 bool is_float(std::string my_string)
 {
     std::istringstream iss(my_string);
@@ -21,35 +23,53 @@ bool is_float(std::string my_string)
     return iss.eof() && !iss.fail();
 }
 
+/* XML InputReader.
+    Reads the input provieded inside the input-XML file,
+    Does some error-checking.
+**/
 class InputReader
 {
-
 public:
-    std::tuple<Graph<> *, Config *, bool> read(std::string);
 
+    // Constructor, Destructor
     InputReader(std::string);
     ~InputReader();
 
+    // Read the provided XML representing the assembly with agents, costs...
+    std::tuple<Graph<> *, Config *, bool> read(std::string);
+
 private:
+
+    // Parse the particular parts of the XML input.
     int parse_nodes(tinyxml2::XMLNode *);
     int parse_edges(tinyxml2::XMLNode *);
     int parse_costmap(tinyxml2::XMLNode *);
     int parse_reachmap(tinyxml2::XMLNode *);
 
+    // XML Root Element
     tinyxml2::XMLElement *root;
+
+    // XML Document
     tinyxml2::XMLDocument *doc;
+    
     GraphGenerator *graph_gen;
     Graph<> *graph;
     Config *config;
 };
 
+/* Constructorr.
+    @path: string specifying the path of the XML to read.
+**/
 InputReader::InputReader(std::string path)
 {
+    // Create a new XMLDocument. 
+    // Try to load file.
     doc = new tinyxml2::XMLDocument;
     tinyxml2::XMLError result = doc->LoadFile(path.c_str());
     if (result != tinyxml2::XML_SUCCESS)
         throw std::runtime_error("Could not open XML file.");
 
+    // Allocate objects
     graph = new Graph;
     graph_gen = new GraphGenerator(graph);
     config = new Config;
@@ -57,6 +77,9 @@ InputReader::InputReader(std::string path)
     config->reach_ = new ReachMap;
 }
 
+/* Destructor.
+    Deallocate all Object that have been put on the heap inside the constructor.
+**/
 InputReader::~InputReader()
 {
     delete graph;
@@ -66,6 +89,11 @@ InputReader::~InputReader()
     delete graph_gen;
 }
 
+/* Top-Level Read.
+    @root_name: name of the element where reading should start.
+    \return: tuple containg the graph, config represented inside the XML 
+             and a boolean indicating success.
+**/
 std::tuple<Graph<> *, Config *, bool> InputReader::read(std::string root_name)
 {
 
@@ -139,6 +167,8 @@ std::tuple<Graph<> *, Config *, bool> InputReader::read(std::string root_name)
     return std::make_tuple(graph_gen->graph_, config, true);
 }
 
+/* Parse nodes. 
+**/
 int InputReader::parse_nodes(tinyxml2::XMLNode *nodes_root)
 {
 
@@ -171,6 +201,8 @@ int InputReader::parse_nodes(tinyxml2::XMLNode *nodes_root)
     return tinyxml2::XML_SUCCESS;
 }
 
+/* Parse edges. 
+**/
 int InputReader::parse_edges(tinyxml2::XMLNode *edges_root)
 {
 
@@ -202,6 +234,8 @@ int InputReader::parse_edges(tinyxml2::XMLNode *edges_root)
     return tinyxml2::XML_SUCCESS;
 }
 
+/* Parse reachability. 
+**/
 int InputReader::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
 {
 
@@ -274,6 +308,8 @@ int InputReader::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
     return tinyxml2::XML_SUCCESS;
 }
 
+/* Parse costs. 
+**/
 int InputReader::parse_costmap(tinyxml2::XMLNode *costmap_root)
 {
 
@@ -328,8 +364,8 @@ int InputReader::parse_costmap(tinyxml2::XMLNode *costmap_root)
         }
     }
 
-    DotWriter dot("parsed.dot");
-    graph_gen->graph_->print(dot);
+    // DotWriter dot("parsed.dot");
+    // graph_gen->graph_->print(dot);
 
     return tinyxml2::XML_SUCCESS;
 }

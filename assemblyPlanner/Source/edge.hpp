@@ -14,16 +14,19 @@ class Node;
 class Edge
 {
 public:
+    // Contructors
     Edge(EdgeData);
     Edge(EdgeData, Node *, Node *);
 
+    // Getters
     Node *getDestination() const;
     Node *getSource() const;
 
+    // Setters
     void setDestination(Node *);
     void setSource(Node *);
 
-    std::size_t id_;
+    // Data contained in the edge.
     EdgeData data_;
 
 private:
@@ -31,8 +34,8 @@ private:
     Node *from_;
 };
 
-/*
-    Class representing the Nodes within the graph. 
+/* Edge Constructor.
+    @data: data represented by the Edge.
 **/
 Edge::Edge(
     EdgeData data)
@@ -40,8 +43,10 @@ Edge::Edge(
     data_ = data;
 }
 
-/*
-    Class representing the Nodes within the graph. 
+/* Edge Constructor.
+    @data: data represented by the Edge. 
+    @source: the node where the edge originates from.
+    @sink: the node where the edge is directed to. 
 **/
 Edge::Edge(
     EdgeData data,
@@ -53,8 +58,8 @@ Edge::Edge(
     to_ = sink;
 }
 
-/*
-    Class representing the Nodes within the graph. 
+/* Obtain the pointer to the edge destination.
+    \return: pointer to the Node where the edge is directed to.
 **/
 inline Node *
 Edge::getDestination() const
@@ -62,8 +67,8 @@ Edge::getDestination() const
     return to_;
 }
 
-/*
-    Class representing the Nodes within the graph. 
+/* Obtain the pointer edge origin.
+    \return: pointer to the Node where the edge originates from.
 **/
 inline Node *
 Edge::getSource() const
@@ -71,14 +76,17 @@ Edge::getSource() const
     return from_;
 }
 
+/* Set the pointer of the edge destination.
+    @node: pointer to the destination Node.
+**/
 inline void
 Edge::setDestination(Node *node)
 {
     to_ = node;
 }
 
-/*
-    Class representing the Nodes within the graph. 
+/* Set the pointer of the edge source.
+    @node: pointer to the source Node.
 **/
 inline void
 Edge::setSource(Node *node)

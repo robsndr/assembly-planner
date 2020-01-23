@@ -10,10 +10,10 @@
 #include "input_reader.hpp"
 #include "argparse.hpp"
 
+
 int main(int argc, char *argv[])
 {
     // auto t1 = std::chrono::high_resolution_clock::now();
-
     argparse::ArgumentParser program("MSRM Assembly Planner");
     program.add_argument("Filename")
         .help("Path to the XML assembly description.");

@@ -21,10 +21,6 @@ class NodeData
 public:
     NodeData() {}
 
-    bool isAtomic()
-    {
-        return atomic;
-    };
     bool isGoal();
     void calc_hscore();
     void calc_fscore();
@@ -33,10 +29,8 @@ public:
     NodeType type;
 
     std::string name = "";
-    std::string worker = "";
 
     bool marked = false;
-    bool atomic = false;
 
     double g_score = 0;
     double f_score = 0;
