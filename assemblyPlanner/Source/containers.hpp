@@ -39,15 +39,12 @@ public:
 
     double minimum_cost_action = MAXFLOAT;
 
-    std::set<std::string> applied_actions_;
-
     std::unordered_map<std::string, Node*> subassemblies;
     std::unordered_map<std::string, Node*> actions;
 
 };
 
 // typedef std::size_t EdgeData;
-
 class EdgeData {
 public:
     EdgeData(){}

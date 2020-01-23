@@ -132,10 +132,66 @@
             <agent name="r1" cost="10"/>
             <agent name="r2" cost="10"/>
             <agent name="h"  cost="100"/>
-        </action>                                                                      
+        </action>    
+        <action name="i0">
+            <agent name="r1" cost="8"/>
+            <agent name="r2" cost="8"/>
+            <agent name="h"  cost="8"/>
+        </action>                                                                     
     </costmap>
 
     <reachabilitymap>
+        <part name="ABCDEFGH">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="ABCDEF">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="CDEFGH">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="ABCD">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="CDEF">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="EFGH">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="AB">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="CD">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="EF">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+        <part name="GH">
+            <agent name="r1" handover_cost="8"/>
+            <agent name="r2" handover_cost="8"/>
+            <agent name="h"  handover_cost="8"/>
+        </part>
+
         <part name="A">
             <agent name="r1" handover_cost="8"/>
             <agent name="r2" handover_cost="8"/>

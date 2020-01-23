@@ -17,7 +17,7 @@ public:
 
 private:
 
-    void insertInteraction(Node*);
+    Node* createInteraction(Node*, Node*);
 
     Graph<> * search_graph_;
     CostMap* costs_;
@@ -26,6 +26,8 @@ private:
     // Assgnemtn generation object and assignemnt container
     Combinator * assignment_generator;
     std::vector< std::vector< std::tuple<std::string, std::string, Node*> > > * assignments_;
+
+    std::vector<Node *> interactions;
 };
 
 /* NodeExpander Constructor.
@@ -100,10 +102,22 @@ void NodeExpander::expandNode(Node* node){
 
             // For the currently applied assignement, update the subassemblies of the new supernode.
             for (auto & or_successor : action_ptr->getSuccessorNodes()){
-                // std::cout << "  OR_NEXT: " << or_successor << std::endl;
-                ndata.subassemblies[or_successor->data_.name] = or_successor;
-                for (auto &following_action : or_successor->getSuccessorNodes()){
-                    ndata.actions[following_action->data_.name] = following_action; 
+
+                // Part not reachable 
+                // Add Interaction
+                if(reach_->map_[or_successor->data_.name][agent] == INT_MAX){
+                    Node * interaction = createInteraction(action_ptr, or_successor);
+
+                    ndata.subassemblies[interaction->data_.name] = interaction;
+                    for (auto &following_action : or_successor->getSuccessorNodes()){
+                        ndata.actions[following_action->data_.name] = following_action; 
+                    }
+                }
+                else{
+                    ndata.subassemblies[or_successor->data_.name] = or_successor;
+                    for (auto &following_action : or_successor->getSuccessorNodes()){
+                        ndata.actions[following_action->data_.name] = following_action; 
+                    }
                 }
             }
 
@@ -142,6 +156,31 @@ void NodeExpander::expandNode(Node* node){
     Interactions are created for assignemnts where a given agent cannot reach a Part.
     In this cas, another agent must pass hand_over the requested part. 
 **/ 
-void NodeExpander::insertInteraction(Node* node){
+Node* NodeExpander::createInteraction(Node* source_and, Node* destination_or){
+
+    NodeData tdata = destination_or->data_;
+    tdata.name =  destination_or->data_.name + "_prime";
+    Node * or_prime = new Node(0, tdata);
+
+    NodeData idata;
+    idata.cost = 8;
+    idata.name = "i0";
+    Node * inter_action = new Node(0, idata);
+
+    EdgeData edata;
+    Edge* edge1 = new Edge(edata);
+    edge1->setSource(or_prime);
+    edge1->setDestination(inter_action);
+    or_prime->addSuccessor(edge1);
+    inter_action->addPredecessor(edge1);
+
+    Edge* edge2 = new Edge(edata);
+    edge2->setSource(inter_action);
+    edge2->setDestination(destination_or);
+    inter_action->addSuccessor(edge2);
+    // inter_action->addPredecessor(edge1);
+    // or_prime->addSuccessor();
+
+    return or_prime;
 
 }
