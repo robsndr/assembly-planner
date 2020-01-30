@@ -116,7 +116,8 @@ void NodeExpander::expandNode(Node *node)
         // Iterate through agent-action pairs for the current assignemnt
         for (auto &agent_action_assignment : cur_assignments)
         {
-            iters++;
+            // Calculate the number of iterations 
+            iters++; 
 
             // Obtain the agent, action and aciton-pointer from the tuple
             // The tuple itself was obtained from the combinator above.
@@ -168,7 +169,7 @@ void NodeExpander::expandNode(Node *node)
 
             // Update edge data.
             edata.cost += costs_->map_[action][agent];
-            edata.agent_actions_.push_back(std::make_pair(action, agent));
+            edata.agent_actions_.push_back(std::make_pair(action_ptr, agent));
         }
 
         // Create the average of the edge.cost over the number of nodes it connects.

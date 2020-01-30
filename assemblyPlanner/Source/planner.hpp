@@ -13,12 +13,13 @@ class Planner
 {
 public:
     // Start Planning
-    std::vector<std::vector<std::tuple<std::string, std::string, double>>>
+    std::vector< std::vector< std::tuple< Node*, std::string, double >>>
                                                     operator()(Graph<> *, Node *, Config *);
 
 private:
     // Container used to track the resulting optimal assembly sequence.
-    std::vector<std::vector<std::tuple<std::string, std::string, double>>> assembly_plan_;
+    // Vector of Tuples containing <action_pointer, agent_name, cost>
+    std::vector<std::vector<std::tuple<Node*, std::string, double>>> assembly_plan_;
     Graph<> *search_graph;
 };
 
@@ -28,7 +29,7 @@ private:
     @config: configuration contianing the cost_map and reachability_map.
     \return: vector containing the assembly plan
 **/
-std::vector< std::vector< std::tuple< std::string, std::string, double >>> 
+std::vector< std::vector< std::tuple< Node*, std::string, double >>> 
 Planner::operator()(Graph<> *graph, Node *root, Config *config)
 {
     // Create a new Graph.
@@ -56,7 +57,8 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     Node *result = astar.search(search_graph, new_root, expander);
 
     // Container used to represent the found agent-action assignement and its cost in a current step.
-    std::vector<std::tuple<std::string, std::string, double>> optimum;
+    // Vector of Tuples containing <action_pointer, agent_name, cost>
+    std::vector<std::tuple<Node*, std::string, double>> optimum;
 
     // Container representing the sequence of all agent-actions for the complete solution.
     assembly_plan_.clear();
@@ -67,8 +69,8 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     {
         for (auto &i : result->getPredecessors().front()->data_.agent_actions_)
         {
-            std::cout << "Action: " << i.first << " Agent: " << i.second << "    ";
-            cost += config->costs_->map_[i.first][i.second];
+            std::cout << "Action: " << i.first->data_.name << " Agent: " << i.second << "    ";
+            cost += config->costs_->map_[i.first->data_.name][i.second];
             optimum.push_back(std::make_tuple(i.first, i.second, cost));
         }
         assembly_plan_.push_back(optimum);
@@ -77,7 +79,8 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
         result = result->getPredecessorNodes().front();
     }
 
-    std::cout << "Cost: " << cost << std::endl;
+    std::cout << "Cost: " << cost << std::endl << std::endl;
+    std::cout << "- - - -  - - - -  - - - -  - - - -  - - - -  - - - - " << std::endl << std::endl;
 
     delete search_graph;
     delete expander;

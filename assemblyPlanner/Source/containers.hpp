@@ -48,7 +48,7 @@ class EdgeData
 public:
     EdgeData() {}
 
-    std::vector<std::pair<std::string, std::string>> agent_actions_;
+    std::vector<std::pair<Node*, std::string>> agent_actions_;
     double cost = 0;
 };
 

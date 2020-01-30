@@ -12,21 +12,18 @@ class FrankaAgent
 public:
     FrankaAgent(Graph<> *);
     ~FrankaAgent();
-
-    bool exec(std::vector<std::vector<std::tuple<std::string, std::string, double>>> &);
-
+    bool exec( std::vector< std::vector< std::tuple< Node*, std::string, double >>>& );
 private:
-    std::vector<Node*> available_actions;
+    std::vector<Node*> available_leaves;
 };
 
 FrankaAgent::FrankaAgent(Graph<> * ao_graph)
 {
-    std::vector<Node*> available_leaves;
     available_leaves = ao_graph->getLeafNodes();
-    for(auto leaf : available_leaves)
+
+    for( auto node : available_leaves)
     {
-        available_actions.push_back(leaf->getPredecessorNodes()[0]);
-        std::cout << "Node: " << leaf->data_.name << std::endl;
+        std::cout << node->data_.name << std::endl;
     }
 }
 
@@ -34,14 +31,19 @@ FrankaAgent::~FrankaAgent()
 {
 }
 
-bool FrankaAgent::exec(std::vector<std::vector<std::tuple<std::string, std::string, double>>> & plan){
+bool FrankaAgent::exec(std::vector< std::vector< std::tuple< Node*, std::string, double >>> & plan){
     
     for(auto step : plan)
     {
-        for(auto var : step)
+        for(auto var: step)
         {
-            std::cout << std::get<0>(var) << std::endl;
+            std::cout << std::get<0>(var)->data_.name << " ";
         }
+        std::cout << std::endl;
     }
 
 }
+
+// bool FrankaAgent::canTakeAction(Node* action){
+
+// }

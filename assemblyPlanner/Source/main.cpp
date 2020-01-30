@@ -31,7 +31,9 @@ int main(int argc, char *argv[])
     }
 
     auto input = program.get<std::string>("Filename");
-    std::vector<std::vector<std::tuple<std::string, std::string, double>>> assembly_plan;
+
+    // Assembly Plan is a vector containg tuples of <action_pointer, agent_name, cost>
+    std::vector< std::vector< std::tuple< Node*, std::string, double>>> assembly_plan;
 
     // Assembly Planning Block.
     Graph<> *assembly;
