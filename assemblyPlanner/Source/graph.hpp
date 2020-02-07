@@ -29,14 +29,14 @@ public:
     std::size_t numberOfEdgesToNode(const std::size_t);
 
     Node *getNode(std::size_t);
-    std::vector<Node *> getNodes(bool (*)(Node *));
+    // std::vector<Node *> getNodes(bool (*)(Node *));
     std::vector<Node *> getLeafNodes();
 
     // Access specific nodes/vertices.
-    Edge *edgeFromNode(const std::size_t, const std::size_t) const;
-    Edge *edgeToNode(const std::size_t, const std::size_t) const;
-    std::vector<Node *> &nodesFromNode(const std::size_t, const std::size_t) const;
-    std::vector<Node *> &nodesToNode(const std::size_t, const std::size_t) const;
+    Edge *edgeFromNode(const std::size_t, const std::size_t);
+    Edge *edgeToNode(const std::size_t, const std::size_t);
+    std::vector<Node *> nodesFromNode(const std::size_t, const std::size_t);
+    std::vector<Node *> nodesToNode(const std::size_t, const std::size_t);
     // std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
 
     // manipulation
@@ -203,18 +203,18 @@ Graph<Visitor>::getNode(std::size_t node_id)
 /* Get the number of edges that are incident to a given node.
     @node: string-id of a node.
 **/
-template <typename Visitor>
-inline std::vector<Node *>
-Graph<Visitor>::getNodes(bool (*func)(Node *))
-{
-    std::vector<Node *> temp;
-    for (auto &x : nodes_)
-    {
-        if (func(x))
-            temp.push_back(x);
-    }
-    return temp;
-}
+// template <typename Visitor>
+// inline std::vector<Node *>
+// Graph<Visitor>::getNodes(bool (func)(Node *))
+// {
+//     std::vector<Node *> temp;
+//     for (auto &x : nodes_)
+//     {
+//         if (func(x))
+//             temp.push_back(x);
+//     }
+//     return temp;
+// }
 
 
 /* Get reference to all Nodes that don't have successors (leaves).
@@ -241,7 +241,7 @@ template <typename Visitor>
 inline Edge *
 Graph<Visitor>::edgeFromNode(
     const std::size_t node,
-    const std::size_t j) const
+    const std::size_t j)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -249,7 +249,7 @@ Graph<Visitor>::edgeFromNode(
                   << "Error: edgeFromNode. Node " << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_[node]->children[j];
+    return nodes_.at(node)->children_[j];
 }
 
 /* Get the pointer to the j`th edge that is incident to a given node.
@@ -260,7 +260,7 @@ template <typename Visitor>
 inline Edge *
 Graph<Visitor>::edgeToNode(
     const std::size_t node,
-    const std::size_t j) const
+    const std::size_t j)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -268,7 +268,7 @@ Graph<Visitor>::edgeToNode(
                   << "Error: edgeToNode. Node " << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_[node]->parents[j];
+    return nodes_.at(node)->parents_[j];
 }
 
 /* Get pointers to the nodes reachable from a given node via a specified edge.
@@ -276,10 +276,10 @@ Graph<Visitor>::edgeToNode(
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
 template <typename Visitor>
-inline std::vector<Node *> &
+inline std::vector<Node *> 
 Graph<Visitor>::nodesFromNode(
     const std::size_t node,
-    const std::size_t j) const
+    const std::size_t j)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -287,7 +287,7 @@ Graph<Visitor>::nodesFromNode(
                   << "Error: nodesFromNode. Node " << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_[node]->children[j].getSuccessors();
+    return nodes_.at(node)->getSuccessorNodes();
 }
 
 /* Get pointers to the nodes incident to a given node via a specified edge.
@@ -295,10 +295,10 @@ Graph<Visitor>::nodesFromNode(
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
 template <typename Visitor>
-inline std::vector<Node *> &
+inline std::vector<Node *> 
 Graph<Visitor>::nodesToNode(
     const std::size_t node,
-    const std::size_t j) const
+    const std::size_t j)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -306,7 +306,7 @@ Graph<Visitor>::nodesToNode(
                   << "Error: nodesToNode. Node " << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_[node]->parents[j].getPredecessors();
+    return nodes_.at(node)->getPredecessorNodes();
 }
 
 /* Insert an additional Node.

@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-        FrankaAgent execution_agent(assembly);
-        bool success = execution_agent.exec(assembly_plan);
+        FrankaAgent execution_agent(assembly, assembly_plan);
+        execution_agent.exec(assembly_plan);
     }
     catch (const std::runtime_error &err)
     {

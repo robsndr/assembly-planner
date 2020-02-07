@@ -43,7 +43,7 @@ public:
     std::size_t id_;
     NodeData data_;
 
-private:
+// private:
     std::unordered_map<std::size_t, Edge *> parents_;
     std::unordered_map<std::size_t, Edge *> children_;
 };
