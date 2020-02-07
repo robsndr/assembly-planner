@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "dotwriter.hpp"
 #include "astar.hpp"
+#include "task.hpp"
 
 /* Planner Class. 
     Used as a Top_Level supervisor for the planning process.
@@ -13,13 +14,12 @@ class Planner
 {
 public:
     // Start Planning
-    std::vector< std::vector< std::tuple< Node*, std::string, double >>>
-                                                    operator()(Graph<> *, Node *, Config *);
+    std::vector< std::vector<Task*>> operator()(Graph<> *, Node *, Config *);
 
 private:
     // Container used to track the resulting optimal assembly sequence.
     // Vector of Tuples containing <action_pointer, agent_name, cost>
-    std::vector<std::vector<std::tuple<Node*, std::string, double>>> assembly_plan_;
+    std::vector<std::vector<Task*>> assembly_plan_;
     Graph<> *search_graph;
 };
 
@@ -29,7 +29,7 @@ private:
     @config: configuration contianing the cost_map and reachability_map.
     \return: vector containing the assembly plan
 **/
-std::vector< std::vector< std::tuple< Node*, std::string, double >>> 
+std::vector< std::vector<Task*>> 
 Planner::operator()(Graph<> *graph, Node *root, Config *config)
 {
     // Create a new Graph.
@@ -58,7 +58,7 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
 
     // Container used to represent the found agent-action assignement and its cost in a current step.
     // Vector of Tuples containing <action_pointer, agent_name, cost>
-    std::vector<std::tuple<Node*, std::string, double>> optimum;
+    std::vector<Task*> optimum;
 
     // Container representing the sequence of all agent-actions for the complete solution.
     assembly_plan_.clear();
@@ -69,9 +69,14 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     {
         for (auto &i : result->getPredecessors().front()->data_.agent_actions_)
         {
-            std::cout << "Action: " << i.first->data_.name << " Agent: " << i.second << "    ";
-            cost += config->costs_->map_[i.first->data_.name][i.second];
-            optimum.push_back(std::make_tuple(i.first, i.second, cost));
+            std::string action_name = i.first->data_.name;
+            std::string agent_name = i.second;
+            double cur_cost = config->costs_->map_[action_name][agent_name];
+
+            std::cout << "Action: " << action_name << " Agent: " << agent_name << "    ";
+            cost += cur_cost;
+            Task *cur_task = new Task(action_name, agent_name, cur_cost);
+            optimum.push_back(cur_task);
         }
         assembly_plan_.push_back(optimum);
         optimum.clear();

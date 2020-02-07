@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     auto input = program.get<std::string>("Filename");
 
     // Assembly Plan is a vector containg tuples of <action_pointer, agent_name, cost>
-    std::vector< std::vector< std::tuple< Node*, std::string, double>>> assembly_plan;
+    std::vector< std::vector<Task*>> assembly_plan;
 
     // Assembly Planning Block.
     Graph<> *assembly;
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-        FrankaAgent execution_agent(assembly, assembly_plan);
+        FrankaAgent execution_agent(assembly);
         execution_agent.exec(assembly_plan);
     }
     catch (const std::runtime_error &err)
