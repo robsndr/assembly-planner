@@ -29,10 +29,11 @@ INCLUDE_DIRECTORIES("/usr/local/include/libbson-1.0")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG")
 
-include_directories ("${PROJECT_SOURCE_DIR}/Lib") # Search for function declarations inLib/*.hpp
-add_subdirectory (Lib)                            # Ensures that Libararies are built.
-set (LIBS ${LIBS})
-add_executable(planner Source/main.cpp Lib/tinyxml2.cpp)
+include_directories ("${PROJECT_SOURCE_DIR}/Lib/tinyxml2") # Search for function declarations inLib/*.hpp
+include_directories ("${PROJECT_SOURCE_DIR}/Lib/argparse/include") # Search for function declarations inLib/*.hpp
+
+
+add_executable(planner Source/main.cpp Lib/tinyxml2/tinyxml2.cpp)
 target_link_libraries (planner  ${LIBS} ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES})
 
 

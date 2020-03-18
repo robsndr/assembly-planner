@@ -4,3 +4,9 @@
 [submodule "assemblyPlanner/Lib/uWebSockets"]
 	path = assemblyPlanner/Lib/uWebSockets
 	url = https://github.com/uNetworking/uWebSockets.git
+[submodule "assemblyPlanner/Lib/tinyxml2"]
+	path = assemblyPlanner/Lib/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+[submodule "assemblyPlanner/Lib/argparse"]
+	path = assemblyPlanner/Lib/argparse
+	url = https://github.com/p-ranav/argparse.git

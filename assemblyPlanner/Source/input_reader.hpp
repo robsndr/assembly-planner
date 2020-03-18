@@ -9,7 +9,7 @@
 #include <cctype>
 
 #include "dotwriter.hpp"
-#include "tinyxml2.hpp"
+#include "tinyxml2.h"
 #include "graph_generator.hpp"
 #include "containers.hpp"
 
