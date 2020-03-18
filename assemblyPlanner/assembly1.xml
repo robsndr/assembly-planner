@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly root="ABCDEFGH">
     <nodes>
-        <node name="ABCDEFGH" type="OR"/>
-        <node name="ABCDEF"   type="OR"/>
-        <node name="CDEFGH"   type="OR"/>
-        <node name="ABCD"     type="OR"/>
-        <node name="CDEF"     type="OR"/>
-        <node name="EFGH"     type="OR"/>
-        <node name="AB"       type="OR"/>
-        <node name="CD"       type="OR"/>
-        <node name="EF"       type="OR"/>
-        <node name="GH"       type="OR"/>
-        <node name="A"        type="OR"/>
-        <node name="B"        type="OR"/>
-        <node name="C"        type="OR"/>
-        <node name="D"        type="OR"/>
-        <node name="E"        type="OR"/>
-        <node name="F"        type="OR"/>
-        <node name="G"        type="OR"/>
-        <node name="H"        type="OR"/> 
-        <node name="a1"       type="AND"/>
-        <node name="a2"       type="AND"/>
-        <node name="a3"       type="AND"/>
-        <node name="a4"       type="AND"/>
-        <node name="a5"       type="AND"/>
-        <node name="a6"       type="AND"/>
-        <node name="a7"       type="AND"/>
-        <node name="a8"       type="AND"/>
-        <node name="a9"       type="AND"/>
-        <node name="a10"      type="AND"/>
-        <node name="a11"      type="AND"/>
-        <node name="a12"      type="AND"/>
+        <node id="ABCDEFGH" type="OR"/>
+        <node id="ABCDEF"   type="OR"/>
+        <node id="CDEFGH"   type="OR"/>
+        <node id="ABCD"     type="OR"/>
+        <node id="CDEF"     type="OR"/>
+        <node id="EFGH"     type="OR"/>
+        <node id="AB"       type="OR"/>
+        <node id="CD"       type="OR"/>
+        <node id="EF"       type="OR"/>
+        <node id="GH"       type="OR"/>
+        <node id="A"        type="OR"/>
+        <node id="B"        type="OR"/>
+        <node id="C"        type="OR"/>
+        <node id="D"        type="OR"/>
+        <node id="E"        type="OR"/>
+        <node id="F"        type="OR"/>
+        <node id="G"        type="OR"/>
+        <node id="H"        type="OR"/> 
+        <node id="a1"       type="AND"/>
+        <node id="a2"       type="AND"/>
+        <node id="a3"       type="AND"/>
+        <node id="a4"       type="AND"/>
+        <node id="a5"       type="AND"/>
+        <node id="a6"       type="AND"/>
+        <node id="a7"       type="AND"/>
+        <node id="a8"       type="AND"/>
+        <node id="a9"       type="AND"/>
+        <node id="a10"      type="AND"/>
+        <node id="a11"      type="AND"/>
+        <node id="a12"      type="AND"/>
     </nodes>
 
     <edges>
@@ -73,47 +73,47 @@
     </edges>
 
     <costmap>
-        <action name="a1">
+        <action id="a1">
             <agent name="r1" cost="inf"/>
             <agent name="r2" cost="inf"/>
             <agent name="h"  cost="50"/>
         </action>
-        <action name="a2">
+        <action id="a2">
             <agent name="r1" cost="inf"/>
             <agent name="r2" cost="inf"/>
             <agent name="h"  cost="50"/>
         </action>
-        <action name="a3">
+        <action id="a3">
             <agent name="r1" cost="inf"/>
             <agent name="r2" cost="inf"/>
             <agent name="h"  cost="50"/>
         </action>
-        <action name="a4">
+        <action id="a4">
             <agent name="r1" cost="10"/>
             <agent name="r2" cost="10"/>
             <agent name="h"  cost="200"/>
         </action>
-        <action name="a5">
+        <action id="a5">
             <agent name="r1" cost="5"/>
             <agent name="r2" cost="5"/>
             <agent name="h"  cost="50"/>
         </action>
-        <action name="a6">
+        <action id="a6">
             <agent name="r1" cost="20"/>
             <agent name="r2" cost="10"/>
             <agent name="h"  cost="30"/>
         </action>
-        <action name="a7">
+        <action ide="a7">
             <agent name="r1" cost="10"/>
             <agent name="r2" cost="5"/>
             <agent name="h"  cost="100"/>
         </action>
-        <action name="a8">
+        <action id="a8">
             <agent name="r1" cost="inf"/>
             <agent name="r2" cost="5"/>
             <agent name="h"  cost="100"/>
         </action>
-        <action name="a9">
+        <action id="a9">
             <agent name="r1" cost="20"/>
             <agent name="r2" cost="20"/>
             <agent name="h"  cost="50"/>

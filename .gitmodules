@@ -1,0 +1,3 @@
+[submodule "assemblyPlanner/assemblyPlanner/Test/Lib/uWebSockets"]
+	path = assemblyPlanner/assemblyPlanner/Test/Lib/uWebSockets
+	url = https://github.com/uNetworking/uWebSockets.git

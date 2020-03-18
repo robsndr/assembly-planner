@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     mongocxx::client db_handle = mongocxx::client{mongocxx::uri{"mongodb://collective-panda-012:27017"}};
     mongocxx::database db = db_handle["mios"];
     mongocxx::collection coll = db["environment"];
-
+    
     bsoncxx::stdx::optional<bsoncxx::document::value> maybe_result = coll.find_one(document{} << "name" << "test_object_1" << finalize);
     if(maybe_result) {
         bsoncxx::document::view docview = maybe_result->view();

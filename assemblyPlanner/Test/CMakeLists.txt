@@ -15,5 +15,10 @@ INCLUDE_DIRECTORIES("/usr/local/include/libbson-1.0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG")
 
 # add the executable
-add_executable(testing test.cpp)
+
+# add the uWebSockets module 
+include_directories ("${PROJECT_SOURCE_DIR}/Lib/uWebSockets/uSockets/src")
+include_directories ("${PROJECT_SOURCE_DIR}/Lib/uWebSockets/src")
+
+add_executable(testing ws_test.cpp)
 target_link_libraries (testing ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES})
