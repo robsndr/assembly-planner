@@ -10,3 +10,6 @@
 [submodule "assemblyPlanner/Lib/argparse"]
 	path = assemblyPlanner/Lib/argparse
 	url = https://github.com/p-ranav/argparse.git
+[submodule "assemblyPlanner/Lib/websocketpp"]
+	path = assemblyPlanner/Lib/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git

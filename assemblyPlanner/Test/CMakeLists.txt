@@ -17,8 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG")
 # add the executable
 
 # add the uWebSockets module 
-include_directories ("${PROJECT_SOURCE_DIR}/../Lib/uWebSockets/uSockets/src")
-include_directories ("${PROJECT_SOURCE_DIR}/../Lib/uWebSockets/src")
+include_directories ("${PROJECT_SOURCE_DIR}/../Lib/websocketcpp")
 
 add_executable(testing ws_test.cpp)
 target_link_libraries (testing ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES})
