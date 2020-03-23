@@ -6,7 +6,7 @@ from concurrent.futures import TimeoutError as ConnectionTimeoutError
 import websockets.exceptions
 
 
-async def send(hostname, port=8383, endpoint="mios/core", request=None, timeout=100, silent=False):
+async def send(hostname, port=9000, endpoint="mios/core", request=None, timeout=100, silent=False):
     uri = "ws://" + hostname + ":" + str(port) + "/" +endpoint
     try:
         async with websockets.connect(uri, close_timeout=1) as websocket:
@@ -58,7 +58,7 @@ def call_server(hostname, port, endpoint, request, timeout):
                                                             endpoint=endpoint, timeout=timeout))
 
 
-def call_method(hostname, method, payload=None, port=8383, endpoint="mios/core", timeout=100, silent=False):
+def call_method(hostname, method, payload=None, port=9000, endpoint="mios/core", timeout=100, silent=False):
     try:
         request = {
             "method": method,

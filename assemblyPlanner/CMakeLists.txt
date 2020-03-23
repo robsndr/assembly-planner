@@ -16,8 +16,10 @@ ELSE()
     MESSAGE(WARNING "You are using an unsupported compiler! Compilation has only been tested with Clang and GCC.")
 ENDIF()
 
+FIND_PACKAGE(Boost REQUIRED COMPONENTS system)
 FIND_PACKAGE(libmongocxx REQUIRED)
 FIND_PACKAGE(libbsoncxx REQUIRED)
+
 INCLUDE_DIRECTORIES(${LIBMONGOCXX_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES(${LIBBSONCXX_INCLUDE_DIRS})
 INCLUDE_DIRECTORIES("/usr/local/include/mongocxx/v_noabi/mongocxx")
@@ -27,13 +29,14 @@ INCLUDE_DIRECTORIES("/usr/local/include/libbson-1.0")
 
 
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG -pthread")
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/tinyxml2") # Search for function declarations inLib/*.hpp
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/argparse/include") # Search for function declarations inLib/*.hpp
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/websocketpp")
 
 
 ADD_EXECUTABLE(planner Source/main.cpp Lib/tinyxml2/tinyxml2.cpp)
-TARGET_LINK_LIBRARIES(planner  ${LIBS} ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES})
+TARGET_LINK_LIBRARIES(planner  ${LIBS} ${LIBMONGOCXX_LIBRARIES} ${LIBBSONCXX_LIBRARIES} ${Boost_LIBRARIES})
 
 

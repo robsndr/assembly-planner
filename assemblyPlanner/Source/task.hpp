@@ -21,18 +21,27 @@ using bsoncxx::builder::stream::open_document;
 class Task
 {
 
-private:
+public:
+
     std::string action_;
     std::string agent_; 
     double cost_;
     bool finished;
 
-public:
     Task(std::string, std::string, double);
     ~Task();
     bool exec();
     void getInfoFromDatabase(mongocxx::client &);
+
+    friend std::ostream & operator<<(std::ostream &os, const Task& p);
 };
+
+std::ostream & operator<<(std::ostream &os, const Task& p)
+{
+    os << "* Agent: " << p.agent_ << "  | Action: " << p.action_ << "\n";
+    return os;
+}
+
 
 Task::Task(std::string action, std::string agent, double cost)
 {

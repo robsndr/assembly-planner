@@ -7,6 +7,8 @@
 
 #include "task.hpp"
 #include "graph.hpp"
+#include "websocket_client.hpp"
+#include <unistd.h>
 
 class FrankaAgent
 {
@@ -15,27 +17,26 @@ public:
     ~FrankaAgent();
     bool exec(std::vector< std::vector< Task*>> &);
 private:
+    WebsocketEndpoint endpoint;
+    int connection_id;
     std::vector<Node*> available_leaves;
-    mongocxx::client *db_client;
 };
 
-FrankaAgent::FrankaAgent(Graph<> * ao_graph)
-{
-
-    available_leaves = ao_graph->getLeafNodes();
-
-    for( auto node : available_leaves)
-    {
-        std::cout << node->data_.name << std::endl;
-    }
-
-    mongocxx::instance inst{};
-    db_client = new mongocxx::client{mongocxx::uri{"mongodb://collective-panda-012:27017"}};
+FrankaAgent::FrankaAgent(Graph<> * ao_graph){ 
+        std::cout<< "Franka Agent." << std::endl;
+        std::string uri = "ws://localhost:9000";
+        connection_id = endpoint.connect(uri);
+        if (connection_id != -1) {
+            std::cout << "> Created connection with id " << connection_id << std::endl;
+        }
+       
+        ConnectionMetadata::ptr metadata = endpoint.get_metadata(connection_id);
+        while (metadata->get_status() != "Open"){
+            usleep(100000);  // Sleep for 500k microseconds == 0.1s.
+        }       
 }
 
-FrankaAgent::~FrankaAgent()
-{
-}
+FrankaAgent::~FrankaAgent(){ }
 
 bool FrankaAgent::exec(std::vector< std::vector< Task*>> & plan){
 
@@ -43,14 +44,25 @@ bool FrankaAgent::exec(std::vector< std::vector< Task*>> & plan){
     {
         for(auto var: step)
         {
-            var->getInfoFromDatabase(*db_client);
+            std::cout << *var;            
         }
         std::cout << std::endl;
+    }
+
+    std::string input;
+    std::cout << "Enter Command: ";
+    std::getline(std::cin, input);
+    if (input.substr(0,4) == "send") {
+        endpoint.send(connection_id, "Hello");
+    }
+        
+    // Close the open connection. Wait until thread completes. 
+    endpoint.close(connection_id, websocketpp::close::status::normal, ""); 
+    ConnectionMetadata::ptr metadata = endpoint.get_metadata(connection_id);
+    while (metadata->get_status() != "Closed"){
+        usleep(100000);  
     }
 
     return true;
 }
 
-// bool FrankaAgent::canTakeAction(Node* action){
-
-// }
