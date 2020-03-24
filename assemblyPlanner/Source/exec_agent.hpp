@@ -50,7 +50,6 @@ ExecAgent::~ExecAgent(){
 }
 
 bool ExecAgent::exec(std::string task_name){
-
     nlohmann::json payload;
     payload["task"] = "home_gripper";
 
@@ -60,7 +59,6 @@ bool ExecAgent::exec(std::string task_name){
 
 
 bool ExecAgent::sendToWebsocket(std::string method, nlohmann::json payload){
-
     nlohmann::json temp;
     temp["method"] = method;
     temp["request"] = payload;
@@ -68,17 +66,3 @@ bool ExecAgent::sendToWebsocket(std::string method, nlohmann::json payload){
     endpoint_->send(connection_id, message);
     return true;
 }
-
-// bool ExecAgent::callFranka(hostname, method, payload=None, port=9000, endpoint="mios/core", timeout=100, silent=False):
-//     try:
-//         request = {
-//             "method": method,
-//             "request": payload
-//         }
-//         asyncio.set_event_loop(asyncio.new_event_loop())
-//         return asyncio.get_event_loop().run_until_complete(send(hostname, request=request, port=port,
-//                                                                 endpoint=endpoint, timeout=timeout, silent=silent))
-//     except socket.gaierror as e:
-//         print(e)
-//         print("Hostname: " + hostname + ", port:" + str(port) + ", endpoint: " + endpoint)
-//         return None

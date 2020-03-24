@@ -1,236 +1,362 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <assembly root="ABCDEFGH">
-    <nodes>
-        <node name="ABCDEFGH" type="OR"/>
-        <node name="ABCDEF"   type="OR"/>
-        <node name="CDEFGH"   type="OR"/>
-        <node name="ABCD"     type="OR"/>
-        <node name="CDEF"     type="OR"/>
-        <node name="EFGH"     type="OR"/>
-        <node name="AB"       type="OR"/>
-        <node name="CD"       type="OR"/>
-        <node name="EF"       type="OR"/>
-        <node name="GH"       type="OR"/>
-        <node name="A"        type="OR"/>
-        <node name="B"        type="OR"/>
-        <node name="C"        type="OR"/>
-        <node name="D"        type="OR"/>
-        <node name="E"        type="OR"/>
-        <node name="F"        type="OR"/>
-        <node name="G"        type="OR"/>
-        <node name="H"        type="OR"/> 
-        <node name="a1"       type="AND"/>
-        <node name="a2"       type="AND"/>
-        <node name="a3"       type="AND"/>
-        <node name="a4"       type="AND"/>
-        <node name="a5"       type="AND"/>
-        <node name="a6"       type="AND"/>
-        <node name="a7"       type="AND"/>
-        <node name="a8"       type="AND"/>
-        <node name="a9"       type="AND"/>
-        <node name="a10"      type="AND"/>
-        <node name="a11"      type="AND"/>
-        <node name="a12"      type="AND"/>
-    </nodes>
+    <graph>
+        <nodes>
+            <node name="ABCDEFGH" type="OR"/>
+            <node name="ABCDEF"   type="OR"/>
+            <node name="CDEFGH"   type="OR"/>
+            <node name="ABCD"     type="OR"/>
+            <node name="CDEF"     type="OR"/>
+            <node name="EFGH"     type="OR"/>
+            <node name="AB"       type="OR"/>
+            <node name="CD"       type="OR"/>
+            <node name="EF"       type="OR"/>
+            <node name="GH"       type="OR"/>
+            <node name="A"        type="OR"/>
+            <node name="B"        type="OR"/>
+            <node name="C"        type="OR"/>
+            <node name="D"        type="OR"/>
+            <node name="E"        type="OR"/>
+            <node name="F"        type="OR"/>
+            <node name="G"        type="OR"/>
+            <node name="H"        type="OR"/> 
+            <node name="a1"       type="AND"/>
+            <node name="a2"       type="AND"/>
+            <node name="a3"       type="AND"/>
+            <node name="a4"       type="AND"/>
+            <node name="a5"       type="AND"/>
+            <node name="a6"       type="AND"/>
+            <node name="a7"       type="AND"/>
+            <node name="a8"       type="AND"/>
+            <node name="a9"       type="AND"/>
+            <node name="a10"      type="AND"/>
+            <node name="a11"      type="AND"/>
+            <node name="a12"      type="AND"/>
+        </nodes>
 
-    <edges>
-        <edge start="ABCDEFGH"  end="a1"/>
-        <edge start="ABCDEFGH"  end="a2"/>
-        <edge start="ABCDEFGH"  end="a3"/>
-        <edge start="a1"        end="ABCDEF"/>
-        <edge start="a1"        end="GH"/>
-        <edge start="a2"        end="ABCD"/>
-        <edge start="a2"        end="EFGH"/>
-        <edge start="a3"        end="AB"/>
-        <edge start="a3"        end="CDEFGH"/>
-        <edge start="ABCDEF"    end="a4"/>
-        <edge start="CDEFGH"    end="a5"/>
-        <edge start="a4"        end="AB"/>
-        <edge start="a4"        end="CDEF"/>
-        <edge start="a5"        end="CDEF"/>
-        <edge start="a5"        end="GH"/>
-        <edge start="ABCD"      end="a6"/>
-        <edge start="CDEF"      end="a7"/>
-        <edge start="EFGH"      end="a8"/>
-        <edge start="a6"        end="AB"/>
-        <edge start="a6"        end="CD"/>
-        <edge start="a7"        end="CD"/>
-        <edge start="a7"        end="EF"/>    
-        <edge start="a8"        end="EF"/>
-        <edge start="a8"        end="GH"/>      
-        <edge start="AB"        end="a9"/>
-        <edge start="CD"        end="a10"/>
-        <edge start="EF"        end="a11"/>
-        <edge start="GH"        end="a12"/>
-        <edge start="a9"        end="A"/>
-        <edge start="a9"        end="B"/>
-        <edge start="a10"       end="C"/>
-        <edge start="a10"       end="D"/>  
-        <edge start="a11"       end="E"/>
-        <edge start="a11"       end="F"/>
-        <edge start="a12"       end="G"/>
-        <edge start="a12"       end="H"/>                                    
-    </edges>
+        <edges>
+            <edge start="ABCDEFGH"  end="a1"/>
+            <edge start="ABCDEFGH"  end="a2"/>
+            <edge start="ABCDEFGH"  end="a3"/>
+            <edge start="a1"        end="ABCDEF"/>
+            <edge start="a1"        end="GH"/>
+            <edge start="a2"        end="ABCD"/>
+            <edge start="a2"        end="EFGH"/>
+            <edge start="a3"        end="AB"/>
+            <edge start="a3"        end="CDEFGH"/>
+            <edge start="ABCDEF"    end="a4"/>
+            <edge start="CDEFGH"    end="a5"/>
+            <edge start="a4"        end="AB"/>
+            <edge start="a4"        end="CDEF"/>
+            <edge start="a5"        end="CDEF"/>
+            <edge start="a5"        end="GH"/>
+            <edge start="ABCD"      end="a6"/>
+            <edge start="CDEF"      end="a7"/>
+            <edge start="EFGH"      end="a8"/>
+            <edge start="a6"        end="AB"/>
+            <edge start="a6"        end="CD"/>
+            <edge start="a7"        end="CD"/>
+            <edge start="a7"        end="EF"/>    
+            <edge start="a8"        end="EF"/>
+            <edge start="a8"        end="GH"/>      
+            <edge start="AB"        end="a9"/>
+            <edge start="CD"        end="a10"/>
+            <edge start="EF"        end="a11"/>
+            <edge start="GH"        end="a12"/>
+            <edge start="a9"        end="A"/>
+            <edge start="a9"        end="B"/>
+            <edge start="a10"       end="C"/>
+            <edge start="a10"       end="D"/>  
+            <edge start="a11"       end="E"/>
+            <edge start="a11"       end="F"/>
+            <edge start="a12"       end="G"/>
+            <edge start="a12"       end="H"/>                                    
+        </edges>
+    </graph>
+    
 
-    <costmap>
+    <actions>
         <action name="a1">
-            <agent name="r1" cost="inf"/>
-            <agent name="r2" cost="inf"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="inf"/>
+                <cost agent="r2" value="inf"/>
+                <cost agent="h"  value="50"/>
+            </costmap>
         </action>
         <action name="a2">
-            <agent name="r1" cost="inf"/>
-            <agent name="r2" cost="inf"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="inf"/>
+                <cost agent="r2" value="inf"/>
+                <cost agent="h"  value="50"/>
+            </costmap>
         </action>
         <action name="a3">
-            <agent name="r1" cost="inf"/>
-            <agent name="r2" cost="inf"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="inf"/>
+                <cost agent="r2" value="inf"/>
+                <cost agent="h"  value="50"/>
+            </costmap>
         </action>
         <action name="a4">
-            <agent name="r1" cost="10"/>
-            <agent name="r2" cost="10"/>
-            <agent name="h"  cost="200"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="10"/>
+                <cost agent="r2" value="10"/>
+                <cost agent="h"  value="200"/>
+            </costmap>
         </action>
         <action name="a5">
-            <agent name="r1" cost="5"/>
-            <agent name="r2" cost="5"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="5"/>
+                <cost agent="r2" value="5"/>
+                <cost agent="h"  value="50"/>
+            </costmap>
         </action>
         <action name="a6">
-            <agent name="r1" cost="20"/>
-            <agent name="r2" cost="10"/>
-            <agent name="h"  cost="30"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="20"/>
+                <cost agent="r2" value="10"/>
+                <cost agent="h"  value="30"/>
+            </costmap>
         </action>
         <action name="a7">
-            <agent name="r1" cost="10"/>
-            <agent name="r2" cost="5"/>
-            <agent name="h"  cost="100"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="10"/>
+                <cost agent="r2" value="5"/>
+                <cost agent="h"  value="100"/>
+            </costmap>
         </action>
         <action name="a8">
-            <agent name="r1" cost="inf"/>
-            <agent name="r2" cost="5"/>
-            <agent name="h"  cost="100"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="inf"/>
+                <cost agent="r2" value="5"/>
+                <cost agent="h"  value="100"/>
+            </costmap>
         </action>
         <action name="a9">
-            <agent name="r1" cost="20"/>
-            <agent name="r2" cost="20"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <cost>
+                <cost agent="r1" value="20"/>
+                <cost agent="r2" value="20"/>
+                <cost agent="h"  value="50"/>
+            </cost>
         </action>
         <action name="a10">
-            <agent name="r1" cost="10"/>
-            <agent name="r2" cost="10"/>
-            <agent name="h"  cost="50"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="10"/>
+                <cost agent="r2" value="10"/>
+                <cost agent="h"  value="50"/>
+            </costmap>
         </action>
         <action name="a11">
-            <agent name="r1" cost="10"/>
-            <agent name="r2" cost="10"/>
-            <agent name="h"  cost="100"/>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost agent="r1" value="10"/>
+                <cost agent="r2" value="10"/>
+                <cost agent="h"  value="100"/>
+            </costmap>
         </action>
         <action name="a12">
-            <agent name="r1" cost="10"/>
-            <agent name="r2" cost="10"/>
-            <agent name="h"  cost="100"/>
-        </action>    
-        <action name="i0">
-            <agent name="r1" cost="inf"/>
-            <agent name="r2" cost="8"/>
-            <agent name="h"  cost="8"/>
-        </action>                                                                     
-    </costmap>
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <cost name="r1" value="10"/>
+                <cost name="r2" value="10"/>
+                <cost name="h"  value="100"/>
+            </costmap>
+        </action>                                                                        
+    </actions>
 
-    <reachabilitymap>
-        <node name="ABCDEFGH">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="ABCDEF">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="CDEFGH">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="ABCD">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="CDEF">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="EFGH">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="AB">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="CD">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="EF">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="GH">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>
-        <node name="A">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="B">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="C">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="D">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="E">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="F">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>
-        <node name="G">
-            <agent name="r1" reachable="True" interaction=""/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="False" interaction="i0"/>
-        </node>      
-        <node name="H">
-            <agent name="r1" reachable="False" interaction="i0"/>
-            <agent name="r2" reachable="True" interaction=""/>
-            <agent name="h"  reachable="True" interaction=""/>
-        </node>                                                                                                  
-    </reachabilitymap>
+    <interactions>
+        <interaction name="i0">
+            <task name="handover">
+                <parameter name="alpha" value="50"/>    
+                <parameter name="beta"  value="44"/> 
+            </task>
+            <costmap>
+                <reach name="r1" cost="inf"/>
+                <reach name="r2" cost="8"/>
+                <reach name="h"  cost="8"/>
+            </costmap>
+        </interaction> 
+    </interactions>
+
+    <subassemblies>
+        <subassembly name="ABCDEFGH">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="ABCDEF">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="CDEFGH">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="ABCD">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="CDEF">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="EFGH">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="AB">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="CD">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="EF">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="GH">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="A">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="B">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="C">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="D">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="E">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="F">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>
+        <subassembly name="G">
+            <reachmap>
+                <reach agent="r1" reachable="True" interaction=""/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="False" interaction="i0"/>
+            </reachmap>
+        </subassembly>      
+        <subassembly name="H">
+            <reachmap>
+                <reach agent="r1" reachable="False" interaction="i0"/>
+                <reach agent="r2" reachable="True" interaction=""/>
+                <reach agent="h"  reachable="True" interaction=""/>
+            </reachmap>
+        </subassembly>                                                                                                  
+    </subassemblies>
+
+    <agents>
+        <agent name="r1" host="localhost" port="9000"/>
+        <agent name="r2" host="localhost" port="9001"/>
+        <agent name="h"  host="localhost" port="9002"/>
+    </agents>
                                               
 </assembly>

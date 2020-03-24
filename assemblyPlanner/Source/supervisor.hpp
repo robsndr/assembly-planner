@@ -8,7 +8,6 @@
 #include <chrono>
 #include <pthread.h> 
 
-
 #include "exec_agent.hpp"
 
 class Supervisor
