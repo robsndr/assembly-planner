@@ -181,3 +181,5 @@ Temporary Items
 .history
 
 # End of https://www.gitignore.io/api/c++,cmake,clion,visualstudiocode,osx
+
+.DS_Store

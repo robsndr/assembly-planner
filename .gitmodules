@@ -13,3 +13,6 @@
 [submodule "assemblyPlanner/Lib/websocketpp"]
 	path = assemblyPlanner/Lib/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "assemblyPlanner/Lib/json"]
+	path = assemblyPlanner/Lib/json
+	url = https://github.com/nlohmann/json.git

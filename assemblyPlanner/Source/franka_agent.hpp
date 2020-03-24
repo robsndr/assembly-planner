@@ -66,3 +66,18 @@ bool FrankaAgent::exec(std::vector< std::vector< Task*>> & plan){
     return true;
 }
 
+
+
+bool FrankaAgent::callFranka(hostname, method, payload=None, port=9000, endpoint="mios/core", timeout=100, silent=False):
+    try:
+        request = {
+            "method": method,
+            "request": payload
+        }
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        return asyncio.get_event_loop().run_until_complete(send(hostname, request=request, port=port,
+                                                                endpoint=endpoint, timeout=timeout, silent=silent))
+    except socket.gaierror as e:
+        print(e)
+        print("Hostname: " + hostname + ", port:" + str(port) + ", endpoint: " + endpoint)
+        return None
