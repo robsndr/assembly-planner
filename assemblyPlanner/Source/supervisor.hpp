@@ -1,9 +1,13 @@
+#pragma once
+
 #include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <chrono>
+#include <pthread.h> 
+
 
 #include "exec_agent.hpp"
 
@@ -13,7 +17,6 @@ private:
     WebsocketEndpoint *endpoint_;
     std::unordered_map<std::string, std::string> configuration_;
     std::unordered_map<std::string, ExecAgent*> agents_;
-
 
 public:
     Supervisor(std::unordered_map<std::string, std::string> &);
@@ -43,16 +46,19 @@ Supervisor::~Supervisor()
 
 bool Supervisor::run(std::vector< std::vector< Task*>> & plan){
     
+    std::cout << "Run in Supervisor." << std::endl;
     for(auto step : plan)
     {
+        websocket_sync::semaphore.reset(step.size()); // number of threads to sync
+        
+        
         for(auto var: step)
         {
             agents_[var->agent_]->exec(var->action_);            
         }
-        std::string input;
-        std::cout << "Run step in Plan. Press button to continue.";
-        std::getline(std::cin, input);
-        std::cout << std::endl;
+        websocket_sync::semaphore.wait();
+
+        std::cout << "Step Completed." << std::endl;
     }
     return true;
 }

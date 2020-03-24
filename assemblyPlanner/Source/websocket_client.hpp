@@ -1,8 +1,12 @@
+#pragma once
+
 #include <websocketpp/config/asio_no_tls_client.hpp>
 #include <websocketpp/client.hpp>
 
 #include <websocketpp/common/thread.hpp>
 #include <websocketpp/common/memory.hpp>
+
+#include "websocket_sync.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -54,6 +58,7 @@ public:
             m_messages.push_back("<< " + msg->get_payload());
             std::cout << "Got some shit at connection: " << get_id() << std::endl;
             std::cout << "<< " + msg->get_payload() << std::endl;
+            websocket_sync::semaphore.notify();
         } else {
             m_messages.push_back("<< " + websocketpp::utility::to_hex(msg->get_payload()));
         }
