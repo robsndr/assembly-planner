@@ -28,12 +28,12 @@ INCLUDE_DIRECTORIES("/usr/local/include/libmongoc-1.0")
 INCLUDE_DIRECTORIES("/usr/local/include/libbson-1.0")
 
 
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3 -DNDEBUG -pthread")
 
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/tinyxml2") # Search for function declarations inLib/*.hpp
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/argparse/include") # Search for function declarations inLib/*.hpp
 INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/websocketpp")
+INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/Lib/json/single_include")
 
 
 ADD_EXECUTABLE(planner Source/main.cpp Lib/tinyxml2/tinyxml2.cpp)

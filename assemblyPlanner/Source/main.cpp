@@ -9,7 +9,7 @@
 #include "dotwriter.hpp"
 #include "input_reader.hpp"
 #include "argparse.hpp"
-#include "franka_agent.hpp"
+#include "supervisor.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -56,10 +56,14 @@ int main(int argc, char *argv[])
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-        FrankaAgent execution_agent(assembly);
-        std::cout << "KUPA";
-        execution_agent.exec(assembly_plan);
-        std::cout << "KUPA";
+
+        std::unordered_map<std::string, std::string> agent_config;
+        agent_config["r1"] = "localhost:9000";
+        agent_config["r2"] = "localhost:9001";
+        agent_config["h"]  = "localhost:9002";
+
+        Supervisor execution_supervisor(agent_config);
+        execution_supervisor.run(assembly_plan);
 
     }
     catch (const std::runtime_error &err)

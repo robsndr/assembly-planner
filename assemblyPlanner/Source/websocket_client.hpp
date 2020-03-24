@@ -52,6 +52,8 @@ public:
     void on_message(websocketpp::connection_hdl, client::message_ptr msg) {
         if (msg->get_opcode() == websocketpp::frame::opcode::text) {
             m_messages.push_back("<< " + msg->get_payload());
+            std::cout << "Got some shit at connection: " << get_id() << std::endl;
+            std::cout << "<< " + msg->get_payload() << std::endl;
         } else {
             m_messages.push_back("<< " + websocketpp::utility::to_hex(msg->get_payload()));
         }

@@ -43,6 +43,8 @@ class MyServerProtocol(WebSocketServerProtocol):
             print("Text message received: {0}".format(payload.decode('utf8')))
 
         # echo back message verbatim
+        input("Press key to echo back.")
+
         self.sendMessage(payload, isBinary)
 
     def onClose(self, wasClean, code, reason):
@@ -58,11 +60,11 @@ if __name__ == '__main__':
 
     log.startLogging(sys.stdout)
 
-    factory = WebSocketServerFactory("ws://127.0.0.1:9000")
+    factory = WebSocketServerFactory("ws://127.0.0.1:9002")
     factory.protocol = MyServerProtocol
     # factory.setProtocolOptions(maxConnections=2)
 
     # note to self: if using putChild, the child must be bytes...
 
-    reactor.listenTCP(9000, factory)
+    reactor.listenTCP(9002, factory)
     reactor.run()
