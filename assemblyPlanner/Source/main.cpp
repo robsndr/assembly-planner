@@ -41,10 +41,12 @@ int main(int argc, char *argv[])
     try
     {
         InputReader rdr(input);
-        Config *config;
+        config::Configuration *config2;
+        Config* config;
+
         bool result;
 
-        std::tie(assembly, config, result) = rdr.read("assembly");
+        std::tie(assembly, config, result, config2) = rdr.read("assembly");
 
         if (!result)
         {
@@ -56,14 +58,8 @@ int main(int argc, char *argv[])
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-
-        std::unordered_map<std::string, std::string> agent_config;
-        agent_config["r1"] = "localhost:9000";
-        agent_config["r2"] = "localhost:9001";
-        agent_config["h"]  = "localhost:9002";
-
-        Supervisor execution_supervisor(agent_config);
-        execution_supervisor.run(assembly_plan);
+        // Supervisor execution_supervisor(config->agents_);
+        // execution_supervisor.run(assembly_plan);
 
     }
     catch (const std::runtime_error &err)

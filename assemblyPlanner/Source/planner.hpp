@@ -20,6 +20,7 @@ private:
     // Container used to track the resulting optimal assembly sequence.
     // Vector of Tuples containing <action_pointer, agent_name, cost>
     std::vector<std::vector<Task*>> assembly_plan_;
+    Graph<> *search_graph;
 };
 
 /* Start Plannning.
@@ -34,8 +35,8 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     // Create a new Graph.
     // It is a different Graph the the one passed as a function parameter.
     // This one is the graph of Hypernodes used later for the A* search.
-    Graph<> search_graph;
-    Node *new_root = search_graph.insertNode(root->data_);
+    search_graph = new Graph<>();
+    Node *new_root = search_graph->insertNode(root->data_);
 
     // Set the subassemblies and actions of the first supernode.
     // The actions correspond to all possible moves we can take in the first supernode.
@@ -49,11 +50,11 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     // The AStarSearch uses the received Expander later during the search.
     // If a different expansion-behavior is desired, just modify the exapnder,
     // obeying to the interface used by the AStarSearch.
-    NodeExpander expander(&search_graph, config);
+    NodeExpander *expander = new NodeExpander(search_graph, config);
 
     // AStarSearch algorithm
     AStarSearch astar;
-    Node *result = astar.search(&search_graph, new_root, &expander);
+    Node *result = astar.search(search_graph, new_root, expander);
 
     // Container used to represent the found agent-action assignement and its cost in a current step.
     // Vector of Tuples containing <action_pointer, agent_name, cost>
@@ -86,11 +87,8 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
     std::cout << "Cost: " << cost << std::endl << std::endl;
     std::cout << "- - - -  - - - -  - - - -  - - - -  - - - -  - - - - " << std::endl << std::endl;
 
-    // delete search_graph;
+    delete search_graph;
+    delete expander;
 
     return assembly_plan_;
 }
-
-// Planner::~Planner(){
-//     delete
-// }

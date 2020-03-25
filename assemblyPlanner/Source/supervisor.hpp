@@ -31,6 +31,7 @@ Supervisor::Supervisor(std::unordered_map<std::string, std::string> & config)
     for(auto kv : configuration_) {
         std::string agent_id = kv.first;
         std::string agent_host = kv.second;
+        std::cout << agent_host << "   ";
         agents_[agent_id] = new ExecAgent(endpoint_, agent_host);
     } 
 }

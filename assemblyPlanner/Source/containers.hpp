@@ -121,9 +121,46 @@ public:
     std::set<std::string> set_of_parts_;
 };
 
+namespace config{
+    struct Parameter{
+        std::string name;
+        std::string value;
+    };
+
+    struct Task{
+        std::string name;
+        std::vector<Parameter> params;
+    };
+
+    struct Action{
+        std::string name;
+        Task task;
+        std::unordered_map<std::string, double> costs;
+    };
+
+    struct Subassembly{
+        std::string name;
+        std::unordered_map<std::string, std::pair<bool, std::string>> reachability;
+    };
+    
+    struct Agent{
+        std::string name;
+        std::string hostname;
+        std::string port;
+    };
+
+    struct Configuration{
+        std::unordered_map<std::string, Agent>  agents;
+        std::unordered_map<std::string, Action> actions;
+        std::unordered_map<std::string, Subassembly> subassemblies;
+    };
+}
+
+
 class Config
 {
 public:
     CostMap *costs_;
     ReachMap *reach_;
+    std::unordered_map<std::string, std::string> agents_;
 };
