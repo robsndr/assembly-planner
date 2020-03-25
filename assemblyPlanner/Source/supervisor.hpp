@@ -15,24 +15,20 @@ class Supervisor
 private:
     WebsocketEndpoint *endpoint_;
     std::vector< std::vector< Task*>> plan_;
-    std::unordered_map<std::string, std::string> configuration_;
     std::unordered_map<std::string, ExecAgent*> agents_;
 
 public:
-    Supervisor(std::unordered_map<std::string, std::string> &);
+    Supervisor(config::Configuration *);
     ~Supervisor();
     bool run(std::vector< std::vector< Task*>> & plan);
 };
 
-Supervisor::Supervisor(std::unordered_map<std::string, std::string> & config)
+Supervisor::Supervisor(config::Configuration * config)
 {
     endpoint_ = new WebsocketEndpoint;
-    configuration_ = config;
-    for(auto kv : configuration_) {
-        std::string agent_id = kv.first;
-        std::string agent_host = kv.second;
-        std::cout << agent_host << "   ";
-        agents_[agent_id] = new ExecAgent(endpoint_, agent_host);
+    for(auto kv : config->agents) {
+        config::Agent temp_agent = kv.second;
+        agents_[temp_agent.name] = new ExecAgent(endpoint_, temp_agent.hostname, temp_agent.port);
     } 
 }
 

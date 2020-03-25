@@ -41,12 +41,11 @@ int main(int argc, char *argv[])
     try
     {
         InputReader rdr(input);
-        config::Configuration *config2;
-        Config* config;
+        config::Configuration *config;
 
         bool result;
 
-        std::tie(assembly, config, result, config2) = rdr.read("assembly");
+        std::tie(assembly, config, result) = rdr.read("assembly");
 
         if (!result)
         {
@@ -54,12 +53,12 @@ int main(int argc, char *argv[])
             std::cout << "/ Could not read Input File /." << std::endl;
             return false;
         }
-
+        
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-        // Supervisor execution_supervisor(config->agents_);
-        // execution_supervisor.run(assembly_plan);
+        Supervisor execution_supervisor(config);
+        execution_supervisor.run(assembly_plan);
 
     }
     catch (const std::runtime_error &err)

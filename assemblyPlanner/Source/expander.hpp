@@ -19,7 +19,7 @@ class NodeExpander
 
 public:
     // Constructr / Destructor
-    NodeExpander(Graph<> *, Config *);
+    NodeExpander(Graph<> *, config::Configuration *);
     ~NodeExpander();
 
     // Node Expansion function.
@@ -35,8 +35,7 @@ private:
     Graph<> *search_graph_;
 
     // Pointers to cost/reach maps provided by the InputReader.
-    CostMap *costs_;
-    ReachMap *reach_;
+    config::Configuration * config;
 
     // Assgnemtn generation object and assignemnt container
     Combinator *assignment_generator;
@@ -50,12 +49,11 @@ private:
 
 /* NodeExpander Constructor.
 **/
-NodeExpander::NodeExpander(Graph<> *graph, Config *config)
+NodeExpander::NodeExpander(Graph<> *graph, config::Configuration * conf)
 {
     search_graph_ = graph;
-    costs_ = config->costs_;
-    reach_ = config->reach_;
-    assignment_generator = new Combinator(costs_);
+    config = conf;
+    assignment_generator = new Combinator(config);
 }
 
 /* NodeExpander Destructor.
@@ -137,7 +135,7 @@ void NodeExpander::expandNode(Node *node)
             // For the currently applied assignement, update the subassemblies of the new supernode.
             for (auto &or_successor : action_ptr->getSuccessorNodes())
             {
-                bool part_reachable = std::get<0>(reach_->map_[or_successor->data_.name][agent]);
+                bool part_reachable = std::get<0>(config->subassemblies[or_successor->data_.name].reachability[agent]);
 
                 Node *successor;
 
@@ -145,8 +143,8 @@ void NodeExpander::expandNode(Node *node)
                 {
                     // Part not reachable
                     // Add Interaction
-                    std::string interaction_name = std::get<1>(reach_->map_[or_successor->data_.name][agent]);
-                    double interaction_cost = costs_->map_[interaction_name][agent];
+                    std::string interaction_name = std::get<1>(config->subassemblies[or_successor->data_.name].reachability[agent]);
+                    double interaction_cost = config->actions[interaction_name].costs[agent];
                     successor = createInteraction(or_successor, interaction_name, interaction_cost); // interaction inserted
                 }
                 else
@@ -162,13 +160,13 @@ void NodeExpander::expandNode(Node *node)
             }
 
             // Update the minimum cost which can be achieved by any agent for any available action.
-            if (costs_->map_[action][agent] < min_action_agent_cost_)
+            if (config->actions[action].costs[agent] < min_action_agent_cost_)
             {
-                min_action_agent_cost_ = costs_->map_[action][agent];
+                min_action_agent_cost_ = config->actions[action].costs[agent];
             }
 
             // Update edge data.
-            edata.cost += costs_->map_[action][agent];
+            edata.cost += config->actions[action].costs[agent];
             edata.agent_actions_.push_back(std::make_pair(action_ptr, agent));
         }
 

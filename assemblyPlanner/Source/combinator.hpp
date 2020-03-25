@@ -11,7 +11,7 @@ class Combinator
 {
 
 public:
-    Combinator(CostMap *);
+    Combinator(config::Configuration *);
     ~Combinator();
 
     std::vector<std::vector<std::tuple<std::string, std::string, Node *>>> *
@@ -40,12 +40,12 @@ private:
     std::vector<std::vector<std::tuple<std::string, Node *>>> temp_action_combinations_;
     std::vector<std::tuple<std::string, Node *>> temp_action_set_;
 
-    CostMap *cost_map_;
+    config::Configuration *config_;
 };
 
-Combinator::Combinator(CostMap *costs)
+Combinator::Combinator(config::Configuration *config)
 {
-    cost_map_ = costs;
+    config_ = config;
 }
 
 Combinator::~Combinator() {}
@@ -56,17 +56,23 @@ std::vector<std::vector<std::tuple<std::string, std::string, Node *>>> *
 Combinator::generateAgentActionAssignments(std::vector<Node *> &nodes)
 {
 
-    std::size_t l = std::min(nodes.size(), cost_map_->number_of_agents_);
+    std::size_t l = std::min(nodes.size(), config_->agents.size());
 
     generateActionCombinationSets(nodes);
 
     agent_action_assignements_.clear();
 
+    std::vector<std::string> vector_of_agents;
+    for (auto &key_value : config_->agents){
+        vector_of_agents.push_back(key_value.second.name);
+    }
+    
+
     for (size_t j = 1; j <= l; j++)
     {
         // std::cout << "Brun" << std::endl;
 
-        generateAgentCombinationSets(cost_map_->vector_of_agents_, j);
+        generateAgentCombinationSets(vector_of_agents, j);
 
         for (auto &agents : temp_agent_combinations_)
         {

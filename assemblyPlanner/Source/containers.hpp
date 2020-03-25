@@ -52,75 +52,6 @@ public:
     double cost = 0;
 };
 
-template <class temptype = std::size_t>
-class BaseMap
-{
-public:
-    BaseMap() {}
-
-    virtual void addMapping(std::string, std::string, temptype) = 0;
-
-    std::unordered_map<std::string, std::unordered_map<std::string, temptype>> map_;
-
-    std::vector<std::string> vector_of_agents_;
-    std::size_t number_of_agents_;
-    std::set<std::string> set_of_agents_;
-};
-
-class CostMap : public BaseMap<double>
-{
-
-public:
-    void addMapping(std::string action, std::string agent, double cost)
-    {
-        // Lets insert four elements
-        bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
-        if (!is_in)
-            vector_of_agents_.push_back(agent);
-        set_of_agents_.insert(agent);
-
-        is_in = set_of_actions_.find(action) != set_of_actions_.end();
-        if (!is_in)
-            vector_of_actions_.push_back(action);
-        set_of_actions_.insert(action);
-
-        map_[action][agent] = cost;
-        number_of_actions_ = vector_of_actions_.size();
-        number_of_agents_ = vector_of_agents_.size();
-    };
-
-    std::size_t number_of_actions_;
-    std::vector<std::string> vector_of_actions_;
-    std::set<std::string> set_of_actions_;
-};
-
-class ReachMap : public BaseMap<std::pair<bool, std::string>>
-{
-
-public:
-    void addMapping(std::string part, std::string agent, std::pair<bool, std::string> reach)
-    {
-        // Lets insert four elements
-        bool is_in = set_of_agents_.find(agent) != set_of_agents_.end();
-        if (!is_in)
-            vector_of_agents_.push_back(agent);
-        set_of_agents_.insert(agent);
-
-        is_in = set_of_parts_.find(part) != set_of_parts_.end();
-        if (!is_in)
-            vector_of_parts_.push_back(part);
-        set_of_parts_.insert(part);
-
-        map_[part][agent] = reach;
-        number_of_parts_ = vector_of_parts_.size();
-        number_of_agents_ = vector_of_agents_.size();
-    };
-
-    std::size_t number_of_parts_;
-    std::vector<std::string> vector_of_parts_;
-    std::set<std::string> set_of_parts_;
-};
-
 namespace config{
     struct Parameter{
         std::string name;
@@ -156,11 +87,3 @@ namespace config{
     };
 }
 
-
-class Config
-{
-public:
-    CostMap *costs_;
-    ReachMap *reach_;
-    std::unordered_map<std::string, std::string> agents_;
-};

@@ -14,7 +14,7 @@ class Planner
 {
 public:
     // Start Planning
-    std::vector< std::vector<Task*>> operator()(Graph<> *, Node *, Config *);
+    std::vector< std::vector<Task*>> operator()(Graph<> *, Node *, config::Configuration * );
 
 private:
     // Container used to track the resulting optimal assembly sequence.
@@ -30,7 +30,7 @@ private:
     \return: vector containing the assembly plan
 **/
 std::vector< std::vector<Task*>> 
-Planner::operator()(Graph<> *graph, Node *root, Config *config)
+Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
 {
     // Create a new Graph.
     // It is a different Graph the the one passed as a function parameter.
@@ -71,7 +71,7 @@ Planner::operator()(Graph<> *graph, Node *root, Config *config)
         {
             std::string action_name = i.first->data_.name;
             std::string agent_name = i.second;
-            double cur_cost = config->costs_->map_[action_name][agent_name];
+            double cur_cost = config->actions[action_name].costs[agent_name];
 
             std::cout << "Action: " << action_name << " Agent: " << agent_name << "    ";
             cost += cur_cost;

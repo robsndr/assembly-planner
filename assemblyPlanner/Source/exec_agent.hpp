@@ -15,7 +15,7 @@
 class ExecAgent
 {
 public:
-    ExecAgent(WebsocketEndpoint*, std::string);
+    ExecAgent(WebsocketEndpoint*, std::string, std::string);
     ~ExecAgent();
     bool exec(std::string);
     bool sendToWebsocket(std::string, nlohmann::json);
@@ -25,9 +25,9 @@ private:
     int connection_id;
 };
 
-ExecAgent::ExecAgent(WebsocketEndpoint* endpoint, std::string host){ 
+ExecAgent::ExecAgent(WebsocketEndpoint* endpoint, std::string host, std::string port){ 
         std::cout<< "Franka Agent." << std::endl;
-        std::string uri = "ws://" + host;
+        std::string uri = "ws://" + host + ":" + port;
         endpoint_ = endpoint;
         connection_id = endpoint_->connect(uri);
         if (connection_id != -1) {

@@ -36,7 +36,7 @@ public:
     ~InputReader();
 
     // Read the provided XML representing the assembly with agents, costs...
-    std::tuple<Graph<> *, Config*, bool, config::Configuration *> read(std::string);
+    std::tuple<Graph<> *, config::Configuration*, bool> read(std::string);
 
 private:
 
@@ -62,9 +62,8 @@ private:
     
     GraphGenerator *graph_gen;
     Graph<> *graph;
-    Config *config;
 
-    config::Configuration *config2;
+    config::Configuration *config;
 };
 
 /* Constructorr.
@@ -82,11 +81,7 @@ InputReader::InputReader(std::string path)
     // Allocate objects    
     graph = new Graph;
     graph_gen = new GraphGenerator(graph);
-    config = new Config;
-    config->costs_ = new CostMap;
-    config->reach_ = new ReachMap;
-
-    config2 = new config::Configuration;
+    config = new config::Configuration;
 }
 
 /* Destructor.
@@ -96,8 +91,6 @@ InputReader::~InputReader()
 {
     delete doc;
     delete graph;
-    delete config->costs_;
-    delete config->reach_;
     delete config;
     delete graph_gen;
 }
@@ -107,7 +100,7 @@ InputReader::~InputReader()
     \return: tuple containg the graph, config represented inside the XML 
              and a boolean indicating success.
 **/
-std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(std::string root_name)
+std::tuple<Graph<> *, config::Configuration*, bool> InputReader::read(std::string root_name)
 {
 
     // Find the root node of the document.
@@ -115,7 +108,7 @@ std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(
     if (root == nullptr)
     {
         std::cerr << "XML: Could not find root element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
@@ -124,12 +117,12 @@ std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(
     if (graph_e == nullptr)
     {
         std::cerr << "XML: Could not find graph element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
     if (parse_graph(graph_e) == tinyxml2::XML_ERROR_PARSING)
     {
         std::cerr << "XML: Error Parsing Graph." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
@@ -138,12 +131,12 @@ std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(
     if (actions_e == nullptr)
     {
         std::cerr << "XML: Could not find actions element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
     if (parse_actions(actions_e) == tinyxml2::XML_ERROR_PARSING)
     {
         std::cerr << "XML: Error Parsing Actions." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
@@ -152,12 +145,12 @@ std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(
     if (subassemblies_e == nullptr)
     {
         std::cerr << "XML: Could not find subassemblies element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
     if (parse_subassemblies(subassemblies_e) == tinyxml2::XML_ERROR_PARSING)
     {
         std::cerr << "XML: Error Parsing subassemblies." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
@@ -166,24 +159,24 @@ std::tuple<Graph<> *, Config*, bool, config::Configuration *> InputReader::read(
     if (agents_e == nullptr)
     {
         std::cerr << "XML: Could not find agents element." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
     if (parse_agents(agents_e) == tinyxml2::XML_ERROR_PARSING)
     {
         std::cerr << "XML: Error Parsing agents." << std::endl;
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
     }
 
 
     const char *attribute_text = nullptr;
     attribute_text = root->Attribute("root");
     if (attribute_text == NULL)
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
 
     if (!graph_gen->setRoot(attribute_text))
-        return std::make_tuple(nullptr, nullptr, false, nullptr);
+        return std::make_tuple(nullptr, nullptr, false);
 
-    return std::make_tuple(graph_gen->graph_, config, true, config2);
+    return std::make_tuple(graph_gen->graph_, config, true);
 }
 
 int InputReader::parse_graph(tinyxml2::XMLNode *graph_root){
@@ -316,7 +309,7 @@ int InputReader::parse_actions(tinyxml2::XMLNode *actions_root){
             return tinyxml2::XML_ERROR_PARSING;
         }
 
-        config2->actions[action_name] = action_temp;
+        config->actions[action_name] = action_temp;
         // for (auto &i : action_temp.costs){
         //     std::cout << i.second << std::endl;
         // }
@@ -357,7 +350,7 @@ int InputReader::parse_subassemblies(tinyxml2::XMLNode *subass_root){
             return tinyxml2::XML_ERROR_PARSING;
         }
 
-        config2->subassemblies[subassembly_name] = subassembly_temp;
+        config->subassemblies[subassembly_name] = subassembly_temp;
     }
 
     return tinyxml2::XML_SUCCESS;
@@ -404,13 +397,9 @@ int InputReader::parse_reachmap(std::string part_name, tinyxml2::XMLNode *reachm
 
         if (agent_part_reach == "false")
         {
-            std::pair<bool, std::string> reach_value(false, interaction);
-            config->reach_->addMapping(part_name, agent_name, reach_value);
             subassembly.reachability[agent_name] = std::make_pair(false, interaction); 
 
-            bool is_in = config->costs_->set_of_actions_.find(interaction) != config->costs_->set_of_actions_.end();
-            if (!is_in)
-            {
+            if ( config->actions.find(interaction) == config->actions.end() ) {
                 std::cerr << "XML: Wrong name of interaction."
                             << "  Interaction: " << interaction
                             << "  was not provided in CostMap." << std::endl;
@@ -420,9 +409,7 @@ int InputReader::parse_reachmap(std::string part_name, tinyxml2::XMLNode *reachm
         }
         else if (agent_part_reach == "true")
         {
-            std::pair<bool, std::string> reach_value(true, interaction);
-            config->reach_->addMapping(part_name, agent_name, reach_value);
-            subassembly.reachability[agent_name] = std::make_pair(false, interaction); 
+            subassembly.reachability[agent_name] = std::make_pair(true, interaction); 
         }
         else
         {
@@ -471,12 +458,10 @@ int InputReader::parse_costmap(std::string action_name, tinyxml2::XMLNode *costm
         if (cost_value == "inf")
         {
             act.costs[agent_name] = INT_MAX;
-            config->costs_->addMapping(action_name, agent_name, INT_MAX);
         }
         else if (is_float(cost_value))
         {
             act.costs[agent_name] = std::stod(cost_value);
-            config->costs_->addMapping(action_name, agent_name, std::stod(cost_value));
         }
         else
         {
@@ -525,13 +510,8 @@ int InputReader::parse_agents(tinyxml2::XMLNode *agents_root){
         agent_temp.hostname = host;
         agent_temp.port = port;
 
-        config->agents_[agent_name] = host + ":" + port;
-
-        config2->agents[agent_name] = agent_temp;
+        config->agents[agent_name] = agent_temp;
     }
-
-
-
 
     return tinyxml2::XML_SUCCESS;
 }
