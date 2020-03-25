@@ -57,13 +57,13 @@ int main(int argc, char *argv[])
         assembly_plan = planner(assembly, assembly->root_, config);
 
 
-        // std::unordered_map<std::string, std::string> agent_config;
-        // agent_config["r1"] = "localhost:9000";
-        // agent_config["r2"] = "localhost:9001";
-        // agent_config["h"]  = "localhost:9002";
+        std::unordered_map<std::string, std::string> agent_config;
+        agent_config["r1"] = "localhost:9000";
+        agent_config["r2"] = "localhost:9001";
+        agent_config["h"]  = "localhost:9002";
 
-        // Supervisor execution_supervisor(agent_config);
-        // execution_supervisor.run(assembly_plan);
+        Supervisor execution_supervisor(agent_config);
+        execution_supervisor.run(assembly_plan);
 
     }
     catch (const std::runtime_error &err)
@@ -76,5 +76,5 @@ int main(int argc, char *argv[])
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
     std::cout << "Duration: "<< duration << "ms.";
 
-    return 1;
+    return 0;
 }

@@ -14,6 +14,7 @@ class Supervisor
 {
 private:
     WebsocketEndpoint *endpoint_;
+    std::vector< std::vector< Task*>> plan_;
     std::unordered_map<std::string, std::string> configuration_;
     std::unordered_map<std::string, ExecAgent*> agents_;
 
@@ -36,6 +37,13 @@ Supervisor::Supervisor(std::unordered_map<std::string, std::string> & config)
 
 Supervisor::~Supervisor()
 {
+
+    for(auto step : plan_){
+        for(auto task: step){
+            delete task;
+        }
+    }
+
     for(auto kv : agents_) {
         ExecAgent* _ = kv.second;
         delete _;
@@ -45,6 +53,7 @@ Supervisor::~Supervisor()
 
 bool Supervisor::run(std::vector< std::vector< Task*>> & plan){
     
+    plan_ = plan;
     std::cout << "Run in Supervisor." << std::endl;
     for(auto step : plan)
     {
