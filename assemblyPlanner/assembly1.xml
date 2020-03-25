@@ -169,11 +169,11 @@
                 <parameter name="alpha" value="50"/>    
                 <parameter name="beta"  value="44"/> 
             </task>
-            <cost>
+            <costmap>
                 <cost agent="r1" value="20"/>
                 <cost agent="r2" value="20"/>
                 <cost agent="h"  value="50"/>
-            </cost>
+            </costmap>
         </action>
         <action name="a10">
             <task name="handover">
@@ -203,15 +203,12 @@
                 <parameter name="beta"  value="44"/> 
             </task>
             <costmap>
-                <cost name="r1" value="10"/>
-                <cost name="r2" value="10"/>
-                <cost name="h"  value="100"/>
+                <cost agent="r1" value="10"/>
+                <cost agent="r2" value="10"/>
+                <cost agent="h"  value="100"/>
             </costmap>
-        </action>                                                                        
-    </actions>
-
-    <interactions>
-        <interaction name="i0">
+        </action>
+        <action name="i0">
             <task name="handover">
                 <parameter name="alpha" value="50"/>    
                 <parameter name="beta"  value="44"/> 
@@ -221,8 +218,8 @@
                 <reach name="r2" cost="8"/>
                 <reach name="h"  cost="8"/>
             </costmap>
-        </interaction> 
-    </interactions>
+        </action>                                                                         
+    </actions>
 
     <subassemblies>
         <subassembly name="ABCDEFGH">
