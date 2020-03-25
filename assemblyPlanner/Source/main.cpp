@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
             return false;
         }
 
-        // Planner planner;
-        // assembly_plan = planner(assembly, assembly->root_, config);
+        Planner planner;
+        assembly_plan = planner(assembly, assembly->root_, config);
 
 
         // std::unordered_map<std::string, std::string> agent_config;

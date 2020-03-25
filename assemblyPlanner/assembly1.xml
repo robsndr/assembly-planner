@@ -214,9 +214,9 @@
                 <parameter name="beta"  value="44"/> 
             </task>
             <costmap>
-                <reach name="r1" cost="inf"/>
-                <reach name="r2" cost="8"/>
-                <reach name="h"  cost="8"/>
+                <cost agent="r1" value="inf"/>
+                <cost agent="r2" value="8"/>
+                <cost agent="h"  value="8"/>
             </costmap>
         </action>                                                                         
     </actions>

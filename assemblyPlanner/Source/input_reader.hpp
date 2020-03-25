@@ -41,13 +41,18 @@ public:
 private:
 
     int parse_graph(tinyxml2::XMLNode *);
-    int parse_actions(tinyxml2::XMLNode *);
-
-    // Parse the particular parts of the XML input.
     int parse_nodes(tinyxml2::XMLNode *);
     int parse_edges(tinyxml2::XMLNode *);
+
+    int parse_actions(tinyxml2::XMLNode *);
     int parse_costmap(std::string, tinyxml2::XMLNode *);
-    int parse_reachmap(tinyxml2::XMLNode *);
+
+    int parse_subassemblies(tinyxml2::XMLNode *);
+    int parse_reachmap(std::string, tinyxml2::XMLNode *);
+
+    int parse_agents(tinyxml2::XMLNode *);
+
+    // Parse the particular parts of the XML input.
 
     // XML Root Element
     tinyxml2::XMLElement *root;
@@ -124,7 +129,7 @@ std::tuple<Graph<> *, Config *, bool> InputReader::read(std::string root_name)
     }
 
 
-    // Find the top-level elements for the <actions/> structure
+    // Find and Parse the top-level elements for the <actions/> tree.
     tinyxml2::XMLElement *actions_e = root->FirstChildElement("actions");
     if (actions_e == nullptr)
     {
@@ -137,49 +142,27 @@ std::tuple<Graph<> *, Config *, bool> InputReader::read(std::string root_name)
         return std::make_tuple(nullptr, nullptr, false);
     }
 
-    // tinyxml2::XMLElement *costmap_e = root->FirstChildElement("costmap");
-    // if (costmap_e == nullptr)
-    // {
-    //     std::cerr << "XML: Could not find costmap element." << std::endl;
-    //     return std::make_tuple(nullptr, nullptr, false);
-    // }
 
-    // tinyxml2::XMLElement *interactions_e = root->FirstChildElement("interactions");
-    // if (interactions_e == nullptr)
-    // {
-    //     std::cerr << "XML: Could not find interactions element." << std::endl;
-    //     return std::make_tuple(nullptr, nullptr, false);
-    // }
+    // Find and Parse the top-level elements for the <subassemblies/> tree.
+    tinyxml2::XMLElement *subassemblies_e = root->FirstChildElement("subassemblies");
+    if (subassemblies_e == nullptr)
+    {
+        std::cerr << "XML: Could not find subassemblies element." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
+    if (parse_subassemblies(subassemblies_e) == tinyxml2::XML_ERROR_PARSING)
+    {
+        std::cerr << "XML: Error Parsing subassemblies." << std::endl;
+        return std::make_tuple(nullptr, nullptr, false);
+    }
 
-    // tinyxml2::XMLElement *subassemblies_e = root->FirstChildElement("subassemblies");
-    // if (subassemblies_e == nullptr)
-    // {
-    //     std::cerr << "XML: Could not find subassemblies element." << std::endl;
-    //     return std::make_tuple(nullptr, nullptr, false);
-    // }
+    const char *attribute_text = nullptr;
+    attribute_text = root->Attribute("root");
+    if (attribute_text == NULL)
+        return std::make_tuple(nullptr, nullptr, false);
 
-
-
-
-    // if (parse_costmap(costmap_e) == tinyxml2::XML_ERROR_PARSING)
-    // {
-    //     std::cerr << "XML: Error Parsing CostMap." << std::endl;
-    //     return std::make_tuple(nullptr, nullptr, false);
-    // }
-
-    // if (parse_reachmap(reachmap_e) == tinyxml2::XML_ERROR_PARSING)
-    // {
-    //     std::cerr << "XML: Error Parsing ReachMap." << std::endl;
-    //     return std::make_tuple(nullptr, nullptr, false);
-    // }
-
-    // const char *attribute_text = nullptr;
-    // attribute_text = root->Attribute("root");
-    // if (attribute_text == NULL)
-    //     return std::make_tuple(nullptr, nullptr, false);
-
-    // if (!graph_gen->setRoot(attribute_text))
-    //     return std::make_tuple(nullptr, nullptr, false);
+    if (!graph_gen->setRoot(attribute_text))
+        return std::make_tuple(nullptr, nullptr, false);
 
     return std::make_tuple(graph_gen->graph_, config, true);
 }
@@ -299,7 +282,6 @@ int InputReader::parse_actions(tinyxml2::XMLNode *actions_root){
         }
         std::string action_name = attribute_text;
 
-
         tinyxml2::XMLElement *costmap_e = action->FirstChildElement("costmap");
         if (costmap_e == nullptr)
         {
@@ -315,75 +297,103 @@ int InputReader::parse_actions(tinyxml2::XMLNode *actions_root){
     return tinyxml2::XML_SUCCESS;
 }
 
+
+int InputReader::parse_subassemblies(tinyxml2::XMLNode *subass_root){
+
+    const char *attribute_text = nullptr;
+
+    for (tinyxml2::XMLElement *subassembly = subass_root->FirstChildElement("subassembly");
+            subassembly != nullptr; subassembly = subassembly->NextSiblingElement("subassembly"))
+    {
+        attribute_text = subassembly->Attribute("name");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *name* attribute of subassembly.." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string subassembly_name = attribute_text;
+
+        tinyxml2::XMLElement *reachmap_e = subassembly->FirstChildElement("reachmap");
+        if (reachmap_e == nullptr)
+        {
+            std::cerr << "XML: Could not find reachmap element within subassembly." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        if (parse_reachmap(subassembly_name, reachmap_e) == tinyxml2::XML_ERROR_PARSING)
+        {
+            std::cerr << "XML: Error Parsing Reachmap." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+    }
+
+    return tinyxml2::XML_SUCCESS;
+}
+
+
 /* Parse reachability. 
 **/
-int InputReader::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
+int InputReader::parse_reachmap(std::string part_name, tinyxml2::XMLNode *reachmap_root)
 {
 
     const char *attribute_text = nullptr;
 
-    for (tinyxml2::XMLElement *part = reachmap_root->FirstChildElement("node");
-         part != nullptr; part = part->NextSiblingElement("node"))
+    for (tinyxml2::XMLElement *reach = reachmap_root->FirstChildElement("reach");
+            reach != nullptr; reach = reach->NextSiblingElement("reach"))
     {
 
-        std::string part_name = part->Attribute("name");
+        attribute_text = reach->Attribute("agent");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *agent* attribute of reach." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string agent_name = attribute_text;
 
-        for (tinyxml2::XMLElement *agent = part->FirstChildElement("agent");
-             agent != nullptr; agent = agent->NextSiblingElement("agent"))
+        attribute_text = reach->Attribute("reachable");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *reachable* attribute of reach." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string agent_part_reach = attribute_text;
+
+        attribute_text = reach->Attribute("interaction");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *interaction* attribute of reach." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string interaction = attribute_text;
+
+        std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
+                        [](unsigned char c) { return std::tolower(c); });
+
+        std::transform(interaction.begin(), interaction.end(), interaction.begin(),
+                        [](unsigned char c) { return std::tolower(c); });
+
+        if (agent_part_reach == "false")
         {
+            std::pair<bool, std::string> reach_value(false, interaction);
+            config->reach_->addMapping(part_name, agent_name, reach_value);
 
-            attribute_text = agent->Attribute("name");
-            if (attribute_text == NULL)
-                return tinyxml2::XML_ERROR_PARSING;
-            std::string agent_name = attribute_text;
-
-            attribute_text = agent->Attribute("reachable");
-            if (attribute_text == NULL)
-                return tinyxml2::XML_ERROR_PARSING;
-            std::string agent_part_reach = attribute_text;
-
-            attribute_text = agent->Attribute("interaction");
-            if (attribute_text == NULL)
+            bool is_in = config->costs_->set_of_actions_.find(interaction) != config->costs_->set_of_actions_.end();
+            if (!is_in)
             {
-                std::cout << "ERRRROR!" << std::endl;
-                return tinyxml2::XML_ERROR_PARSING;
-            }
-            std::string interaction = attribute_text;
-
-            std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-
-            std::transform(interaction.begin(), interaction.end(), interaction.begin(),
-                           [](unsigned char c) { return std::tolower(c); });
-
-            if (agent_part_reach == "false")
-            {
-                std::pair<bool, std::string> reach(false, interaction);
-                config->reach_->addMapping(part_name, agent_name, reach);
-
-                bool is_in = config->costs_->set_of_actions_.find(interaction) != config->costs_->set_of_actions_.end();
-                if (!is_in)
-                {
-                    std::cerr << "XML: Wrong name of interaction."
-                              << "  Interaction: " << interaction
-                              << "  was not provided in CostMap." << std::endl;
-
-                    return tinyxml2::XML_ERROR_PARSING;
-                }
-            }
-            else if (agent_part_reach == "true")
-            {
-                std::pair<bool, std::string> reach(true, interaction);
-                config->reach_->addMapping(part_name, agent_name, reach);
-            }
-            else
-            {
-                std::cerr << "XML: Wrong value for cost."
-                          << "  Agent: " << agent_name
-                          << "  Part: " << part_name << std::endl;
+                std::cerr << "XML: Wrong name of interaction."
+                            << "  Interaction: " << interaction
+                            << "  was not provided in CostMap." << std::endl;
 
                 return tinyxml2::XML_ERROR_PARSING;
             }
+        }
+        else if (agent_part_reach == "true")
+        {
+            std::pair<bool, std::string> reach_value(true, interaction);
+            config->reach_->addMapping(part_name, agent_name, reach_value);
+        }
+        else
+        {
+            std::cerr << "XML: Wrong value for cost."
+                        << "  Agent: " << agent_name
+                        << "  Part: " << part_name << std::endl;
+
+            return tinyxml2::XML_ERROR_PARSING;
         }
     }
     return tinyxml2::XML_SUCCESS;
@@ -419,6 +429,8 @@ int InputReader::parse_costmap(std::string action_name, tinyxml2::XMLNode *costm
         // std::cout     << "  Agent: "  << agent_name
         //   << "  Action: " << action_name << std::endl;
 
+
+
         if (cost_value == "inf")
         {
             config->costs_->addMapping(action_name, agent_name, INT_MAX);
@@ -435,6 +447,39 @@ int InputReader::parse_costmap(std::string action_name, tinyxml2::XMLNode *costm
 
             return tinyxml2::XML_ERROR_PARSING;
         }
+    }
+
+    return tinyxml2::XML_SUCCESS;
+}
+
+
+int InputReader::parse_agents(tinyxml2::XMLNode *agents_root){
+    
+    const char *attribute_text = nullptr;
+
+    for (tinyxml2::XMLElement *agent = agents_root->FirstChildElement("agent");
+            agent != nullptr; agent = agent->NextSiblingElement("agent"))
+    {
+        attribute_text = agent->Attribute("name");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *name* attribute of agent." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string agent_name = attribute_text;
+
+        attribute_text = agent->Attribute("host");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *host* attribute of agent." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string host = attribute_text;
+
+        attribute_text = agent->Attribute("port");
+        if (attribute_text == NULL){
+            std::cerr << "Can't read *port* attribute of agent." << std::endl;
+            return tinyxml2::XML_ERROR_PARSING;
+        }
+        std::string port = attribute_text;
     }
 
     return tinyxml2::XML_SUCCESS;
