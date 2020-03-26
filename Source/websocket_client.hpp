@@ -56,7 +56,7 @@ public:
     void on_message(websocketpp::connection_hdl, client::message_ptr msg) {
         if (msg->get_opcode() == websocketpp::frame::opcode::text) {
             m_messages.push_back("<< " + msg->get_payload());
-            std::cout << "Got some shit at connection: " << get_id() << std::endl;
+            std::cout << "Got something at connection: " << get_id() << std::endl;
             std::cout << "<< " + msg->get_payload() << std::endl;
             websocket_sync::semaphore.notify();
         } else {
