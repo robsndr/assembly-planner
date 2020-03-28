@@ -5,14 +5,14 @@
 	path = assemblyPlanner/Lib/uWebSockets
 	url = https://github.com/uNetworking/uWebSockets.git
 [submodule "assemblyPlanner/Lib/tinyxml2"]
-	path = Lib/tinyxml2
+	path = lib/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
 [submodule "assemblyPlanner/Lib/argparse"]
-	path = Lib/argparse
+	path = lib/argparse
 	url = https://github.com/p-ranav/argparse.git
 [submodule "assemblyPlanner/Lib/websocketpp"]
-	path = Lib/websocketpp
+	path = lib/websocketpp
 	url = https://github.com/zaphoyd/websocketpp.git
 [submodule "assemblyPlanner/Lib/json"]
-	path = Lib/json
+	path = lib/json
 	url = https://github.com/nlohmann/json.git
