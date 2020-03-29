@@ -34,7 +34,7 @@ public:
     std::vector<Edge *> getSuccessors();
     std::vector<Edge *> getPredecessors();
 
-    std::vector<Node *> getSuccessorNodes();
+    std::vector<Node *> getSuccessorNodes() const;
     std::vector<Node *> getPredecessorNodes();
 
     void print();
@@ -192,7 +192,7 @@ Node::getPredecessors()
     \return: a vector containing pointers to the succeeding nodes.
 **/
 inline std::vector<Node *>
-Node::getSuccessorNodes()
+Node::getSuccessorNodes() const 
 {
     std::vector<Node *> vecOfValues;
     vecOfValues.reserve(children_.size());
