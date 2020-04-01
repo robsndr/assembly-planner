@@ -50,7 +50,7 @@ Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
     // The AStarSearch uses the received Expander later during the search.
     // If a different expansion-behavior is desired, just modify the exapnder,
     // obeying to the interface used by the AStarSearch.
-    NodeExpander *expander = new NodeExpander(search_graph, config);
+    NodeExpander *expander = new NodeExpander(graph, search_graph, config);
 
     // AStarSearch algorithm
     AStarSearch astar;

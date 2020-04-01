@@ -31,11 +31,11 @@ public:
     Edge *getSuccessor(std::size_t) const;
     Edge *getPredecessor(std::size_t) const;
 
-    std::vector<Edge *> getSuccessors();
-    std::vector<Edge *> getPredecessors();
+    std::vector<Edge *> getSuccessors() const;
+    std::vector<Edge *> getPredecessors() const;
 
     std::vector<Node *> getSuccessorNodes() const;
-    std::vector<Node *> getPredecessorNodes();
+    std::vector<Node *> getPredecessorNodes() const;
 
     void print();
 
@@ -159,7 +159,7 @@ Node::numberOfPredecessors() const
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
 inline std::vector<Edge *>
-Node::getSuccessors()
+Node::getSuccessors() const
 {
     std::vector<Edge *> vecOfValues;
     vecOfValues.reserve(children_.size());
@@ -176,7 +176,7 @@ Node::getSuccessors()
     \return: pointer to the edge connecting given node to the one specified by @index.
 **/
 inline std::vector<Edge *>
-Node::getPredecessors()
+Node::getPredecessors() const
 {
     std::vector<Edge *> vecOfValues;
     vecOfValues.reserve(parents_.size());
@@ -208,7 +208,7 @@ Node::getSuccessorNodes() const
     \return: a vector containing pointers to the preceeding nodes.
 **/
 inline std::vector<Node *>
-Node::getPredecessorNodes()
+Node::getPredecessorNodes() const
 {
     std::vector<Node *> vecOfValues;
     vecOfValues.reserve(parents_.size());

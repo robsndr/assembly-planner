@@ -57,8 +57,8 @@ int main(int argc, char *argv[])
         Planner planner;
         assembly_plan = planner(assembly, assembly->root_, config);
 
-        Supervisor execution_supervisor(config);
-        execution_supervisor.run(assembly_plan);
+        // Supervisor execution_supervisor(config);
+        // execution_supervisor.run(assembly_plan);
 
     }
     catch (const std::runtime_error &err)

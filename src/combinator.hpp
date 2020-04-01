@@ -14,13 +14,13 @@ public:
     Combinator(config::Configuration *);
     ~Combinator();
 
-    std::vector<std::vector<std::tuple<std::string, std::string, Node *>>> *
-    generateAgentActionAssignments(std::vector<Node *> &);
+    std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>> *
+    generateAgentActionAssignments(Graph<>&, std::vector<NodeIndex> &);
 
 private:
     void printAssignments();
-    void assignAgentsToActions(std::vector<std::string> &, std::vector<std::tuple<std::string, Node *>> &);
-    void generateActionCombinationSets(std::vector<Node *> &);
+    void assignAgentsToActions(std::vector<std::string> &, std::vector<std::tuple<std::string, NodeIndex>> &);
+    void generateActionCombinationSets(Graph<>&,std::vector<NodeIndex> &);
     void generateAgentCombinationSets(std::vector<std::string> &, int);
 
     std::unordered_map<std::string, std::vector<std::string>> node_actions_; // First entry denotes node.
@@ -28,7 +28,7 @@ private:
 
     std::vector<std::string> temp_nodes;
 
-    std::vector<std::vector<std::tuple<std::string, std::string, Node *>>> agent_action_assignements_;
+    std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>> agent_action_assignements_;
 
     // Data Structures needed to calculate the agent combinations
     // Defines as class-wide objects to facilitate reuse between iterations.
@@ -37,8 +37,8 @@ private:
 
     // Data Structures needed for the Action-Combination Generation.
     // Defined here to create them once and reuse without repeating allocation.
-    std::vector<std::vector<std::tuple<std::string, Node *>>> temp_action_combinations_;
-    std::vector<std::tuple<std::string, Node *>> temp_action_set_;
+    std::vector<std::vector<std::tuple<std::string, NodeIndex>>> temp_action_combinations_;
+    std::vector<std::tuple<std::string, NodeIndex>> temp_action_set_;
 
     config::Configuration *config_;
 };
@@ -52,13 +52,13 @@ Combinator::~Combinator() {}
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
-std::vector<std::vector<std::tuple<std::string, std::string, Node *>>> *
-Combinator::generateAgentActionAssignments(std::vector<Node *> &nodes)
+std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>> *
+Combinator::generateAgentActionAssignments(Graph<>& graph, std::vector<NodeIndex>& nodes)
 {
 
     std::size_t l = std::min(nodes.size(), config_->agents.size());
 
-    generateActionCombinationSets(nodes);
+    generateActionCombinationSets(graph, nodes);
 
     agent_action_assignements_.clear();
 
@@ -91,13 +91,13 @@ Combinator::generateAgentActionAssignments(std::vector<Node *> &nodes)
 /* Function which performs the generation of assignments of workers to actions.
 **/
 void Combinator::assignAgentsToActions(std::vector<std::string> &cur_agents,
-                                       std::vector<std::tuple<std::string, Node *>> &cur_actions)
+                                       std::vector<std::tuple<std::string, NodeIndex>> &cur_actions)
 {
 
     int n = cur_actions.size();
     int k = cur_agents.size();
 
-    std::vector<std::tuple<std::string, std::string, Node *>> assignment;
+    std::vector<std::tuple<std::string, std::string, NodeIndex>> assignment;
 
     // Create selector vector
     std::vector<int> d(n);
@@ -148,7 +148,7 @@ void Combinator::generateAgentCombinationSets(std::vector<std::string> &agents, 
 
 /* Function which performs the generation the possible action combinations
 **/
-void Combinator::generateActionCombinationSets(std::vector<Node *> &nodes)
+void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeIndex> &nodes)
 {
 
     temp_action_combinations_.clear();
@@ -165,21 +165,25 @@ void Combinator::generateActionCombinationSets(std::vector<Node *> &nodes)
     {
         temp_action_set_.clear();
         // print current combination
+
         for (int i = 0; i < n; i++)
         {
-            Node *and_node = nodes[i]->getSuccessorNodes()[indices[i]];
-            temp_action_set_.push_back(std::make_tuple(and_node->data_.name, and_node));
+            // std::cout << "BLA" << std::endl;
+            auto nt = graph.getNode(nodes[i]);
+            // std::cout << "BLA" << nt->numberOfSuccessors() << std::endl;
+            Node *and_node = nt->getSuccessorNodes()[indices[i]];
+            // std::cout << "BLA" << std::endl;
+            temp_action_set_.push_back(std::make_tuple(and_node->data_.name, and_node->id_));
             // std::cout << temp_action_name << " ";
         }
         temp_action_combinations_.push_back(temp_action_set_);
         // std::cout << std::endl;
-
         // find the rightmost array that has more
         // elements left after the current element
         // in that array
         int next = n - 1;
         while (next >= 0 &&
-               (indices[next] + 1 >= nodes[next]->numberOfSuccessors()))
+               (indices[next] + 1 >= graph.getNodeRef(nodes[next]).numberOfSuccessors()))
             next--;
 
         // no such array is found so no more
