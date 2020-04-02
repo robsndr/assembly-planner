@@ -14,7 +14,7 @@ class Planner
 {
 public:
     // Start Planning
-    std::vector< std::vector<Task*>> operator()(Graph<> *, Node *, config::Configuration * );
+    std::vector< std::vector<Task*>> operator()(Graph<>, Node *, config::Configuration& );
 
 private:
     // Container used to track the resulting optimal assembly sequence.
@@ -30,17 +30,17 @@ private:
     \return: vector containing the assembly plan
 **/
 std::vector< std::vector<Task*>> 
-Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
+Planner::operator()(Graph<> graph, Node *root, config::Configuration& config)
 {
     // Create a new Graph.
     // It is a different Graph the the one passed as a function parameter.
     // This one is the graph of Hypernodes used later for the A* search.
-    search_graph = new Graph<>();
-    Node *new_root = search_graph->insertNode(root->data_);
+    Graph<> search_graph;
+    Node *new_root = search_graph.insertNode(graph.root_->data_);
 
     // Set the subassemblies and actions of the first supernode.
     // The actions correspond to all possible moves we can take in the first supernode.
-    new_root->data_.subassemblies[root->data_.name] = root;
+    new_root->data_.subassemblies[root->data_.name] = graph.root_;
     for (auto &x : root->getSuccessorNodes())
     {
         new_root->data_.actions[x->data_.name] = x;
@@ -50,11 +50,11 @@ Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
     // The AStarSearch uses the received Expander later during the search.
     // If a different expansion-behavior is desired, just modify the exapnder,
     // obeying to the interface used by the AStarSearch.
-    NodeExpander *expander = new NodeExpander(graph, search_graph, config);
+    NodeExpander expander(graph, search_graph, config);
 
     // AStarSearch algorithm
     AStarSearch astar;
-    Node *result = astar.search(search_graph, new_root, expander);
+    Node *result = astar.search(new_root, expander);
 
     // Container used to represent the found agent-action assignement and its cost in a current step.
     // Vector of Tuples containing <action_pointer, agent_name, cost>
@@ -71,12 +71,12 @@ Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
         {
             std::string action_name = i.first->data_.name;
             std::string agent_name = i.second;
-            double cur_cost = config->actions[action_name].costs[agent_name];
+            double cur_cost = config.actions[action_name].costs[agent_name];
 
             std::cout << "Action: " << action_name << " Agent: " << agent_name << "    ";
             cost += cur_cost;
-            Task *cur_task = new Task(action_name, agent_name, cur_cost);
-            optimum.push_back(cur_task);
+            // Task *cur_task = new Task(action_name, agent_name, cur_cost);
+            // optimum.push_back(cur_task);
         }
         assembly_plan_.push_back(optimum);
         optimum.clear();
@@ -87,8 +87,6 @@ Planner::operator()(Graph<> *graph, Node *root, config::Configuration * config)
     std::cout << "Cost: " << cost << std::endl << std::endl;
     std::cout << "- - - -  - - - -  - - - -  - - - -  - - - -  - - - - " << std::endl << std::endl;
 
-    delete search_graph;
-    delete expander;
 
     return assembly_plan_;
 }

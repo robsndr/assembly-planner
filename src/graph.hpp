@@ -48,7 +48,7 @@ public:
     Node* insertNode(const Node&);
     std::size_t insertNodes(const std::vector<Node*>&);
     // edges
-    std::size_t insertEdge(const EdgeData&, const std::size_t, const std::size_t);
+    Edge& insertEdge(const EdgeData&, const std::size_t, const std::size_t);
     std::size_t insertEdges(const EdgeData&,
                             const std::size_t,
                             const std::vector<std::size_t>&);
@@ -398,7 +398,7 @@ Graph<Visitor>::insertNodes(
     \return Integer index of the newly inserted edge.
 **/
 template <typename Visitor>
-std::size_t
+Edge&
 Graph<Visitor>::insertEdge(
     const EdgeData& data,
     const std::size_t srcNodeId,
@@ -428,7 +428,7 @@ Graph<Visitor>::insertEdge(
 
     free_edge_id_++;
 
-    return free_edge_id_-1;
+    return edges_.at(free_edge_id_-1);
 }
 
 /* Insert additional edges.
@@ -535,8 +535,6 @@ bool Graph<Visitor>::eraseEdge(
     edges_.erase(edgeIndex);
 
     return true;
-    // visitor_.eraseEdge(edgeIndex);
-    // visitor_.relabelEdge(movingEdgeIndex, edgeIndex);
 }
 
 /* Find the index corresponding to a given edge pointer.

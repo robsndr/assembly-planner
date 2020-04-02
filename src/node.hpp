@@ -13,9 +13,8 @@
     Their content can be specified inside the NodeData-class which can be extended with any structure.
     Nodes are connected with Edges. 
 **/
-class Node
+struct Node
 {
-public:
     Node(std::size_t identifier, NodeData data);
 
     bool hasSuccessor() const;
@@ -43,7 +42,7 @@ public:
     std::size_t id_;
     NodeData data_;
 
-// private:
+private:
     std::unordered_map<std::size_t, Edge *> parents_;
     std::unordered_map<std::size_t, Edge *> children_;
 };

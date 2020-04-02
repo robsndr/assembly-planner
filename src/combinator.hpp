@@ -11,10 +11,10 @@ class Combinator
 {
 
 public:
-    Combinator(config::Configuration *);
+    Combinator(config::Configuration&);
     ~Combinator();
 
-    std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>> *
+    std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>>
     generateAgentActionAssignments(Graph<>&, std::vector<NodeIndex> &);
 
 private:
@@ -40,38 +40,36 @@ private:
     std::vector<std::vector<std::tuple<std::string, NodeIndex>>> temp_action_combinations_;
     std::vector<std::tuple<std::string, NodeIndex>> temp_action_set_;
 
-    config::Configuration *config_;
+    config::Configuration& config_;
 };
 
-Combinator::Combinator(config::Configuration *config)
+Combinator::Combinator(config::Configuration& config)
+  : config_(config)
 {
-    config_ = config;
 }
 
 Combinator::~Combinator() {}
 
 /* Function which performs the generation of assignments of workers to actions.
 **/
-std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>> *
+std::vector<std::vector<std::tuple<std::string, std::string, NodeIndex>>>
 Combinator::generateAgentActionAssignments(Graph<>& graph, std::vector<NodeIndex>& nodes)
 {
 
-    std::size_t l = std::min(nodes.size(), config_->agents.size());
+    std::size_t l = std::min(nodes.size(), config_.agents.size());
 
     generateActionCombinationSets(graph, nodes);
 
     agent_action_assignements_.clear();
 
     std::vector<std::string> vector_of_agents;
-    for (auto &key_value : config_->agents){
+    for (auto &key_value : config_.agents){
         vector_of_agents.push_back(key_value.second.name);
     }
     
 
     for (size_t j = 1; j <= l; j++)
     {
-        // std::cout << "Brun" << std::endl;
-
         generateAgentCombinationSets(vector_of_agents, j);
 
         for (auto &agents : temp_agent_combinations_)
@@ -85,7 +83,7 @@ Combinator::generateAgentActionAssignments(Graph<>& graph, std::vector<NodeIndex
 
     // printAssignments();
 
-    return &agent_action_assignements_;
+    return agent_action_assignements_;
 }
 
 /* Function which performs the generation of assignments of workers to actions.
@@ -148,14 +146,14 @@ void Combinator::generateAgentCombinationSets(std::vector<std::string> &agents, 
 
 /* Function which performs the generation the possible action combinations
 **/
-void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeIndex> &nodes)
+void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeIndex> &node_ids)
 {
 
     temp_action_combinations_.clear();
 
     // number of arrays
-    int n = nodes.size();
-    int *indices = new int[n];
+    int n = node_ids.size();
+    int indices[n];
 
     // initialize with first element's index
     for (int i = 0; i < n; i++)
@@ -168,13 +166,9 @@ void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeI
 
         for (int i = 0; i < n; i++)
         {
-            // std::cout << "BLA" << std::endl;
-            auto nt = graph.getNode(nodes[i]);
-            // std::cout << "BLA" << nt->numberOfSuccessors() << std::endl;
-            Node *and_node = nt->getSuccessorNodes()[indices[i]];
-            // std::cout << "BLA" << std::endl;
+            auto nt = graph.getNodeRef(node_ids[i]);
+            Node *and_node = nt.getSuccessorNodes()[indices[i]];
             temp_action_set_.push_back(std::make_tuple(and_node->data_.name, and_node->id_));
-            // std::cout << temp_action_name << " ";
         }
         temp_action_combinations_.push_back(temp_action_set_);
         // std::cout << std::endl;
@@ -183,7 +177,7 @@ void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeI
         // in that array
         int next = n - 1;
         while (next >= 0 &&
-               (indices[next] + 1 >= graph.getNodeRef(nodes[next]).numberOfSuccessors()))
+               (indices[next] + 1 >= graph.getNodeRef(node_ids[next]).numberOfSuccessors()))
             next--;
 
         // no such array is found so no more
@@ -201,8 +195,6 @@ void Combinator::generateActionCombinationSets(Graph<>& graph, std::vector<NodeI
         for (int i = next + 1; i < n; i++)
             indices[i] = 0;
     }
-
-    delete[] indices;
 }
 
 /* Debug functionality. Prints the current state of the assignment vector.
@@ -213,12 +205,12 @@ void Combinator::printAssignments()
     std::cout << std::endl
               << "***************Print current assignments: ********************" << std::endl;
 
-    for (auto const &assignment : agent_action_assignements_)
+    for (auto const& assignment : agent_action_assignements_)
     {
-        for (auto const &elem : assignment)
+        for (auto const& elem : assignment)
         {
             std::cout << std::get<0>(elem) << " : " << std::get<1>(elem)
-                      // << " : " << std::get<2>(elem)->data_.name
+                    //   << " : " << std::get<2>(elem)->data_.name
                       << std::endl;
         }
         std::cout << "----------" << std::endl;

@@ -24,37 +24,19 @@ struct LessThan
     It executes the search on a given graph.
     The provided Exapander-Object is used to perform the Node-Expansion step.
 **/
-class AStarSearch
+struct AStarSearch
 {
-private:
-    /* data */
-public:
-    // Constructor, Destructor
-    AStarSearch();
-    ~AStarSearch();
-
-    // Search function
-    Node *search(Graph<> *, Node *, NodeExpander *);
+    AStarSearch() = default;
+    ~AStarSearch() = default;
+    Node* search(Node*, NodeExpander&);
 };
-
-/* Constructor
-**/
-AStarSearch::AStarSearch(/* args */)
-{
-}
-
-/* Destructor
-**/
-AStarSearch::~AStarSearch()
-{
-}
 
 /* Perform the A* graph search.
     @graph: pointer to graph on which the search should be performed.
     @root: pointer to node at which the search should begin.
     @exapnder: exapnder object used for node expansion.
 **/
-Node *AStarSearch::search(Graph<> *graph, Node *root, NodeExpander *expander)
+Node* AStarSearch::search(Node* root, NodeExpander& expander)
 {
 
     Node *current = nullptr;
@@ -64,7 +46,7 @@ Node *AStarSearch::search(Graph<> *graph, Node *root, NodeExpander *expander)
     // -> Nodes can only be reached in one way.
     // Not using the closed-set saves some processing time needed to lookuo-stuff.
     // NodeSet closedSet; 
-    expander->expandNode(root);
+    expander.expandNode(root);
     root->data_.calc_hscore();
     root->data_.calc_fscore();
 
@@ -85,7 +67,7 @@ Node *AStarSearch::search(Graph<> *graph, Node *root, NodeExpander *expander)
         for (auto &edge : current->getSuccessors())
         {
             Node *child = edge->getDestination();
-            expander->expandNode(child);
+            expander.expandNode(child);
 
             child->data_.g_score = current->data_.g_score + edge->data_.cost;
             child->data_.calc_hscore();
