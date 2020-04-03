@@ -36,7 +36,7 @@ public:
     ~InputReader();
 
     // Read the provided XML representing the assembly with agents, costs...
-    std::tuple<Graph<> *, config::Configuration*, bool> read(std::string);
+    std::tuple<Graph<NodeData,EdgeData> *, config::Configuration*, bool> read(std::string);
 
 private:
 
@@ -61,7 +61,7 @@ private:
     tinyxml2::XMLDocument *doc;
     
     GraphGenerator *graph_gen;
-    Graph<> *graph;
+    Graph<NodeData,EdgeData> *graph;
 
     config::Configuration *config;
 };
@@ -79,7 +79,7 @@ InputReader::InputReader(std::string path)
         throw std::runtime_error("Could not open XML file.");
 
     // Allocate objects    
-    graph = new Graph;
+    graph = new Graph<NodeData,EdgeData>;
     graph_gen = new GraphGenerator(graph);
     config = new config::Configuration;
 }
@@ -100,7 +100,7 @@ InputReader::~InputReader()
     \return: tuple containg the graph, config represented inside the XML 
              and a boolean indicating success.
 **/
-std::tuple<Graph<> *, config::Configuration*, bool> InputReader::read(std::string root_name)
+std::tuple<Graph<NodeData,EdgeData> *, config::Configuration*, bool> InputReader::read(std::string root_name)
 {
 
     // Find the root node of the document.
@@ -397,7 +397,8 @@ int InputReader::parse_reachmap(std::string part_name, tinyxml2::XMLNode *reachm
 
         if (agent_part_reach == "false")
         {
-            subassembly.reachability[agent_name] = std::make_pair(false, interaction); 
+            subassembly.reachability[agent_name].reachable = false; 
+            subassembly.reachability[agent_name].interaction = interaction; 
 
             if ( config->actions.find(interaction) == config->actions.end() ) {
                 std::cerr << "XML: Wrong name of interaction."
@@ -409,7 +410,8 @@ int InputReader::parse_reachmap(std::string part_name, tinyxml2::XMLNode *reachm
         }
         else if (agent_part_reach == "true")
         {
-            subassembly.reachability[agent_name] = std::make_pair(true, interaction); 
+            subassembly.reachability[agent_name].reachable = true; 
+            subassembly.reachability[agent_name].interaction = interaction; 
         }
         else
         {

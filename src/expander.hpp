@@ -5,6 +5,7 @@
 
 #include "combinator.hpp"
 #include "graph.hpp"
+// #include "types.hpp"
 
 /* Class representing the node-expander.
     During the A* search the supernodes need to be expanded.
@@ -18,19 +19,19 @@ class NodeExpander
 
 public:
     // Constructr / Destructor
-    NodeExpander(Graph<>&, Graph<>&, config::Configuration&);
+    NodeExpander(Graph<NodeData,EdgeData>&, Graph<NodeData,EdgeData>&, config::Configuration&);
 
     // Node Expansion function.
     // Called by the A*-search on evary iteration.
-    void expandNode(Node*);
+    void expandNode(NodeIndex);
 
 private:
     // Function used to create Interactions if subassemblies are not reachable.
-    Node* createInteraction(Node*, std::string, double);
+    NodeIndex createInteraction(NodeIndex, NodeData&, std::string, double);
 
     // Pointer to the graph of HyperNodes on which the A* search runs.
-    Graph<>& assembly_graph_;
-    Graph<>& search_graph_;
+    Graph<NodeData,EdgeData>& assembly_graph_;
+    Graph<NodeData,EdgeData>& search_graph_;
 
     // Pointers to cost/reach maps provided by the InputReader.
     config::Configuration& config;
@@ -41,7 +42,7 @@ private:
 
 /* NodeExpander Constructor.
 **/
-NodeExpander::NodeExpander(Graph<>& origin_graph, Graph<>& graph, config::Configuration& conf) 
+NodeExpander::NodeExpander(Graph<NodeData,EdgeData>& origin_graph, Graph<NodeData,EdgeData>& graph, config::Configuration& conf) 
   : config(conf), 
     assignment_generator_(config), 
     assembly_graph_(origin_graph), 
@@ -50,15 +51,15 @@ NodeExpander::NodeExpander(Graph<>& origin_graph, Graph<>& graph, config::Config
 
 /* Function which performs the node expansion.
 **/
-void NodeExpander::expandNode(Node *node)
+void NodeExpander::expandNode(NodeIndex node_id)
 {
-
     std::vector<NodeIndex> nodes;
-    nodes.reserve(node->data_.subassemblies.size());
-    for (auto nd : node->data_.subassemblies)
+
+    auto& node_data = search_graph_.getNodeD(node_id);
+    for (auto sa : node_data.subassemblies)
     {
-        if (nd.second->hasSuccessor())
-            nodes.push_back(NodeIndex(nd.second->id_));
+        if (assembly_graph_.numberOfSuccessors(sa.second) > 0)
+            nodes.push_back(NodeIndex(sa.second));
     }
 
     // Obtain all possible assignement cominations of agents to actions for the current step.
@@ -66,72 +67,72 @@ void NodeExpander::expandNode(Node *node)
     const auto assignments_ = assignment_generator_.generateAgentActionAssignments(assembly_graph_, nodes);
 
     // Declare the min/ma cost which needs to be set below.
-    double min_action_agent_cost_ = node->data_.minimum_cost_action;
+    double min_action_agent_cost_ = node_data.minimum_cost_action;
     double max_action_agent_cost_ = 0;
 
     // Iterate through all possible assignments of agents to available actions.
     for (const auto& cur_assignments : assignments_)
     {
-
         // Create the data for the created supernode.
-        NodeData ndata;
-        ndata.subassemblies = node->data_.subassemblies;
-        ndata.actions = node->data_.actions;
-        ndata.marked = false;
-
-        // Create the data for the edge connecting the current sueprnode with the new one.
-        EdgeData edata;
-        edata.cost = 0;
+        // Temporary node data
+        NodeData x;
+        x.subassemblies = node_data.subassemblies;
+        x.actions = node_data.actions;
+        x.marked = false;
+        // Temporary edge data
+        EdgeData y;
+        y.cost = 0;
 
         // Counter variable. Needed to calculate the average cost for the connecting edge.
         int iters = 0;
 
         // Iterate through agent-action pairs for the current assignemnt
-        for (const auto& agent_action_assignment : cur_assignments)
+        for (const auto& assignment : cur_assignments)
         {
             // Calculate the number of iterations
             iters++;
 
             // Obtain the agent, action and aciton-pointer from the tuple
             // The tuple itself was obtained from the combinator above.
-            std::string agent = std::get<0>(agent_action_assignment);
-            std::string action = std::get<1>(agent_action_assignment);
+            auto agent = assignment.agent;
+            auto action = assignment.action;
+            auto action_node_id = assignment.action_node_id;
 
-            auto action_ptr = assembly_graph_.getNode(std::get<2>(agent_action_assignment));
+            // auto action_ptr = assembly_graph_.getNode(action_idx);
 
             // Update the data for the newly-created sueprnode.
             // The subassebmlies/actions have been copied from the current source node.
             // Delete the subassemblies/actions which are applied in the current step,
             // In this way, they are not available in the newly-created node.
-            std::string action_source = action_ptr->getPredecessorNodes().front()->data_.name;
-            ndata.name += action_source + "-" + action + "-" + agent + "     ";
-            ndata.subassemblies.erase(action_source);
-            ndata.actions.erase(action);
+            auto action_source_id = assembly_graph_.predecessorNodes(action_node_id).front();
+            auto action_source = assembly_graph_.getNodeD(action_source_id).name;
+            x.name += action_source + "-" + action + "-" + agent + "   ";
+            x.subassemblies.erase(action_source);
+            x.actions.erase(action);
 
             // For the currently applied assignement, update the subassemblies of the new supernode.
-            for (auto& or_successor : action_ptr->getSuccessorNodes())
+            for (auto& successor_id : assembly_graph_.successorNodes(action_node_id))
             {
-                bool part_reachable = std::get<0>(config.subassemblies[or_successor->data_.name].reachability[agent]);
+                auto successor = assembly_graph_.getNodeD(successor_id);
+                NodeIndex ors_id = successor_id;
 
-                Node *successor;
+                bool part_reachable = config.subassemblies[successor.name].reachability[agent].reachable;
 
                 if (!part_reachable)
                 {
-                    // Part not reachable
-                    // Add Interaction
-                    std::string interaction_name = std::get<1>(config.subassemblies[or_successor->data_.name].reachability[agent]);
-                    double interaction_cost = config.actions[interaction_name].costs[agent];
-                    successor = createInteraction(or_successor, interaction_name, interaction_cost); // interaction inserted
-                }
-                else
-                {
-                    successor = or_successor; // No interaction inserted. Just append the orsuccesor
+                    // Part not reachable - add Interaction
+                    auto interaction = config.subassemblies[successor.name].reachability[agent].interaction;
+                    auto interaction_cost = config.actions[interaction].costs[agent];
+                    // assembly_graph_
+                    ors_id = createInteraction(successor_id, successor, interaction, interaction_cost);
                 }
 
-                ndata.subassemblies[or_successor->data_.name] = successor;
-                for (auto &following_action : or_successor->getSuccessorNodes())
+                x.subassemblies[successor.name] = ors_id;
+
+                for (const auto& next_action_id : assembly_graph_.successorNodes(ors_id))
                 {
-                    ndata.actions[following_action->data_.name] = following_action;
+                    auto next_action = assembly_graph_.getNodeD(next_action_id);
+                    x.actions[next_action.name] = next_action_id;
                 }
             }
 
@@ -142,44 +143,44 @@ void NodeExpander::expandNode(Node *node)
             }
 
             // Update edge data.
-            edata.cost += config.actions[action].costs[agent];
-            edata.agent_actions_.push_back(std::make_pair(action_ptr, agent));
+            y.cost += config.actions[action].costs[agent];
+            y.planned_assignments.push_back(assignment);
         }
 
         // Create the average of the edge.cost over the number of nodes it connects.
         // (This edge is a edge connecting supernodes of the search graph).
         // (That is why the average-step is necessary).
-        edata.cost = edata.cost / iters;
+        y.cost = y.cost / iters;
 
         // Insert the newly-created sueprnode into the search-graph.
-        Node *next_node = search_graph_.insertNode(ndata);
+        auto next_node_id = search_graph_.insertNode(x);
 
         // Insert the edge connecting the new-sueprnode to the source (old) one.
-        search_graph_.insertEdge(edata, node->id_, next_node->id_);
+        search_graph_.insertEdge(y, node_id, next_node_id);
     }
 
     // Set the minum-agen-action cost for the curent supernode.
     // It is needed for the heuristic used by the A* algorithm.
-    node->data_.minimum_cost_action = min_action_agent_cost_;
+    node_data.minimum_cost_action = min_action_agent_cost_;
 }
 
 /* Returns interactions for subassemblies (parts).
     Interactions are created for assignemnts where a given agent cannot reach a part (subassembly).
 **/
-Node* NodeExpander::createInteraction(Node* destination_or, std::string i_name, double i_cost)
+NodeIndex NodeExpander::createInteraction(NodeIndex dest_id, NodeData& dest_data, std::string iname, double icost)
 {
     // Create interaction subassembly. It cotains same data as original one.
-    NodeData tdata = destination_or->data_;
-    tdata.name = destination_or->data_.name + "_prime";
-    auto or_prime = assembly_graph_.insertNode(tdata);
+    NodeData tdata = dest_data;
+    tdata.name = dest_data.name + "_prime";
+    auto or_prime_id = assembly_graph_.insertNode(tdata);
     // Create node for interaction-Action.
     NodeData idata;
-    idata.cost = i_cost;
-    idata.name = i_name;
-    auto inter_action = assembly_graph_.insertNode(idata);
+    idata.cost = icost;
+    idata.name = iname;
+    auto interaction_id = assembly_graph_.insertNode(idata);
     //Insert interaction between nodes
-    auto edge1 = assembly_graph_.insertEdge(EdgeData(), or_prime->id_, inter_action->id_);
-    auto edge2 = assembly_graph_.insertEdge(EdgeData(), inter_action->id_, destination_or->id_);
+    assembly_graph_.insertEdge(EdgeData(), or_prime_id, interaction_id);
+    assembly_graph_.insertEdge(EdgeData(), interaction_id, dest_id);
     // Return the interaction subassembly to insert into the current supernode.
-    return or_prime;
+    return or_prime_id;
 }

@@ -14,7 +14,7 @@
 **/
 struct LessThan
 {
-    bool operator()(const Node *lhs, const Node *rhs) const
+    bool operator()(const Node<NodeData> *lhs, const Node<NodeData> *rhs) const
     {
         return (lhs->data_.f_score) > (rhs->data_.f_score);
     }
@@ -26,29 +26,84 @@ struct LessThan
 **/
 struct AStarSearch
 {
-    AStarSearch() = default;
+    AStarSearch(Graph<NodeData,EdgeData>& assembly);
     ~AStarSearch() = default;
-    Node* search(Node*, NodeExpander&);
+    Node<NodeData>* search(Graph<NodeData,EdgeData>&, Node<NodeData>*, NodeExpander&);
+    bool isGoal(Graph<NodeData,EdgeData>&, Node<NodeData>*);
+    double calc_hscore(Node<NodeData>* current);
+    double calc_fscore(Node<NodeData>* current);
+
+    Graph<NodeData,EdgeData>& assembly_;
 };
+
+/* Check if given sueprnode is Goal.
+   Check whether a given supernode inside the A* search 
+   has any subassemblies to continue the search.
+**/
+bool AStarSearch::isGoal(Graph<NodeData,EdgeData>& graph, Node<NodeData>* current)
+{
+    for (auto &x : current->data_.subassemblies)
+    {
+        if (graph.numberOfSuccessors(x.second) > 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Calculate the h_Score needed for the A* search.
+    Is declared as a member of the NodeData contained within Nodes.
+    Placed within this files due to linking issues.
+    //TODO: Move into containers.hpp and fix linking issues.
+**/
+double AStarSearch::calc_hscore(Node<NodeData>* current)
+{
+    std::size_t maximum_length_subassembly = 0;
+    for (auto &x : current->data_.subassemblies)
+    {
+        auto node = assembly_.getNode(x.second);
+        if (node->data_.name.length() > maximum_length_subassembly)
+            maximum_length_subassembly = node->data_.name.length();
+    }
+    
+    double temp = log2f(maximum_length_subassembly) * current->data_.minimum_cost_action;
+    return temp;
+}
+
+/* Calculate the f_Score needed for the A* search.
+    Is declared as a member of the NodeData contained within Nodes.
+    Placed within this files due to linking issues.
+    //TODO: Move into containers.hpp and fix linking issues.
+**/
+double AStarSearch::calc_fscore(Node<NodeData>* current)
+{
+    return current->data_.g_score + current->data_.h_score;
+}
+
+
+AStarSearch::AStarSearch(Graph<NodeData,EdgeData>& assembly)
+  : assembly_(assembly)
+{};
 
 /* Perform the A* graph search.
     @graph: pointer to graph on which the search should be performed.
     @root: pointer to node at which the search should begin.
     @exapnder: exapnder object used for node expansion.
 **/
-Node* AStarSearch::search(Node* root, NodeExpander& expander)
+Node<NodeData>* AStarSearch::search(Graph<NodeData,EdgeData>& graph, Node<NodeData>* root, NodeExpander& expander)
 {
 
-    Node *current = nullptr;
-    std::priority_queue<Node *, std::vector<Node *>, LessThan> openSet;
+    Node<NodeData> *current = nullptr;
+    std::priority_queue<Node<NodeData> *, std::vector<Node<NodeData> *>, LessThan> openSet;
 
     // Closed-Set is redundant as the search is performed on a acyclic graph where every path is unique.
     // -> Nodes can only be reached in one way.
     // Not using the closed-set saves some processing time needed to lookuo-stuff.
     // NodeSet closedSet; 
-    expander.expandNode(root);
-    root->data_.calc_hscore();
-    root->data_.calc_fscore();
+    expander.expandNode(root->id);
+    root->data_.h_score  = this->calc_hscore(root);
+    root->data_.f_score = this->calc_fscore(root);
 
     openSet.push(root);
 
@@ -57,21 +112,21 @@ Node* AStarSearch::search(Node* root, NodeExpander& expander)
         current = openSet.top();
         openSet.pop();
 
-        if (current->data_.isGoal())
+        if (this->isGoal(assembly_, current))
         {
             return current;
         }
         
         current->data_.marked = true;
 
-        for (auto &edge : current->getSuccessors())
+        for (auto &edge : graph.getSuccessorEdges(current->id))
         {
-            Node *child = edge->getDestination();
-            expander.expandNode(child);
+            Node<NodeData> *child = graph.getNode(edge->getDestination());
+            expander.expandNode(child->id);
 
             child->data_.g_score = current->data_.g_score + edge->data_.cost;
-            child->data_.calc_hscore();
-            child->data_.calc_fscore();
+            child->data_.h_score = this->calc_hscore(child);
+            child->data_.f_score = this->calc_fscore(child);
 
             openSet.push(child);
         }

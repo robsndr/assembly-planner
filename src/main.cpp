@@ -9,7 +9,6 @@
 #include "dotwriter.hpp"
 #include "input_reader.hpp"
 #include "argparse.hpp"
-#include "supervisor.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -36,7 +35,7 @@ int main(int argc, char *argv[])
     std::vector< std::vector<Task*>> assembly_plan;
 
     // Assembly Planning Block.
-    Graph<> *assembly;
+    Graph<NodeData,EdgeData> *assembly;
 
     try
     {
@@ -55,11 +54,7 @@ int main(int argc, char *argv[])
         }
         
         Planner planner;
-        assembly_plan = planner(*assembly, assembly->root_, *config);
-
-        // Supervisor execution_supervisor(config);
-        // execution_supervisor.run(assembly_plan);
-
+        assembly_plan = planner(*assembly, *config);
     }
     catch (const std::runtime_error &err)
     {

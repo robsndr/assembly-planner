@@ -6,7 +6,9 @@
 #include <set>
 #include <vector>
 #include "node.hpp"
+// #include "graph.hpp"
 #include <unordered_map>
+#include "types.hpp"
 
 enum class NodeType
 {
@@ -14,16 +16,10 @@ enum class NodeType
     OR
 };
 
-class Node;
-
 class NodeData
 {
 public:
     NodeData() {}
-
-    bool isGoal();
-    void calc_hscore();
-    void calc_fscore();
 
     double cost = 0;
     NodeType type;
@@ -38,8 +34,8 @@ public:
 
     double minimum_cost_action = MAXFLOAT;
 
-    std::unordered_map<std::string, Node *> subassemblies;
-    std::unordered_map<std::string, Node *> actions;
+    std::unordered_map<std::string, size_t> subassemblies;
+    std::unordered_map<std::string, size_t> actions;
 };
 
 // typedef std::size_t EdgeData;
@@ -48,7 +44,7 @@ class EdgeData
 public:
     EdgeData() {}
 
-    std::vector<std::pair<Node*, std::string>> agent_actions_;
+    std::vector<AgentActionAssignment> planned_assignments;
     double cost = 0;
 };
 
@@ -69,9 +65,14 @@ namespace config{
         std::unordered_map<std::string, double> costs;
     };
 
+    struct Reach{
+        bool reachable;
+        std::string interaction;
+    };
+
     struct Subassembly{
         std::string name;
-        std::unordered_map<std::string, std::pair<bool, std::string>> reachability;
+        std::unordered_map<std::string, Reach> reachability;
     };
     
     struct Agent{

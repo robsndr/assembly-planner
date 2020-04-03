@@ -14,7 +14,7 @@ class GraphGenerator
 public:
 
     //Constructor, Destructor
-    GraphGenerator(Graph<> *);
+    GraphGenerator(Graph<NodeData,EdgeData> *);
     ~GraphGenerator();
 
     // Insert Nodes. Edges
@@ -24,19 +24,19 @@ public:
     bool insertEdge(std::string, std::string);
 
     // Pointer to the original graph_ class.
-    Graph<> *graph_;
+    Graph<NodeData,EdgeData> *graph_;
 
 private:
     // Containers
-    std::vector<Node *> and_;
-    std::vector<Node *> or_;
+    std::vector<Node<NodeData> *> and_;
+    std::vector<Node<NodeData> *> or_;
     std::unordered_map<std::string, std::size_t> id_map;
 };
 
 /* Contructor.
     @graph: pointer to the graph where And/Or nodes should be added.
 **/
-GraphGenerator::GraphGenerator(Graph<> *graph)
+GraphGenerator::GraphGenerator(Graph<NodeData,EdgeData> *graph)
 {
     graph_ = graph;
 }
@@ -63,7 +63,7 @@ bool GraphGenerator::setRoot(std::string name)
     }
     else
     {
-        graph_->root_ = graph_->getNode(id_map[name]);
+        graph_->root = graph_->getNode(id_map[name]);
         return true;
     }
 }
@@ -80,9 +80,9 @@ std::size_t GraphGenerator::insertAnd(std::string name)
     data.cost = 0;
     data.marked = false;
 
-    Node *inserted_node = graph_->insertNode(data);
-    id_map[name] = inserted_node->id_;
-    return inserted_node->id_;
+    auto inserted_node_id = graph_->insertNode(data);
+    id_map[name] = inserted_node_id;
+    return inserted_node_id;
 }
 
 /* Insert Or-Node into graph.
@@ -97,9 +97,9 @@ std::size_t GraphGenerator::insertOr(std::string name)
     data.cost = log2(name.length());
     data.marked = false;
 
-    Node *inserted_node = graph_->insertNode(data);
-    id_map[name] = inserted_node->id_;
-    return inserted_node->id_;
+    auto inserted_node_id = graph_->insertNode(data);
+    id_map[name] = inserted_node_id;
+    return inserted_node_id;
 }
 
 /* Insert Edge connecting two Nodes with provided names.

@@ -12,80 +12,67 @@
 #include "visitor.hpp"
 #include "dotwriter.hpp"
 
-using NodeIndex = size_t;
-
-template <typename Visitor = VerboseGraphVisitor<std::size_t>>
+template <typename N, typename E>
 class Graph
 {
-public:
+  public:
     // Construction, Destruction
-    Graph(const Visitor& = Visitor());
-    Graph(const std::size_t, const std::size_t, const Visitor& = Visitor());
-    Graph(const Graph<>&);
+    Graph();
+    Graph(const std::size_t, const std::size_t);
+    Graph(const Graph<N,E>&) = default;
     ~Graph() = default;
 
     // General Information
     std::size_t numberOfNodes() const;
     std::size_t numberOfEdges() const;
-    std::size_t numberOfEdgesFromNode(const std::size_t) const;
-    std::size_t numberOfEdgesToNode(const std::size_t) const;
+    std::size_t numberOfSuccessors(const NodeIndex) const;
+    std::size_t numberOfPredecessors(const NodeIndex) const;
 
-    Node* getNode(std::size_t);
-    const Node& getNodeRef(NodeIndex);
+    // Get address to object, mutable access
+    Node<N>* getNode(const NodeIndex);
+    N& getNodeD(const NodeIndex);
 
-    std::vector<Node*> getLeafNodes();
+    Edge<E>* getEdge(const EdgeIndex);;
+    // Getters for neighbourhood relationships
+    std::vector<Edge<E>*> getSuccessorEdges(const NodeIndex);
+    std::vector<Edge<E>*> getPredecessorEdges(const NodeIndex);
+    std::vector<Node<N>*> getSuccessorNodes(const NodeIndex);
+    std::vector<Node<N>*> getPredecessorNodes(const NodeIndex);
 
-    // Access specific nodes/vertices.
-    Edge* edgeFromNode(const std::size_t, const std::size_t);
-    Edge* edgeToNode(const std::size_t, const std::size_t);
-    std::vector<Node*> nodesFromNode(const std::size_t, const std::size_t);
-    std::vector<Node*> nodesToNode(const std::size_t, const std::size_t);
-    std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t) const;
+    std::vector<NodeIndex> predecessorNodes(const NodeIndex);
+    std::vector<NodeIndex> successorNodes(const NodeIndex);
 
-    // inserttion
-    // nodes
-    Node* insertNode(const NodeData&);
-    Node* insertNode(const Node&);
-    std::size_t insertNodes(const std::vector<Node*>&);
-    // edges
-    Edge& insertEdge(const EdgeData&, const std::size_t, const std::size_t);
-    std::size_t insertEdges(const EdgeData&,
-                            const std::size_t,
-                            const std::vector<std::size_t>&);
-
-    // copy source graph
-    std::unordered_map<std::size_t, std::size_t> copy(const Graph<>&);
+    // Insertion
+    NodeIndex insertNode(const N&);
+    EdgeIndex insertEdge(const E&, const NodeIndex, const NodeIndex);
 
     // removal
-    bool eraseNode(const std::size_t);
-    bool eraseEdge(const std::size_t, std::size_t);
-    std::pair<bool, std::size_t> findEdge(const std::size_t, const std::size_t);
+    bool eraseNode(const NodeIndex);
+    bool eraseEdge(const EdgeIndex);
+    bool eraseEdge(const NodeIndex, const NodeIndex);
 
     // TODO: implement as friend. For template might be complications.
-    void print(DotWriter &);
+    // void print(DotWriter &);
 
-    Node *root_;
-    size_t root_node_id;
+    // Helpers
+    std::pair<bool, EdgeIndex> findEdge(const NodeIndex, const NodeIndex) const;
 
-private:
-    std::size_t findEdgeIndexHelper(Edge*);
+    Node<N>* root;
 
-    std::unordered_map<std::size_t, Node> nodes_;
+  private:
+    // Nodes
+    std::unordered_map<std::size_t, Node<N>> nodes_;
     std::size_t free_node_id_;
-
-    std::unordered_map<std::size_t, Edge> edges_;
+    // Edges
+    std::unordered_map<std::size_t, Edge<E>> edges_;
     std::size_t free_edge_id_;
-    
-    Visitor visitor_;
 };
 
 /* Construct a graph
-    @param visitor: Visitor to follow changes of integer indices of vertices and edges.
+    @param visitor: N to follow changes of integer indices of vertices and edges.
 **/
-template <typename Visitor>
-inline Graph<Visitor>::Graph(
-    const Visitor &visitor)
-      : visitor_(visitor)
+template <typename N, typename E>
+inline Graph<N, E>::Graph()
 {
     free_node_id_ = 0;
     free_edge_id_ = 0;
@@ -94,14 +81,12 @@ inline Graph<Visitor>::Graph(
 /* Construct a graph with preallocating memory for nodes and edges.
     @numberOfVertices: Number of vertices.
     @numberOfEdges: Number of edges.
-    @visitor: Visitor to follow changes of integer indices of vertices and edges.
+    @visitor: N to follow changes of integer indices of vertices and edges.
 **/
-template <typename Visitor>
-inline Graph<Visitor>::Graph(
+template <typename N, typename E>
+inline Graph<N, E>::Graph(
     const std::size_t numberOfNodes,
-    const std::size_t numberOfEdges,
-    const Visitor& visitor)
-      : visitor_(visitor)
+    const std::size_t numberOfEdges)
 {
     nodes_.reserve(numberOfNodes);
     edges_.reserve(numberOfEdges);
@@ -110,77 +95,20 @@ inline Graph<Visitor>::Graph(
 
 }
 
-/* Copy-Constructor. Clone a given graph.
-    @graph: source graph which should be copied.
-            The resulting graph is a clone of the original one.
-**/
-template <typename Visitor>
-inline Graph<Visitor>::Graph(
-    const Graph<> &graph)
-{
-    copy(graph);
-}
-
-/* Clone a given graph.
-    @graph: source graph which should be copied.
-            The resulting graph is a clone of the original one.
-**/
-template <typename Visitor>
-std::unordered_map<std::size_t, std::size_t>
-Graph<Visitor>::copy(
-    const Graph<> &graph)
-{
-    nodes_.clear();
-    edges_.clear();
-
-    free_node_id_ = 0;
-    free_edge_id_ = 0;
-
-    visitor_ = graph.visitor_;
-    std::unordered_map<std::size_t, std::size_t> index_map;
-
-    for (const auto& node_tuple : graph.nodes_)
-    {
-        auto const new_node = insertNode(node_tuple.second.data_);
-        index_map[node_tuple.second.id_] = new_node->id_;
-    }
-
-    root_ = &nodes_.at(index_map[graph.root_->id_]);
-
-    for (const auto& node_tuple : graph.nodes_)
-    {
-        for (auto const& predecessor_edge : node_tuple.second.getPredecessors())
-        {
-            insertEdge(predecessor_edge->data_,
-                       index_map[predecessor_edge->getSource()->id_],
-                       index_map[node_tuple.second.id_]);
-        }
-
-        for (auto const& successor_edge : node_tuple.second.getSuccessors())
-        {
-            insertEdge(successor_edge->data_,
-                       index_map[node_tuple.second.id_],
-                       index_map[successor_edge->getDestination()->id_]);
-        }
-    }
-
-    return index_map;
-}
-
 /* Get the number of nodes.
 **/
-template <typename Visitor>
+template <typename N, typename E>
 inline std::size_t
-Graph<Visitor>::numberOfNodes() const
+Graph<N, E>::numberOfNodes() const
 {
     return nodes_.size();
 }
 
 /* Get the number of edges.
 */
-template <typename Visitor>
+template <typename N, typename E>
 inline std::size_t
-Graph<Visitor>::numberOfEdges() const
+Graph<N, E>::numberOfEdges() const
 {
     return edges_.size();
 }
@@ -188,9 +116,9 @@ Graph<Visitor>::numberOfEdges() const
 /* Get the number of edges that originate from a given node.
     @node string-id of a node.
 **/
-template <typename Visitor>
+template <typename N, typename E>
 inline std::size_t
-Graph<Visitor>::numberOfEdgesFromNode(
+Graph<N, E>::numberOfSuccessors(
     const std::size_t node) const
 {
     if (nodes_.find(node) == nodes_.end())
@@ -206,9 +134,9 @@ Graph<Visitor>::numberOfEdgesFromNode(
 /* Get the number of edges that are incident to a given node.
     @node: string-id of a node.
 **/
-template <typename Visitor>
+template <typename N, typename E>
 inline std::size_t
-Graph<Visitor>::numberOfEdgesToNode(
+Graph<N, E>::numberOfPredecessors(
     const std::size_t node) const
 {
     if (nodes_.find(node) == nodes_.end())
@@ -224,50 +152,28 @@ Graph<Visitor>::numberOfEdgesToNode(
 /* Get the number of edges that are incident to a given node.
     @node: id of a node.
 **/
-template <typename Visitor>
-inline Node*
-Graph<Visitor>::getNode(std::size_t node_id)
+template <typename N, typename E>
+inline Node<N>*
+Graph<N, E>::getNode(std::size_t node_id)
 {
     return &(nodes_.at(node_id));
 }
 
-/* Get the number of edges that are incident to a given node.
-    @node: id of a node.
-**/
-template <typename Visitor>
-inline const Node& 
-Graph<Visitor>::getNodeRef(NodeIndex node_id)
+template <typename N, typename E>
+inline N&
+Graph<N, E>::getNodeD(std::size_t node_id)
 {
-    return nodes_.at(node_id);
-}
-
-/* Get reference to all Nodes that don't have successors (leaves).
-    \return: vector containting references to all leaf-nodes present in the graph.
-**/
-template <typename Visitor>
-inline std::vector<Node*>
-Graph<Visitor>::getLeafNodes()
-{
-    std::vector<Node*> temp;
-    for (auto it = std::begin(nodes_); it != std::end(nodes_); it++)
-    {
-        if (!it->second.hasSuccessor())
-        {
-            temp.push_back(&(it->second));
-        }
-    }
-    return temp;
+    return nodes_.at(node_id).data_;
 }
 
 /* Get the pointer to the j`th edge that originates from a given node.
     @node: id of a node.
     @j; number of edge. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template <typename Visitor>
-inline Edge*
-Graph<Visitor>::edgeFromNode(
-    const std::size_t node,
-    const std::size_t j)
+template <typename N, typename E>
+inline std::vector<Edge<E>*>
+Graph<N, E>::getSuccessorEdges(
+    const std::size_t node)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -276,18 +182,22 @@ Graph<Visitor>::edgeFromNode(
                   << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_.at(node).children_[j];
+    std::vector<Edge<E>*> edgeptrs;
+    for(auto &e : nodes_.at(node).successorEdges())
+    {
+        edgeptrs.push_back(&edges_.at(e));
+    }
+    return edgeptrs;
 }
 
-/* Get the pointer to the j`th edge that is incident to a given node.
-    @node: id of a node.
-    @j: index of edge. Between 0 and numberOfedgesToNode(node) - 1.
-**/
-template <typename Visitor>
-inline Edge*
-Graph<Visitor>::edgeToNode(
-    const std::size_t node,
-    const std::size_t j)
+// /* Get the pointer to the j`th edge that is incident to a given node.
+//     @node: id of a node.
+//     @j: index of edge. Between 0 and numberOfedgesToNode(node) - 1.
+// **/
+template <typename N, typename E>
+inline std::vector<Edge<E>*>
+Graph<N, E>::getPredecessorEdges(
+    const std::size_t node)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -296,18 +206,22 @@ Graph<Visitor>::edgeToNode(
                   << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_.at(node).parents_[j];
+    std::vector<Edge<E>*> edgeptrs;
+    for(auto &e : nodes_.at(node).predecessorEdges())
+    {
+        edgeptrs.push_back(&edges_.at(e));
+    }
+    return edgeptrs;
 }
 
 /* Get pointers to the nodes reachable from a given node via a specified edge.
     @node: id of a node.
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template <typename Visitor>
-inline std::vector<Node*>
-Graph<Visitor>::nodesFromNode(
-    const std::size_t node,
-    const std::size_t j)
+template <typename N, typename E>
+inline std::vector<Node<N>*>
+Graph<N, E>::getSuccessorNodes(
+    const std::size_t node)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -316,18 +230,24 @@ Graph<Visitor>::nodesFromNode(
                   << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_.at(node).getSuccessorNodes();
+
+    std::vector<Node<N>*> nodeptrs;
+    for(auto &e : nodes_.at(node).successorEdges())
+    {
+        auto n = edges_.at(e).getDestination();
+        nodeptrs.push_back(&nodes_.at(n));
+    }
+    return nodeptrs;
 }
 
 /* Get pointers to the nodes incident to a given node via a specified edge.
     @node: id of a node.
     @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
 **/
-template <typename Visitor>
-inline std::vector<Node*>
-Graph<Visitor>::nodesToNode(
-    const std::size_t node,
-    const std::size_t j)
+template <typename N, typename E>
+inline std::vector<Node<N>*>
+Graph<N, E>::getPredecessorNodes(
+    const std::size_t node)
 {
     if (nodes_.find(node) == nodes_.end())
     {
@@ -336,60 +256,78 @@ Graph<Visitor>::nodesToNode(
                   << node << " not in graph." << std::endl;
         throw std::range_error("Unable to access node.");
     }
-    return nodes_.at(node).getPredecessorNodes();
-}
-
-/* Insert an additional Node.
-    @node: string-id of the newly inserted node.
-    @data: data asociated with the created node.
-    \return: pointer to new node
-**/
-template <typename Visitor>
-inline Node*
-Graph<Visitor>::insertNode(const Node& node)
-{
-    size_t tid = free_node_id_;
-    NodeData ndata = node.data_;
-    nodes_.insert(std::make_pair(free_node_id_, Node(free_node_id_, ndata)));
-    free_node_id_++;
-    // visitor_.insertVertex(nodeId);
-    return &(nodes_.at(tid));
-}
-
-/* Insert an additional Node.
-    @node: string-id of the newly inserted node.
-    @data: data asociated with the created node.
-    \return: pointer to new node
-**/
-template <typename Visitor>
-inline Node*
-Graph<Visitor>::insertNode(const NodeData& data)
-{
-    size_t tid = free_node_id_;
-    nodes_.insert(std::make_pair(free_node_id_, Node(free_node_id_, data)));
-    free_node_id_++;
-    // visitor_.insertVertex(nodeId);
-    return &(nodes_.at(tid));
-}
-
-/* Insert multiple additional Nodes.
-    @nodes: vector containing nodes to be inserted into the graph.
-    \return: number of nodes present in the graph.
-**/
-template <typename Visitor>
-inline std::size_t
-Graph<Visitor>::insertNodes(
-    const std::vector<Node*> &nodes)
-{
-    for (const auto node : nodes)
+    std::vector<Node<N>*> nodeptrs;
+    for(auto &e : nodes_.at(node).predecessorEdges())
     {
-        nodes_.insert(std::make_pair(node->id_, *node));
-        free_node_id_++;
+        auto n = edges_.at(e).getSource();
+        nodeptrs.push_back(&nodes_.at(n));
     }
-    // for(const auto nd: nodes){
-    //     visitor_.insertNodes(nd->id_, nodes.size());
-    // }
-    return nodes_.size();
+    return nodeptrs;
+}
+
+/* Get pointers to the nodes reachable from a given node via a specified edge.
+    @node: id of a node.
+    @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
+**/
+template <typename N, typename E>
+inline std::vector<NodeIndex>
+Graph<N, E>::successorNodes(
+    const std::size_t node)
+{
+    if (nodes_.find(node) == nodes_.end())
+    {
+        std::cerr << std::endl
+                  << "Error: nodesFromNode. Node " 
+                  << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
+    std::vector<NodeIndex> nodeptrs;
+    for(auto &e : nodes_.at(node).successorEdges())
+    {
+        nodeptrs.push_back(edges_.at(e).getDestination());
+    }
+    return nodeptrs;
+}
+
+/* Get pointers to the nodes incident to a given node via a specified edge.
+    @node: id of a node.
+    @j: index of the edge being used. Between 0 and numberOfedgesFromNode(node) - 1.
+**/
+template <typename N, typename E>
+inline std::vector<NodeIndex>
+Graph<N, E>::predecessorNodes(
+    const std::size_t node)
+{
+    if (nodes_.find(node) == nodes_.end())
+    {
+        std::cerr << std::endl
+                  << "Error: nodesToNode. Node " 
+                  << node << " not in graph." << std::endl;
+        throw std::range_error("Unable to access node.");
+    }
+
+    std::vector<NodeIndex> nodeptrs;
+    for(auto &e : nodes_.at(node).predecessorEdges())
+    {
+        nodeptrs.push_back(edges_.at(e).getSource());
+    }
+    return nodeptrs;
+}
+
+/* Insert an additional Node.
+    @node: string-id of the newly inserted node.
+    @data: data asociated with the created node.
+    \return: pointer to new node
+**/
+template <typename N, typename E>
+inline NodeIndex
+Graph<N, E>::insertNode(const N& data)
+{
+    size_t tid = free_node_id_;
+    nodes_.insert(std::make_pair(free_node_id_, Node<N>(free_node_id_, data)));
+    free_node_id_++;
+    // visitor_.insertVertex(nodeId);
+    return tid;
 }
 
 /* Insert additional edge.
@@ -397,14 +335,13 @@ Graph<Visitor>::insertNodes(
     @destNodeId: id of the destinaion node of the edge.
     \return Integer index of the newly inserted edge.
 **/
-template <typename Visitor>
-Edge&
-Graph<Visitor>::insertEdge(
-    const EdgeData& data,
+template <typename N, typename E>
+EdgeIndex
+Graph<N, E>::insertEdge(
+    const E& data,
     const std::size_t srcNodeId,
     const std::size_t destNodeId)
 {
-
     if (nodes_.find(srcNodeId) == nodes_.end())
     {
         std::cerr << "Unable to create edge. "
@@ -418,36 +355,17 @@ Graph<Visitor>::insertEdge(
         throw std::range_error("Unable to create edge.");
     }
 
-    auto e = Edge(data);
-    e.setDestination(&(nodes_.at(destNodeId)));
-    e.setSource(&(nodes_.at(srcNodeId)));
+    auto e = Edge<E>(free_edge_id_, data);
+    e.setDestination(destNodeId);
+    e.setSource(srcNodeId);
 
     edges_.insert(std::make_pair(free_edge_id_, std::move(e)));
-    nodes_.at(srcNodeId).addSuccessor(&edges_.at(free_edge_id_));
-    nodes_.at(destNodeId).addPredecessor(&edges_.at(free_edge_id_));
+    nodes_.at(srcNodeId).addSuccessorEdge(free_edge_id_);
+    nodes_.at(destNodeId).addPredecessorEdge(free_edge_id_);
 
     free_edge_id_++;
 
-    return edges_.at(free_edge_id_-1);
-}
-
-/* Insert additional edges.
-    @srcNodeId: string-ids of the source nodes of the edges.
-    @destNodeId: string-ids of the destinaion nodes of the edges.
-    \return: number of edges present in the graph.
-**/
-template <typename Visitor>
-inline std::size_t
-Graph<Visitor>::insertEdges(
-    const EdgeData& data,
-    const std::size_t srcNodeId,
-    const std::vector<std::size_t> &destNodeIds)
-{
-    for (auto const& destNodeId : destNodeIds)
-    {
-        insertEdge(data, srcNodeId, destNodeId);
-    }
-    return edges_.size();
+    return free_edge_id_-1;
 }
 
 /* Search for an edge
@@ -458,11 +376,11 @@ Graph<Visitor>::insertEdges(
       if no edge from nodeSrc to nodeDst exists, pair.first is false 
       and pair.second is undefined.
 */
-template <typename Visitor>
-std::pair<bool, std::size_t>
-Graph<Visitor>::findEdge(
-    const std::size_t nodeSrc,
-    const std::size_t nodeDst)
+template <typename N, typename E>
+std::pair<bool, EdgeIndex>
+Graph<N, E>::findEdge(
+    const NodeIndex nodeSrc,
+    const NodeIndex nodeDst) const
 {
 
     // check if given nodes exist in the graph.
@@ -486,7 +404,7 @@ Graph<Visitor>::findEdge(
 
     for (const auto& edge : edges_)
     {
-        if (edge.second.getSource() == &nodes_[nodeSrc] && edge.second.getDestination() == &nodes_[nodeDst])
+        if (edge.second.getSource() == nodes_.at(nodeSrc).id && edge.second.getDestination() == nodes_.at(nodeDst).id)
         {
             success = true;
             edge_index = edge.first;
@@ -500,8 +418,29 @@ Graph<Visitor>::findEdge(
 // /* Erase an edge.
 //     @edgeIndex: Integer index of the edge to be erased.
 // */
-template <typename Visitor>
-bool Graph<Visitor>::eraseEdge(
+template <typename N, typename E>
+bool Graph<N, E>::eraseEdge(
+    const EdgeIndex edgeIndex)
+{
+    if (edges_.find(edgeIndex) == edges_.end())
+    {
+        std::cerr << "eraseEdge: Edge does not exist" << std::endl;
+        return false;
+    }
+
+    auto edge = edges_.at(edgeIndex);
+    nodes_.at(edge.getSource()).removeSuccessorEdge(edgeIndex);
+    nodes_.at(edge.getDestination()).removePredecessorEdge(edgeIndex);
+    edges_.erase(edgeIndex);
+
+    return true;
+}
+
+// /* Erase an edge.
+//     @edgeIndex: Integer index of the edge to be erased.
+// */
+template <typename N, typename E>
+bool Graph<N, E>::eraseEdge(
     const std::size_t nodeSrc,
     const std::size_t nodeDst)
 {
@@ -529,86 +468,17 @@ bool Graph<Visitor>::eraseEdge(
         return false;
     }
 
-    nodes_.at(nodeSrc).removeSuccessor(nodeDst);
-    nodes_.at(nodeDst).removePredecessor(nodeSrc);
-
+    nodes_.at(nodeDst).removeSuccessorEdge(edgeIndex);
+    nodes_.at(nodeDst).removePredecessorEdge(edgeIndex);
     edges_.erase(edgeIndex);
 
     return true;
 }
 
-/* Find the index corresponding to a given edge pointer.
-    @edge: pointer to edge edge which index to find.
-*/
-// template <typename Visitor>
-// inline std::size_t
-// Graph<Visitor>::findEdgeIndexHelper(Edge *edge)
-// {
-//     std::size_t edge_index;
-//     for (size_t j = 0; j < edges_.size(); j++)
-//     {
-//         if (edges_[j] == edge)
-//         {
-//             edge_index = j;
-//             break;
-//         }
-//     }
-//     return edge_index;
-// }
-
-// /* Erase a Node and all edges concerning this Node.
-//     @nodeId Integer index of the vertex to be erased.
-// **/
-// template <typename Visitor>
-// bool Graph<Visitor>::eraseNode(
-//     const std::size_t nodeId)
-// {
-//     if (nodes_.find(nodeId) == nodes_.end())
-//     {
-//         std::cerr << "Unable to find node to remove. "
-//                   << "Node: " << nodeId << " not in graph. Was not removed."
-//                   << std::endl;
-//         return false;
-//     }
-
-//     Node *node_to_remove = nodes_[nodeId];
-//     nodes_.erase(nodeId);
-
-//     std::vector<Edge *> predecessors = node_to_remove->getPredecessors();
-//     std::vector<Edge *> successors = node_to_remove->getSuccessors();
-//     std::size_t temp_edge_index;
-
-//     for (size_t j = 0; j < predecessors.size(); j++)
-//     {
-//         Edge *edge_to_remove = predecessors[j];
-//         Node *predecessor_node = edge_to_remove->getSource();
-//         predecessor_node->removeSuccessor(nodeId);
-
-//         temp_edge_index = findEdgeIndexHelper(edge_to_remove);
-//         edges_.erase(edges_.begin() + temp_edge_index);
-//         delete edge_to_remove;
-//     }
-
-//     for (size_t j = 0; j < successors.size(); j++)
-//     {
-//         Edge *edge_to_remove = successors[j];
-//         Node *successor_node = edge_to_remove->getDestination();
-//         successor_node->removePredecessor(nodeId);
-
-//         temp_edge_index = findEdgeIndexHelper(edge_to_remove);
-//         edges_.erase(edges_.begin() + temp_edge_index);
-//         delete edge_to_remove;
-//     }
-
-//     delete node_to_remove;
-
-//     return true;
-// }
-
-// /* DEBUG: print graph.
+// /* Print graph
 // */
-template <typename Visitor>
-void Graph<Visitor>::print(DotWriter &writer)
-{
-    writer.write(nodes_);
-}
+// template <typename N, typename E>
+// void Graph<N, E>::print(DotWriter &writer)
+// {
+//     writer.write(nodes_);
+// }
