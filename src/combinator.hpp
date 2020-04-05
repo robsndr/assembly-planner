@@ -167,7 +167,7 @@ void Combinator::generateActionCombinationSets(Graph<NodeData,EdgeData>& graph, 
         for (int i = 0; i < n; i++)
         {
             auto node_id = graph.successorNodes(node_ids[i])[indices[i]];
-            auto action = graph.getNodeD(node_id);
+            auto action = graph.getNodeData(node_id);
             temp_action_set_.push_back(std::make_tuple(action.name, node_id));
         }
         temp_action_combinations_.push_back(temp_action_set_);

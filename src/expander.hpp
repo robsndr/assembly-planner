@@ -55,7 +55,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
 {
     std::vector<NodeIndex> nodes;
 
-    auto& node_data = search_graph_.getNodeD(node_id);
+    auto& node_data = search_graph_.getNodeData(node_id);
     for (auto sa : node_data.subassemblies)
     {
         if (assembly_graph_.numberOfSuccessors(sa.second) > 0)
@@ -105,7 +105,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
             // Delete the subassemblies/actions which are applied in the current step,
             // In this way, they are not available in the newly-created node.
             auto action_source_id = assembly_graph_.predecessorNodes(action_node_id).front();
-            auto action_source = assembly_graph_.getNodeD(action_source_id).name;
+            auto action_source = assembly_graph_.getNodeData(action_source_id).name;
             x.name += action_source + "-" + action + "-" + agent + "   ";
             x.subassemblies.erase(action_source);
             x.actions.erase(action);
@@ -113,7 +113,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
             // For the currently applied assignement, update the subassemblies of the new supernode.
             for (auto& successor_id : assembly_graph_.successorNodes(action_node_id))
             {
-                auto successor = assembly_graph_.getNodeD(successor_id);
+                auto successor = assembly_graph_.getNodeData(successor_id);
                 NodeIndex ors_id = successor_id;
 
                 bool part_reachable = config.subassemblies[successor.name].reachability[agent].reachable;
@@ -131,7 +131,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
 
                 for (const auto& next_action_id : assembly_graph_.successorNodes(ors_id))
                 {
-                    auto next_action = assembly_graph_.getNodeD(next_action_id);
+                    auto next_action = assembly_graph_.getNodeData(next_action_id);
                     x.actions[next_action.name] = next_action_id;
                 }
             }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include "containers.hpp"
 #include "types.hpp"
 
 template <typename E>
@@ -16,7 +14,7 @@ class Edge
     void setDestination(NodeIndex);
     void setSource(NodeIndex);
 
-    E data_;
+    E data;
     EdgeIndex id;
 
   private:
@@ -25,10 +23,10 @@ class Edge
 };
 
 template <typename E>
-Edge<E>::Edge(EdgeIndex idx, E data)
+Edge<E>::Edge(EdgeIndex idx, E dat)
 {
     id = idx;
-    data_ = data;
+    data = dat;
 }
 
 template <typename E>

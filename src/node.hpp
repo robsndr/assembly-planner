@@ -1,20 +1,13 @@
 #pragma once
 
-#include <iostream>
-#include <stdio.h>
-#include <vector>
-#include <algorithm>
-#include <string>
 #include <unordered_set>
 
-#include "edge.hpp"
-
-using NodeIndex = size_t;
+#include "types.hpp"
 
 template <typename N>
 struct Node
 {
-    Node(std::size_t identifier, N data);
+    Node(NodeIndex, N);
 
     bool hasSuccessor() const;
     bool hasPredecessor() const;
@@ -29,8 +22,8 @@ struct Node
     std::unordered_set<NodeIndex> &successorEdges();
     std::unordered_set<NodeIndex> &predecessorEdges();
 
-    std::size_t id;
-    N data_;
+    NodeIndex id;
+    N data;
 
 private:
     std::unordered_set<EdgeIndex> parents_;
@@ -38,10 +31,10 @@ private:
 };
 
 template <typename N>
-Node<N>::Node(std::size_t identifier, N data)
+Node<N>::Node(NodeIndex idx, N dat)
 {
-    id = identifier;
-    data_ = data;
+    id = idx;
+    data = dat;
 }
 
 template <typename N>

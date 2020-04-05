@@ -11,7 +11,6 @@
 #include "dotwriter.hpp"
 #include "tinyxml2.h"
 #include "graph_generator.hpp"
-#include "containers.hpp"
 
 /* Check if a string represents a float-number.
 **/

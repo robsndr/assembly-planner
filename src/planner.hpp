@@ -36,15 +36,15 @@ Planner::operator()(Graph<NodeData,EdgeData> graph, config::Configuration& confi
     // It is a different Graph the the one passed as a function parameter.
     // This one is the graph of Hypernodes used later for the A* search.
     Graph<NodeData,EdgeData> search_graph;
-    auto new_root_id = search_graph.insertNode(graph.root->data_);
+    auto new_root_id = search_graph.insertNode(graph.root->data);
     Node<NodeData> *new_root = search_graph.getNode(new_root_id);
 
     // Set the subassemblies and actions of the first supernode.
     // The actions correspond to all possible moves we can take in the first supernode.
-    new_root->data_.subassemblies[graph.root->data_.name] = graph.root->id;
+    new_root->data.subassemblies[graph.root->data.name] = graph.root->id;
     for (auto &x : graph.getSuccessorNodes(graph.root->id))
     {
-        new_root->data_.actions[x->data_.name] = x->id;
+        new_root->data.actions[x->data.name] = x->id;
     }
 
     // Create the NodeExpander and pass it to the AStarSearch.
@@ -68,7 +68,7 @@ Planner::operator()(Graph<NodeData,EdgeData> graph, config::Configuration& confi
     double cost = 0;
     while (search_graph.numberOfPredecessors(result->id) > 0)
     {
-        for (auto &i : search_graph.getPredecessorEdges(result->id).front()->data_.planned_assignments)
+        for (auto &i : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)
         {
             double cur_cost = config.actions[i.action].costs[i.agent];
             std::cout << "Action: " << i.action << " Agent: " << i.agent << "    ";

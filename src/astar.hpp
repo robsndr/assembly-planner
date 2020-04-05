@@ -16,7 +16,7 @@ struct LessThan
 {
     bool operator()(const Node<NodeData> *lhs, const Node<NodeData> *rhs) const
     {
-        return (lhs->data_.f_score) > (rhs->data_.f_score);
+        return (lhs->data.f_score) > (rhs->data.f_score);
     }
 };
 
@@ -42,7 +42,7 @@ struct AStarSearch
 **/
 bool AStarSearch::isGoal(Graph<NodeData,EdgeData>& graph, Node<NodeData>* current)
 {
-    for (auto &x : current->data_.subassemblies)
+    for (auto &x : current->data.subassemblies)
     {
         if (graph.numberOfSuccessors(x.second) > 0)
         {
@@ -60,14 +60,14 @@ bool AStarSearch::isGoal(Graph<NodeData,EdgeData>& graph, Node<NodeData>* curren
 double AStarSearch::calc_hscore(Node<NodeData>* current)
 {
     std::size_t maximum_length_subassembly = 0;
-    for (auto &x : current->data_.subassemblies)
+    for (auto &x : current->data.subassemblies)
     {
         auto node = assembly_.getNode(x.second);
-        if (node->data_.name.length() > maximum_length_subassembly)
-            maximum_length_subassembly = node->data_.name.length();
+        if (node->data.name.length() > maximum_length_subassembly)
+            maximum_length_subassembly = node->data.name.length();
     }
     
-    double temp = log2f(maximum_length_subassembly) * current->data_.minimum_cost_action;
+    double temp = log2f(maximum_length_subassembly) * current->data.minimum_cost_action;
     return temp;
 }
 
@@ -78,7 +78,7 @@ double AStarSearch::calc_hscore(Node<NodeData>* current)
 **/
 double AStarSearch::calc_fscore(Node<NodeData>* current)
 {
-    return current->data_.g_score + current->data_.h_score;
+    return current->data.g_score + current->data.h_score;
 }
 
 
@@ -102,8 +102,8 @@ Node<NodeData>* AStarSearch::search(Graph<NodeData,EdgeData>& graph, Node<NodeDa
     // Not using the closed-set saves some processing time needed to lookuo-stuff.
     // NodeSet closedSet; 
     expander.expandNode(root->id);
-    root->data_.h_score  = this->calc_hscore(root);
-    root->data_.f_score = this->calc_fscore(root);
+    root->data.h_score  = this->calc_hscore(root);
+    root->data.f_score = this->calc_fscore(root);
 
     openSet.push(root);
 
@@ -117,16 +117,16 @@ Node<NodeData>* AStarSearch::search(Graph<NodeData,EdgeData>& graph, Node<NodeDa
             return current;
         }
         
-        current->data_.marked = true;
+        current->data.marked = true;
 
         for (auto &edge : graph.getSuccessorEdges(current->id))
         {
             Node<NodeData> *child = graph.getNode(edge->getDestination());
             expander.expandNode(child->id);
 
-            child->data_.g_score = current->data_.g_score + edge->data_.cost;
-            child->data_.h_score = this->calc_hscore(child);
-            child->data_.f_score = this->calc_fscore(child);
+            child->data.g_score = current->data.g_score + edge->data.cost;
+            child->data.h_score = this->calc_hscore(child);
+            child->data.f_score = this->calc_fscore(child);
 
             openSet.push(child);
         }
