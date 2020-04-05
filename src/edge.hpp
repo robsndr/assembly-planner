@@ -18,6 +18,7 @@ class Edge
     EdgeIndex id;
 
   private:
+  
     NodeIndex to_;
     NodeIndex from_;
 };

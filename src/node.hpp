@@ -25,7 +25,8 @@ struct Node
     NodeIndex id;
     N data;
 
-private:
+  private:
+  
     std::unordered_set<EdgeIndex> parents_;
     std::unordered_set<EdgeIndex> children_;
 };
