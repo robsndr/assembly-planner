@@ -1,80 +1,71 @@
 #pragma once
 
 #include <fstream>
+
 #include "node.hpp"
+#include "types.hpp"
 
-/* Implements the writing of Dot_Files give a graph.
-    This feature can be used for debug, as graphs can be conviniently viewed using a Dot-Viewer.
-**/
-// class DotWriter
-// {
-// private:
-//     std::fstream fs;
-//     void writeNode(const Node<>&);
-//     void writeNodeId(const Node<>&);
+// Implements the writing of .dot files for a given graph
+template <typename N>
+struct DotWriter
+{
+    DotWriter(std::string name)
+    {
+        fs.open(name, std::fstream::out);
+        fs << "digraph G {" << std::endl;
+    }
 
-// public:
-//     DotWriter(std::string name);
-//     ~DotWriter();
+    ~DotWriter()
+    {
+        fs.close();
+    }
 
-//     void write(const std::unordered_map<std::size_t, Node<>> &);
-// };
+    void write(const std::unordered_map<std::size_t, Node<N>> & nodes)
+    {
+        for (auto const &x : nodes)
+        {
+            writeNodeId(x.second);
+        }
 
-// DotWriter::DotWriter(std::string name)
-// {
-//     fs.open(name, std::fstream::out);
+        for (auto const &x : nodes)
+        {
+            writeNode(x.second);
+        }
+        fs << "}";
+        fs.close();
+    }
 
-//     fs << "digraph G {" << std::endl;
-// }
+  private:
 
-// DotWriter::~DotWriter()
-// {
-//     fs.close();
-// }
+    void writeNode(const Node<N>& node)
+    {
+        fs << "  " << node.id_ << " -> "
+        << "{";
+        std::vector<Node<N>*> temp = node.getSuccessorNodes();
+        for (std::size_t i = 0; i < node.numberOfSuccessors(); i++)
+        {
+            if (i != node.numberOfSuccessors() - 1)
+            {
+                fs << temp[i]->id_
+                << ", ";
+            }
+            else
+            {
+                fs << temp[i]->id_;
+            }
+        }
+        fs << "}" << std::endl;
+    }
 
-// void DotWriter::write(const std::unordered_map<std::size_t, Node<>> &nodes)
-// {
+    void writeNodeId(const Node<N>& node)
+    {
+        fs << "  " << node.id << " [label=\""
+            << node.data_.name << "\n"
+            << "F: " << node.data_.f_score << std::endl
+            << "H: " << node.data_.h_score
+            << "\"];"
+            << std::endl;
+    }
 
-//     for (auto const &x : nodes)
-//     {
-//         writeNodeId(x.second);
-//     }
-
-//     for (auto const &x : nodes)
-//     {
-//         writeNode(x.second);
-//     }
-//     fs << "}";
-//     fs.close();
-// }
-
-// void DotWriter::writeNode(const Node<>& node)
-// {
-//     // fs << "  " << node.id_ << " -> "
-//     //    << "{";
-//     // std::vector<Node *> temp = node.getSuccessorNodes();
-//     // for (std::size_t i = 0; i < node.numberOfSuccessors(); i++)
-//     // {
-//     //     if (i != node.numberOfSuccessors() - 1)
-//     //     {
-//     //         fs << temp[i]->id_
-//     //            << ", ";
-//     //     }
-//     //     else
-//     //     {
-//     //         fs << temp[i]->id_;
-//     //     }
-//     // }
-//     // fs << "}" << std::endl;
-// }
-
-// void DotWriter::writeNodeId(const Node<>& node)
-// {
-//     fs << "  " << node.id
-//        << " [label=\""
-//        << node.data_.name << "\n"
-//        << "F: " << node.data_.f_score << std::endl
-//        << "H: " << node.data_.h_score
-//        << "\"];"
-//        << std::endl;
-// }
+    std::fstream fs;
+};

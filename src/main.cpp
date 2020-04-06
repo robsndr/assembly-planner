@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     std::vector< std::vector<Task*>> assembly_plan;
 
     // Assembly Planning Block.
-    Graph<NodeData,EdgeData> *assembly;
+    Graph<AssemblyData,EdgeData> *assembly;
 
     try
     {

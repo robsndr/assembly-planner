@@ -35,7 +35,7 @@ public:
     ~InputReader();
 
     // Read the provided XML representing the assembly with agents, costs...
-    std::tuple<Graph<NodeData,EdgeData> *, config::Configuration*, bool> read(std::string);
+    std::tuple<Graph<AssemblyData,EdgeData> *, config::Configuration*, bool> read(std::string);
 
 private:
 
@@ -60,7 +60,7 @@ private:
     tinyxml2::XMLDocument *doc;
     
     GraphGenerator *graph_gen;
-    Graph<NodeData,EdgeData> *graph;
+    Graph<AssemblyData,EdgeData> *graph;
 
     config::Configuration *config;
 };
@@ -78,7 +78,7 @@ InputReader::InputReader(std::string path)
         throw std::runtime_error("Could not open XML file.");
 
     // Allocate objects    
-    graph = new Graph<NodeData,EdgeData>;
+    graph = new Graph<AssemblyData,EdgeData>;
     graph_gen = new GraphGenerator(graph);
     config = new config::Configuration;
 }
@@ -99,7 +99,7 @@ InputReader::~InputReader()
     \return: tuple containg the graph, config represented inside the XML 
              and a boolean indicating success.
 **/
-std::tuple<Graph<NodeData,EdgeData> *, config::Configuration*, bool> InputReader::read(std::string root_name)
+std::tuple<Graph<AssemblyData,EdgeData> *, config::Configuration*, bool> InputReader::read(std::string root_name)
 {
 
     // Find the root node of the document.

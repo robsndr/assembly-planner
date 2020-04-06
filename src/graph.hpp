@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <unordered_map>
 
 #include "node.hpp"
@@ -22,6 +23,8 @@ class Graph
     std::size_t numberOfEdges() const;
     std::size_t numberOfSuccessors(const NodeIndex) const;
     std::size_t numberOfPredecessors(const NodeIndex) const;
+    bool hasSuccessor(const NodeIndex) const;
+    bool hasPredecessor(const NodeIndex) const;
 
     // Get address to object, mutable access
     Node<N>* getNode(const NodeIndex);
@@ -46,8 +49,8 @@ class Graph
     bool eraseEdge(const EdgeIndex);
     bool eraseEdge(const NodeIndex, const NodeIndex);
 
-    // TODO: implement as friend. For template might be complications.
-    // void print(DotWriter &);
+    // Write graph nodes to .dot file
+    // void print(DotWriter<N> &);
 
     // Helpers
     std::pair<bool, EdgeIndex> findEdge(const NodeIndex, const NodeIndex) const;
@@ -111,6 +114,23 @@ Graph<N, E>::numberOfPredecessors(
 {
     return nodes_.at(node).numberOfPredecessors();
 }
+
+template <typename N, typename E>
+inline bool
+Graph<N, E>::hasSuccessor(
+    const NodeIndex node) const
+{
+    return nodes_.at(node).hasSuccessor();
+}
+
+template <typename N, typename E>
+inline bool
+Graph<N, E>::hasPredecessor(
+    const NodeIndex node) const
+{
+    return nodes_.at(node).hasPredecessor();
+}
+
 
 template <typename N, typename E>
 inline Node<N>*

@@ -14,7 +14,7 @@ class GraphGenerator
 public:
 
     //Constructor, Destructor
-    GraphGenerator(Graph<NodeData,EdgeData> *);
+    GraphGenerator(Graph<AssemblyData,EdgeData> *);
     ~GraphGenerator();
 
     // Insert Nodes. Edges
@@ -24,19 +24,19 @@ public:
     bool insertEdge(std::string, std::string);
 
     // Pointer to the original graph_ class.
-    Graph<NodeData,EdgeData> *graph_;
+    Graph<AssemblyData,EdgeData> *graph_;
 
 private:
     // Containers
-    std::vector<Node<NodeData> *> and_;
-    std::vector<Node<NodeData> *> or_;
+    std::vector<Node<AssemblyData> *> and_;
+    std::vector<Node<AssemblyData> *> or_;
     std::unordered_map<std::string, std::size_t> id_map;
 };
 
 /* Contructor.
     @graph: pointer to the graph where And/Or nodes should be added.
 **/
-GraphGenerator::GraphGenerator(Graph<NodeData,EdgeData> *graph)
+GraphGenerator::GraphGenerator(Graph<AssemblyData,EdgeData> *graph)
 {
     graph_ = graph;
 }
@@ -74,11 +74,9 @@ bool GraphGenerator::setRoot(std::string name)
 **/
 std::size_t GraphGenerator::insertAnd(std::string name)
 {
-    NodeData data;
+    AssemblyData data;
     data.name = name;
-    data.type = NodeType::AND;
-    data.cost = 0;
-    data.marked = false;
+    data.type = NodeType::ACTION;
 
     auto inserted_node_id = graph_->insertNode(data);
     id_map[name] = inserted_node_id;
@@ -91,11 +89,9 @@ std::size_t GraphGenerator::insertAnd(std::string name)
 **/
 std::size_t GraphGenerator::insertOr(std::string name)
 {
-    NodeData data;
+    AssemblyData data;
     data.name = name;
-    data.type = NodeType::AND;
-    data.cost = log2(name.length());
-    data.marked = false;
+    data.type = NodeType::SUBASSEMBLY;
 
     auto inserted_node_id = graph_->insertNode(data);
     id_map[name] = inserted_node_id;

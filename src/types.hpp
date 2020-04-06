@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <set>
 #include <vector>
 #include <unordered_map>
 #include <cmath>
@@ -15,63 +13,35 @@ struct AgentActionAssignment {
     size_t action_node_id;
 };
 
+struct SearchData
+{
+    bool marked = false;
+
+    double g_score = 0;
+    double f_score = 0;
+    double h_score = 0;
+
+    double minimum_cost_action = MAXFLOAT;
+
+    std::unordered_map<std::string, size_t> subassemblies;
+    std::unordered_map<std::string, size_t> actions;
+};
 
 enum class NodeType
 {
-    AND,
-    OR
+    ACTION,
+    INTERACTION,
+    SUBASSEMBLY
 };
 
-class SearchNode
+struct AssemblyData
 {
-public:
-    SearchNode() {}
-
-    double cost = 0;
     NodeType type;
-
     std::string name = "";
-
-    bool marked = false;
-
-    double g_score = 0;
-    double f_score = 0;
-    double h_score = 0;
-
-    double minimum_cost_action = MAXFLOAT;
-
-    std::unordered_map<std::string, size_t> subassemblies;
-    std::unordered_map<std::string, size_t> actions;
 };
 
-
-class NodeData
+struct EdgeData
 {
-public:
-    NodeData() {}
-
-    double cost = 0;
-    NodeType type;
-
-    std::string name = "";
-
-    bool marked = false;
-
-    double g_score = 0;
-    double f_score = 0;
-    double h_score = 0;
-
-    double minimum_cost_action = MAXFLOAT;
-
-    std::unordered_map<std::string, size_t> subassemblies;
-    std::unordered_map<std::string, size_t> actions;
-};
-
-class EdgeData
-{
-public:
-    EdgeData() {}
-
     std::vector<AgentActionAssignment> planned_assignments;
     double cost = 0;
 };
