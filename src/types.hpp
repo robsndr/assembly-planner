@@ -1,15 +1,18 @@
 #pragma once
 
+#include <ostream>
 #include <vector>
 #include <unordered_map>
 #include <cmath>
+#include <iomanip>
 
 using NodeIndex = size_t;
 using EdgeIndex = size_t;
 
-struct AgentActionAssignment {
-    std::string agent; 
-    std::string action; 
+struct AgentActionAssignment
+{
+    std::string agent;
+    std::string action;
     size_t action_node_id;
 };
 
@@ -46,42 +49,102 @@ struct EdgeData
     double cost = 0;
 };
 
-namespace config{
-    struct Parameter{
+namespace config
+{
+
+    struct Action
+    {
+        using agentname = std::string;
+        
+        std::string name;
+        std::unordered_map<agentname, double> costs;
+
+        friend std::ostream &operator<<(std::ostream &os, const Action &a)
+        {
+            os << "| Action " << std::setw(5) << a.name << std::setw(29) << "|" << std::endl;
+            for(const auto &cost_agent : a.costs)
+            {
+                os << "|    Agent: " << std::setw(4)  << cost_agent.first 
+                    << "    Cost"    << std::setw(15) << cost_agent.second 
+                    << std::setw(4)  << "|" <<std::endl;
+            }
+            return os;
+        }        
+    };
+    struct Parameter
+    {
         std::string name;
         std::string value;
     };
+    //-------------------------------
+    // struct Interaction
+    // {
+    //     std::string name;
+    //     std::unordered_map<std::string, double> costs;
 
-    struct Task{
-        std::string name;
-        std::vector<Parameter> params;
-    };
-
-    struct Action{
-        std::string name;
-        Task task;
-        std::unordered_map<std::string, double> costs;
-    };
-
-    struct Reach{
+    // };
+    struct Reach
+    {
         bool reachable;
-        std::string interaction;
+        Action interaction;
     };
 
-    struct Subassembly{
+    struct Subassembly
+    {
         std::string name;
         std::unordered_map<std::string, Reach> reachability;
     };
-    
-    struct Agent{
+    //-------------------------------
+    struct Agent
+    {
         std::string name;
         std::string hostname;
         std::string port;
-    };
 
-    struct Configuration{
-        std::unordered_map<std::string, Agent>  agents;
+        friend std::ostream &operator<<(std::ostream &os, const Agent &a)
+        {
+            os << "| Name: " << std::setw(4)   << a.name     << " | "
+               << "Host: "   << std::setw(15)  << a.hostname << " | "
+               << "Port: "   << std::setw(5)   << a.port     << "  |";
+            return os;
+        }
+    };
+    //-------------------------------
+
+    struct Configuration
+    {
+        std::unordered_map<std::string, Agent> agents;
         std::unordered_map<std::string, Action> actions;
         std::unordered_map<std::string, Subassembly> subassemblies;
+
+        friend std::ostream &operator<<(std::ostream &os, const Configuration &c)
+        {
+            os << "+---------------------------------------------------+" << std::endl;
+            os << "| AGENTS                                            |" << std::endl;
+            os << "+---------------------------------------------------+" << std::endl;
+            for (const auto &at : c.agents)
+            {
+                os << at.second << std::endl;
+            }
+            os << "+---------------------------------------------------+" << std::endl;
+            os << std::endl;
+            os << "+-----------------------------------------+" << std::endl;
+            os << "| ACTIONS                                 |" << std::endl;
+            os << "+-----------------------------------------+" << std::endl;
+            for (const auto &ia : c.actions)
+            {
+                os << ia.second;
+                os << "+-----------------------------------------+" << std::endl;
+            }
+            return os;
+        }
     };
+}
+
+bool is_float(std::string my_string)
+{
+    std::istringstream iss(my_string);
+    float f;
+    iss >> std::noskipws >> f;
+    return iss.eof() && !iss.fail();
 }

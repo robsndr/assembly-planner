@@ -21,7 +21,7 @@ struct NodeExpander
 
   private:
     // Create interaction nodes if subassemblies are not reachable.
-    NodeIndex createInteraction(NodeIndex, AssemblyData&, std::string, double);
+    NodeIndex createInteraction(NodeIndex, AssemblyData&, std::string);
     // Assembly
     Graph<AssemblyData,EdgeData>& assembly_graph_;
     // Hypergraph used for search
@@ -102,9 +102,8 @@ void NodeExpander::expandNode(NodeIndex node_id)
                 if (!part_reachable)
                 {
                     // Part not reachable - add interaction
-                    auto interaction = config.subassemblies[successor.name].reachability[agent].interaction;
-                    auto interaction_cost = config.actions[interaction].costs[agent];
-                    ors_id = createInteraction(successor_id, successor, interaction, interaction_cost);
+                    auto interaction = config.subassemblies[successor.name].reachability[agent].interaction.name;
+                    ors_id = createInteraction(successor_id, successor, interaction);
                 }
 
                 x.subassemblies[successor.name] = ors_id;
@@ -144,7 +143,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
 
 // Interactions are created for assignemnts where a given agent cannot reach a part (subassembly).
 NodeIndex NodeExpander::createInteraction(NodeIndex dest_id, 
-    AssemblyData& dest_data, std::string iname, double icost)
+                    AssemblyData& dest_data, std::string iname)
 {
     // Create interaction subassembly cotaining the same data as original one
     AssemblyData tdata = dest_data;

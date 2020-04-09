@@ -15,7 +15,7 @@ struct Combinator
     std::vector<std::vector<AgentActionAssignment>>
     generateAgentActionAssignments(Graph<AssemblyData, EdgeData> &, std::vector<NodeIndex> &);
 
-private:
+  private:
     void printAssignments();
     void assignAgentsToActions(std::vector<std::string> &, std::vector<std::tuple<std::string, NodeIndex>> &);
     void generateActionCombinationSets(Graph<AssemblyData, EdgeData> &, std::vector<NodeIndex> &);

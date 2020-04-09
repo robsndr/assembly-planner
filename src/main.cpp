@@ -31,36 +31,25 @@ int main(int argc, char *argv[])
 
     auto input = program.get<std::string>("Filename");
 
-    // Assembly Plan is a vector containg tuples of <action_pointer, agent_name, cost>
-    std::vector< std::vector<Task*>> assembly_plan;
-
     // Assembly Planning Block.
-    Graph<AssemblyData,EdgeData> *assembly;
+    Graph<AssemblyData,EdgeData> assembly;
+ 
+    InputReader rdr;
+    config::Configuration config;
+    bool result;
 
-    try
+    std::tie(assembly, config, result) = rdr.read(input);
+
+    if (!result)
     {
-        InputReader rdr(input);
-        config::Configuration *config;
-
-        bool result;
-
-        std::tie(assembly, config, result) = rdr.read("assembly");
-
-        if (!result)
-        {
-            std::cout << "Error in Input Reader." << std::endl;
-            std::cout << "/ Could not read Input File /." << std::endl;
-            return false;
-        }
-        
-        Planner planner;
-        assembly_plan = planner(*assembly, *config);
+        std::cout << "ERROR: Could not read " << input << " file" << std::endl;
+        return false;
     }
-    catch (const std::runtime_error &err)
-    {
-        std::cout << "Runtime Error." << std::endl;
-        return 0;
-    }
+    
+    std::cout << config << std::endl;
+    Planner planner;
+    auto assembly_plan = planner(assembly, config);
+
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();

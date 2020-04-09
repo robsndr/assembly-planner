@@ -14,7 +14,6 @@ struct LessThan
     }
 };
 
-
 // Class used to execute the search on a given graph.
 // The expander is used to perform the node-expansion step of the hypergraph.
 struct AStarSearch

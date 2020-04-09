@@ -311,8 +311,7 @@ bool Graph<N, E>::eraseEdge(
     return true;
 }
 
-// /* Print graph
-// */
+// Print graph
 // template <typename N, typename E>
 // void Graph<N, E>::print(DotWriter &writer)
 // {
