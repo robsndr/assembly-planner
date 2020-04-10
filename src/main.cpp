@@ -1,8 +1,4 @@
-#include <stdio.h>
 #include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
 #include <chrono>
 
 #include "planner.hpp"
@@ -12,12 +8,15 @@
 
 int main(int argc, char *argv[])
 {
-    auto t1 = std::chrono::high_resolution_clock::now();
-    argparse::ArgumentParser program("MSRM Assembly Planner");
-    program.add_argument("Filename")
-        .help("Path to the XML assembly description.");
+    argparse::ArgumentParser program("Assembly Planner");
 
-    // Parse Input Block
+    program.add_argument("Filename")
+        .help("Path to the XML assembly description");
+    program.add_argument("-v", "--verbose")
+        .help("Print debug output")
+        .default_value(false)
+        .implicit_value(true);
+
     try
     {
         program.parse_args(argc, argv);
@@ -31,9 +30,14 @@ int main(int argc, char *argv[])
 
     auto input = program.get<std::string>("Filename");
 
+    std::cout << "+---------------------------------------------------+\n";
+    std::cout << "|                 ASSEMBLY PLANNER                  |\n";
+    std::cout << "+---------------------------------------------------+\n\n";
+
     // Assembly Planning Block.
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     Graph<AssemblyData,EdgeData> assembly;
- 
     InputReader rdr;
     config::Configuration config;
     bool result;
@@ -42,17 +46,18 @@ int main(int argc, char *argv[])
 
     if (!result)
     {
-        std::cout << "ERROR: Could not read " << input << " file" << std::endl;
+        std::cout << "ERROR: Could not read " << input << std::endl;
         return false;
     }
     
-    std::cout << config << std::endl;
+    if(program.get<bool>("--verbose"))
+        std::cout << config << std::endl;
+
     Planner planner;
     auto assembly_plan = planner(assembly, config);
 
-
     auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     std::cout << "Duration: "<< duration << "ms.";
 
     return 0;

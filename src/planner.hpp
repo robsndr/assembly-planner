@@ -13,6 +13,7 @@ struct Planner
     Planner(const Planner&) = default;
     // Start Planning
     std::vector< std::vector<Task*>> operator()(Graph<AssemblyData,EdgeData>, config::Configuration& );
+
   private:
     // Container tracking the optimal assembly sequence
     std::vector<std::vector<Task*>> assembly_plan_;
@@ -59,6 +60,7 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
 
     // Backtrack the found optimum assembly-sequence
     double cost = 0;
+    Graph<SearchData,EdgeData> result_graph;
     while (search_graph.hasPredecessor(result->id))
     {
         for (auto &i : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)

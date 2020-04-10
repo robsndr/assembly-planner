@@ -2,7 +2,7 @@
 
 #include "tinyxml2.h"
 #include "dotwriter.hpp"
-#include "graph_generator.hpp"
+#include "graph_factory.hpp"
 
 // Read the input from the XML file 
 struct InputReader
@@ -22,6 +22,8 @@ struct InputReader
     std::optional<std::unordered_map<std::string, config::Reach>> parse_reachmap(tinyxml2::XMLNode *);
     std::optional<config::Action> parse_interaction(tinyxml2::XMLNode*);
     std::optional<std::unordered_map<std::string, config::Agent>> parse_agents(tinyxml2::XMLNode *);
+    // Final validation
+    int validate_config();
 
     // XML Root Element
     tinyxml2::XMLElement *root;
@@ -31,7 +33,7 @@ struct InputReader
     // Configuration 
     config::Configuration config;
     // Graph factory and constructed graph object
-    GraphGenerator graph_gen;
+    GraphFactory graph_gen;
     Graph<AssemblyData,EdgeData> graph;
 };
 
@@ -94,7 +96,10 @@ std::tuple<Graph<AssemblyData,EdgeData>, config::Configuration, bool> InputReade
     if (!graph_gen.setRoot(attribute_text))
         return std::make_tuple(graph, config, false);
 
-    return std::make_tuple(*graph_gen.graph_, config, true);
+    if(validate_config() != 0)
+        return std::make_tuple(graph, config, false);
+
+    return std::make_tuple(graph, config, true);
 }
 
 // Top-level graph reader, iterates over edges, nodes and associated data.
@@ -151,17 +156,17 @@ int InputReader::parse_nodes(tinyxml2::XMLNode *nodes_root)
         }
         std::string node_type = attribute_text;
         
+        // Node is a subassembly (OR)
         if (node_type == "OR"){
             graph_gen.insertOr(node_name);
-            config::Subassembly subassembly_temp;
-            subassembly_temp.name = node_name;
             
             auto r = parse_reachmap(child);
             if(!r.has_value())
                 return tinyxml2::XML_ERROR_PARSING;
-            
+            config.subassemblies[node_name].name = node_name;
             config.subassemblies[node_name].reachability = r.value();
         }
+        // Node is a action (AND)
         else if (node_type == "AND"){
             graph_gen.insertAnd(node_name);
             config::Action action_temp;
@@ -254,7 +259,8 @@ std::optional<std::unordered_map<std::string, config::Reach>>
         }
         else if (agent_part_reach == "true")
         {
-            reach_map[agent_name].reachable = true; 
+            reach_map[agent_name].reachable = true;
+            interaction_temp.name = "-";
         }
         else
         {
@@ -285,13 +291,13 @@ std::optional<config::Action> InputReader::parse_interaction(tinyxml2::XMLNode* 
         std::cerr << "XML ERROR: Can't read [name] attribute of <interaction>" << std::endl;
         return std::nullopt;
     }
-    interaction.name = attribute_text;
 
     auto c = parse_costmap(interaction_node);
     if(!c.has_value())
         return std::nullopt;
     interaction.costs = c.value();
-
+    interaction.name = attribute_text;
+    
     return interaction;
 }
 
@@ -381,4 +387,45 @@ std::optional<std::unordered_map<std::string, config::Agent>>
     }
 
     return agent_map;
+}
+
+int InputReader::validate_config()
+{
+    if(config.agents.empty())
+    {
+        std::cerr << "ERROR: no agents provided!" << std::endl;
+        return -1;
+    }
+
+    for(const auto& sa : config.subassemblies)
+    {
+        for(const auto& agent : config.agents)
+        {
+            if(sa.second.reachability.find(agent.second.name) 
+                                        == sa.second.reachability.end())
+            {
+                std::cerr << "ERROR: Agent '" << agent.second.name 
+                    << "' reach is missing in reachability map of node '" 
+                        << sa.second.name << "'" << std::endl;
+                return -1;
+            }
+        }
+    }
+
+    for(const auto& action : config.actions)
+    {
+        for(const auto& agent : config.agents)
+        {
+            if(action.second.costs.find(agent.second.name) 
+                                    == action.second.costs.end())
+            {
+                std::cerr << "ERROR: Cost of '" << action.second.name 
+                    << "' for agent '" << agent.second.name 
+                        << "' is missing" << std::endl;
+                return -1;
+            }
+        }
+    }
+
+    return 0;
 }

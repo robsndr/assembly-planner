@@ -71,30 +71,38 @@ namespace config
             return os;
         }        
     };
-    struct Parameter
-    {
-        std::string name;
-        std::string value;
-    };
-    //-------------------------------
-    // struct Interaction
-    // {
-    //     std::string name;
-    //     std::unordered_map<std::string, double> costs;
 
-    // };
     struct Reach
     {
         bool reachable;
         Action interaction;
+
+        friend std::ostream &operator<<(std::ostream &os, const Reach &r)
+        {
+            os << "   Reachable: " <<  r.reachable << "     "
+                << "Interaction: " << std::setw(2) 
+                 << r.interaction.name << "  |" << std::endl;
+            return os;
+        }
     };
 
     struct Subassembly
     {
         std::string name;
         std::unordered_map<std::string, Reach> reachability;
+
+        friend std::ostream &operator<<(std::ostream &os, const Subassembly &s)
+        {
+            os << "| " << std::setw(51) << std::left << s.name << "|" << std::endl;
+            for(const auto &agent_reach : s.reachability)
+            {
+                os << "|    Agent: " << std::setw(4) << agent_reach.first
+                    << agent_reach.second;
+            }
+            return os;
+        }
     };
-    //-------------------------------
+
     struct Agent
     {
         std::string name;
@@ -103,13 +111,12 @@ namespace config
 
         friend std::ostream &operator<<(std::ostream &os, const Agent &a)
         {
-            os << "| Name: " << std::setw(4)   << a.name     << " | "
+            os << "Name: " << std::setw(4)   << a.name     << " | "
                << "Host: "   << std::setw(15)  << a.hostname << " | "
-               << "Port: "   << std::setw(5)   << a.port     << "  |";
+               << "Port: "   << std::setw(5)   << a.port;
             return os;
         }
     };
-    //-------------------------------
 
     struct Configuration
     {
@@ -124,7 +131,7 @@ namespace config
             os << "+---------------------------------------------------+" << std::endl;
             for (const auto &at : c.agents)
             {
-                os << at.second << std::endl;
+                os << "|  " << at.second << " |" << std::endl;
             }
             os << "+---------------------------------------------------+" << std::endl;
             os << std::endl;
@@ -135,6 +142,15 @@ namespace config
             {
                 os << ia.second;
                 os << "+-----------------------------------------+" << std::endl;
+            }
+            os << std::endl;
+            os << "+----------------------------------------------------+" << std::endl;
+            os << "| SUBASSEMBLIES                                      |" << std::endl;
+            os << "+----------------------------------------------------+" << std::endl;
+            for (const auto &sa : c.subassemblies)
+            {
+                os << sa.second;
+                os << "+----------------------------------------------------+" << std::endl;
             }
             return os;
         }
