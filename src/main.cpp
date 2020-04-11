@@ -3,7 +3,7 @@
 
 #include "planner.hpp"
 #include "dotwriter.hpp"
-#include "input_reader.hpp"
+#include "io.hpp"
 #include "argparse.hpp"
 
 int main(int argc, char *argv[])
@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 
     Planner planner;
     auto assembly_plan = planner(assembly, config);
+
+    rdr.write(assembly_plan, "asd");
 
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();

@@ -21,7 +21,7 @@ struct NodeExpander
 
   private:
     // Create interaction nodes if subassemblies are not reachable.
-    NodeIndex createInteraction(NodeIndex, AssemblyData&, std::string);
+    NodeIndex createInteraction(NodeIndex, NodeIndex, AssemblyData&, std::string);
     // Assembly
     Graph<AssemblyData,EdgeData>& assembly_graph_;
     // Hypergraph used for search
@@ -95,7 +95,7 @@ void NodeExpander::expandNode(NodeIndex node_id)
             for (auto& successor_id : assembly_graph_.successorNodes(action_node_id))
             {
                 auto successor = assembly_graph_.getNodeData(successor_id);
-                NodeIndex ors_id = successor_id;
+                NodeIndex ors_prime = successor_id;
 
                 bool part_reachable = config.subassemblies[successor.name].reachability[agent].reachable;
 
@@ -103,12 +103,12 @@ void NodeExpander::expandNode(NodeIndex node_id)
                 {
                     // Part not reachable - add interaction
                     auto interaction = config.subassemblies[successor.name].reachability[agent].interaction.name;
-                    ors_id = createInteraction(successor_id, successor, interaction);
+                    ors_prime = createInteraction(action_node_id, successor_id, successor, interaction);
                 }
 
-                x.subassemblies[successor.name] = ors_id;
+                x.subassemblies[successor.name] = ors_prime;
 
-                for (const auto& next_action_id : assembly_graph_.successorNodes(ors_id))
+                for (const auto& next_action_id : assembly_graph_.successorNodes(ors_prime))
                 {
                     auto next_action = assembly_graph_.getNodeData(next_action_id);
                     x.actions[next_action.name] = next_action_id;
@@ -142,17 +142,26 @@ void NodeExpander::expandNode(NodeIndex node_id)
 }
 
 // Interactions are created for assignemnts where a given agent cannot reach a part (subassembly).
-NodeIndex NodeExpander::createInteraction(NodeIndex dest_id, 
+NodeIndex NodeExpander::createInteraction(NodeIndex src_id, NodeIndex dest_id, 
                     AssemblyData& dest_data, std::string iname)
 {
     // Create interaction subassembly cotaining the same data as original one
     AssemblyData tdata = dest_data;
-    tdata.name = dest_data.name + "_prime";
+    tdata.name = dest_data.name + "_inter";
+    tdata.type = NodeType::INTERASSEMBLY;
     auto or_prime_id = assembly_graph_.insertNode(tdata);
     // Create node for interaction
     AssemblyData idata;
     idata.name = iname;
     idata.type = NodeType::INTERACTION;
+    // Set pointer of action that triggered interaction 
+    // Needed for backtracking the optimal solution at the planner level, 
+    // since interaction are not inserted directly into the graph, 
+    // but are an overlay layer on top of it, with a forward-path only
+    idata.interaction_prev = src_id;
+    idata.interaction_or = or_prime_id;
+    idata.interaction_next = dest_id;
+
     auto interaction_id = assembly_graph_.insertNode(idata);
     // Insert interaction between corresponding nodes
     assembly_graph_.insertEdge(EdgeData(), or_prime_id, interaction_id);

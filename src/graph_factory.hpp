@@ -19,11 +19,11 @@ struct GraphFactory
 
     Graph<AssemblyData,EdgeData> *graph;
 
-  private:
+    std::unordered_map<std::string, std::size_t> id_map;
 
+  private:
     std::vector<Node<AssemblyData> *> and_;
     std::vector<Node<AssemblyData> *> or_;
-    std::unordered_map<std::string, std::size_t> id_map;
 };
 
 GraphFactory::GraphFactory(Graph<AssemblyData,EdgeData> *graph)

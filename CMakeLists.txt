@@ -3,12 +3,12 @@ PROJECT(AssemblyPlanner)
 
 
 IF("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    # require at least gcc 4.8
+    # require at least gcc 7.0
     IF (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
-        MESSAGE(FATAL_ERROR "GCC version must be at least 8.0!")
+        MESSAGE(FATAL_ERROR "GCC version must be at least 7.0!")
     ENDIF()
 ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-    # require at least clang 7.0
+    # require at least clang 6.0
     IF (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
         MESSAGE(FATAL_ERROR "Clang version must be at least 6.0!")
     ENDIF()
@@ -27,4 +27,4 @@ INCLUDE_DIRECTORIES("${PROJECT_SOURCE_DIR}/lib/json/single_include")
 
 
 ADD_EXECUTABLE(planner src/main.cpp lib/tinyxml2/tinyxml2.cpp)
-TARGET_LINK_LIBRARIES(planner ${LIBS} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(planner ${LIBS})

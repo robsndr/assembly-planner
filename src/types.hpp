@@ -33,14 +33,19 @@ struct SearchData
 enum class NodeType
 {
     ACTION,
+    SUBASSEMBLY,
     INTERACTION,
-    SUBASSEMBLY
+    INTERASSEMBLY
 };
 
 struct AssemblyData
 {
     NodeType type;
     std::string name = "";
+
+    size_t interaction_prev;
+    size_t interaction_or;
+    size_t interaction_next;
 };
 
 struct EdgeData

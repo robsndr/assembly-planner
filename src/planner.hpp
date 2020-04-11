@@ -12,11 +12,7 @@ struct Planner
     Planner() = default;
     Planner(const Planner&) = default;
     // Start Planning
-    std::vector< std::vector<Task*>> operator()(Graph<AssemblyData,EdgeData>, config::Configuration& );
-
-  private:
-    // Container tracking the optimal assembly sequence
-    std::vector<std::vector<Task*>> assembly_plan_;
+    Graph<AssemblyData,EdgeData> operator()(Graph<AssemblyData,EdgeData>, config::Configuration& );
 };
 
 // Start planning
@@ -24,7 +20,7 @@ struct Planner
 //   @config: configuration contianing the cost_map and reachability_map
 //   \return: vector containing the assembly plan
 //
-std::vector< std::vector<Task*>> 
+Graph<AssemblyData,EdgeData>
 Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& config)
 {
     // Create a new Graph.
@@ -53,24 +49,53 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
     Node<SearchData> *result = astar.search(search_graph, new_root, expander);
 
     // Track the retrieved optimal assebly sequence
-    std::vector<Task*> optimum;
-
-    // Sequence of all agent-actions for the complete solution
-    assembly_plan_.clear();
+    Graph<AssemblyData,EdgeData> assembly_plan;
 
     // Backtrack the found optimum assembly-sequence
     double cost = 0;
-    Graph<SearchData,EdgeData> result_graph;
+
+    std::unordered_map<NodeIndex, NodeIndex> idxs;
+
     while (search_graph.hasPredecessor(result->id))
     {
-        for (auto &i : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)
+        for (auto &assignment : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)
         {
-            double cur_cost = config.actions[i.action].costs[i.agent];
-            std::cout << "Action: " << i.action << " Agent: " << i.agent << "    ";
+            double cur_cost = config.actions[assignment.action].costs[assignment.agent];
+            std::cout << "Action: " << std::setw(5) << assignment.action
+                        << " Agent: " << std::setw(5) << assignment.agent << std::endl;
+
+            if(graph.getNodeData(assignment.action_node_id).type == NodeType::INTERACTION)
+            {
+                auto x = graph.getNode(assignment.action_node_id);
+                graph.eraseEdge(x->data.interaction_prev, x->data.interaction_next);
+                graph.insertEdge(EdgeData(), x->data.interaction_prev, x->data.interaction_or);
+            }
+
             cost += cur_cost;
+
+            auto action_id = assembly_plan.insertNode(graph.getNodeData(assignment.action_node_id));
+            
+            for(auto &x: graph.getPredecessorNodes(assignment.action_node_id))
+            {
+                if(!idxs.count(x->id))
+                {
+                    auto prime_id = assembly_plan.insertNode(x->data);
+                    idxs.insert(std::make_pair(x->id, prime_id));
+                }
+                assembly_plan.insertEdge(EdgeData(), idxs.at(x->id), action_id);
+            }
+
+            for(auto &x: graph.getSuccessorNodes(assignment.action_node_id))
+            {
+                if(!idxs.count(x->id))
+                {
+                    auto prime_id = assembly_plan.insertNode(x->data);
+                    idxs.insert(std::make_pair(x->id, prime_id));
+                }
+
+                assembly_plan.insertEdge(EdgeData(), action_id, idxs.at(x->id));
+            }
         }
-        assembly_plan_.push_back(optimum);
-        optimum.clear();
         std::cout << std::endl;
         result = search_graph.getPredecessorNodes(result->id).front();
     }
@@ -78,5 +103,5 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
     std::cout << "Cost: " << cost << std::endl << std::endl;
     std::cout << "- - - -  - - - -  - - - -  - - - -  - - - -  - - - - " << std::endl << std::endl;
 
-    return assembly_plan_;
+    return assembly_plan;
 }

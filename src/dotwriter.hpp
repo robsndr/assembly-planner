@@ -20,16 +20,16 @@ struct DotWriter
         fs.close();
     }
 
-    void write(const std::unordered_map<std::size_t, Node<N>> & nodes)
+    void write(const std::vector<Node<N>*> & nodes)
     {
         for (auto const &x : nodes)
         {
-            writeNodeId(x.second);
+            writeNodeId(x);
         }
 
         for (auto const &x : nodes)
         {
-            writeNode(x.second);
+            writeNode(x);
         }
         fs << "}";
         fs.close();
@@ -39,7 +39,7 @@ struct DotWriter
 
     void writeNode(const Node<N>& node)
     {
-        fs << "  " << node.id_ << " -> "
+        fs << "  " << node.id << " -> "
         << "{";
         std::vector<Node<N>*> temp = node.getSuccessorNodes();
         for (std::size_t i = 0; i < node.numberOfSuccessors(); i++)

@@ -26,6 +26,10 @@ class Graph
     bool hasSuccessor(const NodeIndex) const;
     bool hasPredecessor(const NodeIndex) const;
 
+    // Iterate all nodes/edges
+    std::vector<Node<N>*> nodes();
+    std::vector<Edge<E>*> edges();
+
     // Get address to object, mutable access
     Node<N>* getNode(const NodeIndex);
     Edge<E>* getEdge(const EdgeIndex);
@@ -131,6 +135,29 @@ Graph<N, E>::hasPredecessor(
     return nodes_.at(node).hasPredecessor();
 }
 
+template <typename N, typename E>
+inline std::vector<Node<N>*>
+Graph<N, E>::nodes()
+{
+    std::vector<Node<N>*> temp;
+    for(auto &n : nodes_)
+    {
+        temp.push_back(&(n.second));
+    }
+    return temp;
+}
+
+template <typename N, typename E>
+inline std::vector<Edge<E>*>
+Graph<N, E>::edges()
+{
+    std::vector<Edge<E>*> temp;
+    for(auto &e : edges_)
+    {
+        temp.push_back(&(e.second));
+    }
+    return temp;
+}
 
 template <typename N, typename E>
 inline Node<N>*
@@ -304,7 +331,7 @@ bool Graph<N, E>::eraseEdge(
         return false;
     }
 
-    nodes_.at(node_dst).removeSuccessorEdge(eid);
+    nodes_.at(node_src).removeSuccessorEdge(eid);
     nodes_.at(node_dst).removePredecessorEdge(eid);
     edges_.erase(eid);
 
