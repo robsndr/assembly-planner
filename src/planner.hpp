@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include "dotwriter.hpp"
 #include "astar.hpp"
-#include "task.hpp"
 
 // Planner - used as a top-level supervisor for the planning process
 struct Planner
@@ -16,7 +15,7 @@ struct Planner
 };
 
 // Start planning
-//   @graph:  pointer to the original A/O graph obtained from the InputReader
+//   @graph:  pointer to the original A/O graph obtained from the IoXml
 //   @config: configuration contianing the cost_map and reachability_map
 //   \return: vector containing the assembly plan
 //
@@ -54,27 +53,31 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
     // Backtrack the found optimum assembly-sequence
     double cost = 0;
 
+    int ctr = 1;
     std::unordered_map<NodeIndex, NodeIndex> idxs;
 
     while (search_graph.hasPredecessor(result->id))
     {
+        std::cout << " " << std::to_string(ctr) << ". ";
+
+
         for (auto &assignment : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)
         {
             double cur_cost = config.actions[assignment.action].costs[assignment.agent];
-            std::cout << "Action: " << std::setw(5) << assignment.action
-                        << " Agent: " << std::setw(5) << assignment.agent << std::endl;
+            std::cout << " [" << assignment.action << " - " << assignment.agent << "]" << "";
 
-            if(graph.getNodeData(assignment.action_node_id).type == NodeType::INTERACTION)
+            auto action_data = graph.getNodeData(assignment.action_node_id);
+            action_data.assigned_agent = assignment.agent;
+
+            if(action_data.type == NodeType::INTERACTION)
             {
                 auto x = graph.getNode(assignment.action_node_id);
                 graph.eraseEdge(x->data.interaction_prev, x->data.interaction_next);
                 graph.insertEdge(EdgeData(), x->data.interaction_prev, x->data.interaction_or);
             }
 
-            cost += cur_cost;
+            auto action_id = assembly_plan.insertNode(action_data);
 
-            auto action_id = assembly_plan.insertNode(graph.getNodeData(assignment.action_node_id));
-            
             for(auto &x: graph.getPredecessorNodes(assignment.action_node_id))
             {
                 if(!idxs.count(x->id))
@@ -92,16 +95,19 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
                     auto prime_id = assembly_plan.insertNode(x->data);
                     idxs.insert(std::make_pair(x->id, prime_id));
                 }
-
                 assembly_plan.insertEdge(EdgeData(), action_id, idxs.at(x->id));
             }
+
+            cost += cur_cost;
         }
+        ctr++;
         std::cout << std::endl;
         result = search_graph.getPredecessorNodes(result->id).front();
     }
 
-    std::cout << "Cost: " << cost << std::endl << std::endl;
-    std::cout << "- - - -  - - - -  - - - -  - - - -  - - - -  - - - - " << std::endl << std::endl;
+    assembly_plan.root = assembly_plan.getNode(idxs[graph.root->id]);
+
+    std::cout << std::endl << "Cost: " << cost << std::endl << std::endl;
 
     return assembly_plan;
 }

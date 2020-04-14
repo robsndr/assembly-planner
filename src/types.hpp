@@ -42,7 +42,9 @@ struct AssemblyData
 {
     NodeType type;
     std::string name = "";
-
+    
+    // Only utilized for ACTION type nodes
+    std::string assigned_agent;
     size_t interaction_prev;
     size_t interaction_or;
     size_t interaction_next;

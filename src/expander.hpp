@@ -147,7 +147,7 @@ NodeIndex NodeExpander::createInteraction(NodeIndex src_id, NodeIndex dest_id,
 {
     // Create interaction subassembly cotaining the same data as original one
     AssemblyData tdata = dest_data;
-    tdata.name = dest_data.name + "_inter";
+    tdata.name = dest_data.name + "′";
     tdata.type = NodeType::INTERASSEMBLY;
     auto or_prime_id = assembly_graph_.insertNode(tdata);
     // Create node for interaction

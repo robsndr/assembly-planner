@@ -4,32 +4,25 @@
 
 #include "node.hpp"
 #include "types.hpp"
+#include "graph.hpp"
 
 // Implements the writing of .dot files for a given graph
-template <typename N>
 struct DotWriter
-{
-    DotWriter(std::string name)
+{    
+    template <typename N>
+    static void write(Graph<N,EdgeData>& graph, std::string path)
     {
-        fs.open(name, std::fstream::out);
+        std::fstream fs;
+        fs.open(path, std::fstream::out);
         fs << "digraph G {" << std::endl;
-    }
-
-    ~DotWriter()
-    {
-        fs.close();
-    }
-
-    void write(const std::vector<Node<N>*> & nodes)
-    {
-        for (auto const &x : nodes)
+        for (auto x : graph.nodes())
         {
-            writeNodeId(x);
+            writeNodeId(fs,x);
         }
 
-        for (auto const &x : nodes)
+        for (auto x : graph.nodes())
         {
-            writeNode(x);
+            writeNode(fs, graph, x);
         }
         fs << "}";
         fs.close();
@@ -37,35 +30,49 @@ struct DotWriter
 
   private:
 
-    void writeNode(const Node<N>& node)
+    template <typename N>
+    static void writeNode(std::fstream& fs, Graph<N,EdgeData>& graph, Node<N>* node)
     {
-        fs << "  " << node.id << " -> "
-        << "{";
-        std::vector<Node<N>*> temp = node.getSuccessorNodes();
-        for (std::size_t i = 0; i < node.numberOfSuccessors(); i++)
+        fs << "  " << node->id << " -> " << "{";
+        std::vector<Node<N>*> temp = graph.getSuccessorNodes(node->id);
+        for (std::size_t i = 0; i < temp.size(); i++)
         {
-            if (i != node.numberOfSuccessors() - 1)
+            if (i != temp.size() - 1)
             {
-                fs << temp[i]->id_
+                fs << temp[i]->id
                 << ", ";
             }
             else
             {
-                fs << temp[i]->id_;
+                fs << temp[i]->id;
             }
         }
         fs << "}" << std::endl;
     }
 
-    void writeNodeId(const Node<N>& node)
+    template <typename N>
+    static void writeNodeId(std::fstream& fs, Node<N>* node)
     {
-        fs << "  " << node.id << " [label=\""
-            << node.data_.name << "\n"
-            << "F: " << node.data_.f_score << std::endl
-            << "H: " << node.data_.h_score
-            << "\"];"
-            << std::endl;
+        fs << "  " << node->id;
+        switch (node->data.type)
+        {
+            case NodeType::SUBASSEMBLY:
+                fs << " [label=\""<< node->data.name
+                   << "\" shape=\"rectangle\"";
+                break;
+            case NodeType::INTERASSEMBLY:
+                fs << " [label=\""<< node->data.name 
+                   << "\" shape=\"rectangle\" color=\"blue\"";
+                break;
+            case NodeType::INTERACTION:
+                fs << " [label=\""<< node->data.name 
+                   << " - " << node->data.assigned_agent 
+                   << "\" color=\"blue\"";
+                break;
+            case NodeType::ACTION:
+                fs << " [label=\""<< node->data.name 
+                   << " - " << node->data.assigned_agent << "\"";
+        }
+        fs << "];" << std::endl;
     }
-
-    std::fstream fs;
 };
