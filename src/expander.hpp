@@ -26,7 +26,7 @@ struct NodeExpander
     Graph<AssemblyData,EdgeData>& assembly_graph_;
     // Hypergraph used for search
     Graph<SearchData,EdgeData>& search_graph_;
-    // Pointers to cost/reach maps provided by the InputReader.
+    // Pointers to cost/reach maps provided by the IoXml.
     config::Configuration& config;
     // Assignment generation object
     Combinator assignment_generator_;
@@ -99,9 +99,9 @@ void NodeExpander::expandNode(NodeIndex node_id)
 
                 bool part_reachable = config.subassemblies[successor.name].reachability[agent].reachable;
 
+                // If part not reachable add interaction
                 if (!part_reachable)
                 {
-                    // Part not reachable - add interaction
                     auto interaction = config.subassemblies[successor.name].reachability[agent].interaction.name;
                     ors_prime = createInteraction(action_node_id, successor_id, successor, interaction);
                 }

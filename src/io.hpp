@@ -8,20 +8,26 @@
 struct IoXml
 {
     IoXml();
-    void write(Graph<AssemblyData, EdgeData>&, std::string);
+    // Write graph to XML
+    void write(Graph<AssemblyData, EdgeData> &, std::string);
     // Read the provided XML representing the assembly with agents, costs etc.
     std::tuple<Graph<AssemblyData, EdgeData>, config::Configuration, bool> read(std::string path);
 
-private:
+    private:
     // Parse graph
     int parse_graph(tinyxml2::XMLNode *);
     int parse_nodes(tinyxml2::XMLNode *);
     int parse_edges(tinyxml2::XMLNode *);
+
+    // Type aliasing for readability
+    using ReachMap =  std::unordered_map<std::string, config::Reach>;
+    using CostMap = std::unordered_map<std::string, double>;
+    using AgentMap = std::unordered_map<std::string, config::Agent>;
     // Parse node-associated data
-    std::optional<std::unordered_map<std::string, double>> parse_costmap(tinyxml2::XMLNode *);
-    std::optional<std::unordered_map<std::string, config::Reach>> parse_reachmap(tinyxml2::XMLNode *);
+    std::optional<CostMap> parse_costmap(tinyxml2::XMLNode *);
+    std::optional<ReachMap> parse_reachmap(tinyxml2::XMLNode *);
     std::optional<config::Action> parse_interaction(tinyxml2::XMLNode *);
-    std::optional<std::unordered_map<std::string, config::Agent>> parse_agents(tinyxml2::XMLNode *);
+    std::optional<AgentMap> parse_agents(tinyxml2::XMLNode *);
     // Final validation
     int validate_config(config::Configuration &);
     int validate_graph(Graph<AssemblyData, EdgeData> &);
@@ -43,12 +49,10 @@ IoXml::IoXml()
 {
 }
 
-void IoXml::write(Graph<AssemblyData, EdgeData>& graph, std::string path)
+// Write graph to XML file
+void IoXml::write(Graph<AssemblyData, EdgeData> &graph, std::string path)
 {
     tinyxml2::XMLDocument xmlDoc;
-
-    if (graph.root == nullptr)
-        return;
 
     tinyxml2::XMLElement *g = xmlDoc.NewElement("graph");
     g->SetAttribute("root", graph.root->data.name.c_str());
@@ -60,6 +64,7 @@ void IoXml::write(Graph<AssemblyData, EdgeData>& graph, std::string path)
     tinyxml2::XMLElement *e = xmlDoc.NewElement("edges");
     g->InsertEndChild(e);
 
+    // Write ACTION/INTERACTION nodes 
     for (auto node : graph.nodes())
     {
         if (node->data.type == NodeType::ACTION ||
@@ -75,6 +80,7 @@ void IoXml::write(Graph<AssemblyData, EdgeData>& graph, std::string path)
             nd->InsertFirstChild(ag);
         }
     }
+    // Wirite over SUBASSEMBLIES
     for (auto node : graph.nodes())
     {
         if (node->data.type == NodeType::SUBASSEMBLY)
@@ -85,20 +91,23 @@ void IoXml::write(Graph<AssemblyData, EdgeData>& graph, std::string path)
             pRoot->InsertFirstChild(nd);
         }
     }
-
+    // Write edges
     for (auto edge : graph.edges())
     {
         tinyxml2::XMLElement *nd = xmlDoc.NewElement("edge");
-        nd->SetAttribute("from", graph.getNodeData(edge->getDestination()).name.c_str());
-        nd->SetAttribute("to", graph.getNodeData(edge->getSource()).name.c_str());
+        nd->SetAttribute("from", 
+            graph.getNodeData(edge->getDestination()).name.c_str());
+        nd->SetAttribute("to", 
+            graph.getNodeData(edge->getSource()).name.c_str());
         e->InsertFirstChild(nd);
     }
 
     xmlDoc.SaveFile(path.c_str());
 }
 
-// Top level read function
-std::tuple<Graph<AssemblyData, EdgeData>, config::Configuration, bool> IoXml::read(std::string path)
+// Top level read function. Read graph and configuration from XML.
+std::tuple<Graph<AssemblyData, EdgeData>, config::Configuration, bool> 
+                                                IoXml::read(std::string path)
 {
     // Load XML file into buffer
     tinyxml2::XMLError result = doc.LoadFile(path.c_str());
@@ -152,9 +161,10 @@ std::tuple<Graph<AssemblyData, EdgeData>, config::Configuration, bool> IoXml::re
     if (!graph_gen.setRoot(attribute_text))
         return std::make_tuple(graph, config, false);
 
+    // Validate whether config has all necesseray information
     if (validate_config(config) != 0)
         return std::make_tuple(graph, config, false);
-
+    // Validate if graph has the expected structure of an AND/OR graph
     if (validate_graph(graph) != 0)
         return std::make_tuple(graph, config, false);
 
@@ -204,7 +214,8 @@ int IoXml::parse_nodes(tinyxml2::XMLNode *nodes_root)
         attribute_text = child->Attribute("name");
         if (attribute_text == NULL)
         {
-            std::cerr << "XML ERROR: Can't read [name] attribute of <node>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [name] attribute of <node>" 
+                        << std::endl;
             return tinyxml2::XML_ERROR_PARSING;
         }
         std::string node_name = attribute_text;
@@ -212,7 +223,8 @@ int IoXml::parse_nodes(tinyxml2::XMLNode *nodes_root)
         attribute_text = child->Attribute("type");
         if (attribute_text == NULL)
         {
-            std::cerr << "XML ERROR: Can't read [type] attribute of <node>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [type] attribute of <node>" 
+                        << std::endl;
             return tinyxml2::XML_ERROR_PARSING;
         }
         std::string node_type = attribute_text;
@@ -284,10 +296,9 @@ int IoXml::parse_edges(tinyxml2::XMLNode *edges_root)
 }
 
 // Parsing of reachability information, that is associated with nodes
-std::optional<std::unordered_map<std::string, config::Reach>>
-IoXml::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
+std::optional<IoXml::ReachMap> IoXml::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
 {
-    std::unordered_map<std::string, config::Reach> reach_map;
+    IoXml::ReachMap reach_map;
 
     const char *attribute_text = nullptr;
 
@@ -297,7 +308,8 @@ IoXml::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
         attribute_text = reach->Attribute("agent");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [agent] attribute of <reach>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [agent] attribute"
+                        << " of <reach>" << std::endl;
             return std::nullopt;
         }
         std::string agent_name = attribute_text;
@@ -305,14 +317,15 @@ IoXml::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
         attribute_text = reach->Attribute("reachable");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [reachable] attribute of <action>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [reachable] attribute"
+                        << " of <action>" << std::endl;
             return std::nullopt;
         }
         std::string agent_part_reach = attribute_text;
 
-        std::transform(agent_part_reach.begin(), agent_part_reach.end(), agent_part_reach.begin(),
-                       [](unsigned char c)
-                       { return std::tolower(c); });
+        std::transform(agent_part_reach.begin(), agent_part_reach.end(), 
+                       agent_part_reach.begin(),   
+                       [](unsigned char c){ return std::tolower(c); });
 
         config::Action interaction_temp;
 
@@ -334,7 +347,8 @@ IoXml::parse_reachmap(tinyxml2::XMLNode *reachmap_root)
         }
         else
         {
-            std::cerr << "XML ERROR: Only True/False [value] is supported for <reach> node" << std::endl;
+            std::cerr << "XML ERROR: Only True/False [value] is supported"
+                        << " for <reach> node" << std::endl;
             return std::nullopt;
         }
 
@@ -351,10 +365,11 @@ std::optional<config::Action> IoXml::parse_interaction(tinyxml2::XMLNode *intera
 
     config::Action interaction;
 
-    tinyxml2::XMLElement *interaction_node = interaction_root->FirstChildElement("interaction");
+    auto interaction_node = interaction_root->FirstChildElement("interaction");
     if (interaction_node == nullptr)
     {
-        std::cerr << "XML ERROR: <interaction> node is missing for non-reachable subassembly" << std::endl;
+        std::cerr << "XML ERROR: <interaction> node is missing"
+                            << " for non-reachable subassembly" << std::endl;
         return std::nullopt;
     }
 
@@ -375,10 +390,9 @@ std::optional<config::Action> IoXml::parse_interaction(tinyxml2::XMLNode *intera
 }
 
 // Helper for reading costmaps, which are associated with actions and interactions.
-std::optional<std::unordered_map<std::string, double>>
-IoXml::parse_costmap(tinyxml2::XMLNode *action_node)
+std::optional<IoXml::CostMap> IoXml::parse_costmap(tinyxml2::XMLNode *action_node)
 {
-    std::unordered_map<std::string, double> costmap;
+    IoXml::CostMap costmap;
 
     const char *attribute_text = nullptr;
 
@@ -388,7 +402,8 @@ IoXml::parse_costmap(tinyxml2::XMLNode *action_node)
         attribute_text = cost->Attribute("agent");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [agent] attribute of <cost>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [agent] attribute of <cost>" 
+                        << std::endl;
             return std::nullopt;
         }
         std::string agent_name = attribute_text;
@@ -396,7 +411,8 @@ IoXml::parse_costmap(tinyxml2::XMLNode *action_node)
         attribute_text = cost->Attribute("value");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [value] attribute of <cost>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [value] attribute of <cost>" 
+                        << std::endl;
             return std::nullopt;
         }
         std::string cost_value = attribute_text;
@@ -415,19 +431,19 @@ IoXml::parse_costmap(tinyxml2::XMLNode *action_node)
         }
         else
         {
-            std::cerr << "XML ERROR: [cost] must be a number or 'inf'" << std::endl;
+            std::cerr << "XML ERROR: [cost] must be a number or 'inf'" 
+                    << std::endl;
             return std::nullopt;
         }
     }
     return costmap;
 }
 
-// Read information about the agents (human, robot) that are considers in the planning process.
-std::optional<std::unordered_map<std::string, config::Agent>>
-IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
+// Read information about agents (human, robot), that are considered when planning.
+std::optional<IoXml::AgentMap> IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
 {
 
-    std::unordered_map<std::string, config::Agent> agent_map;
+    IoXml::AgentMap agent_map;
 
     const char *attribute_text = nullptr;
 
@@ -437,7 +453,8 @@ IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
         attribute_text = agent->Attribute("name");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [name] attribute of <agent>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [name] attribute of <agent>" 
+                        << std::endl;
             return std::nullopt;
         }
         std::string agent_name = attribute_text;
@@ -445,7 +462,8 @@ IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
         attribute_text = agent->Attribute("host");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [host] attribute of <agent>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [host] attribute of <agent>" 
+                        << std::endl;
             return std::nullopt;
         }
         std::string host = attribute_text;
@@ -453,7 +471,8 @@ IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
         attribute_text = agent->Attribute("port");
         if (attribute_text == nullptr)
         {
-            std::cerr << "XML ERROR: Can't read [port] attribute of <agent>" << std::endl;
+            std::cerr << "XML ERROR: Can't read [port] attribute of <agent>" 
+                        << std::endl;
             return std::nullopt;
         }
         std::string port = attribute_text;
@@ -469,6 +488,7 @@ IoXml::parse_agents(tinyxml2::XMLNode *agents_root)
     return agent_map;
 }
 
+// Validate wheteher config has all required information
 int IoXml::validate_config(config::Configuration &conf)
 {
     if (conf.agents.empty())
@@ -476,12 +496,13 @@ int IoXml::validate_config(config::Configuration &conf)
         std::cerr << "ERROR: no agents provided!" << std::endl;
         return -1;
     }
-
+    // Check if all subassemblies have specified reachability for all agents
     for (const auto &sa : conf.subassemblies)
     {
         for (const auto &agent : conf.agents)
         {
-            if (sa.second.reachability.find(agent.second.name) == sa.second.reachability.end())
+            if (sa.second.reachability.find(agent.second.name) 
+                                    == sa.second.reachability.end())
             {
                 std::cerr << "ERROR: Agent '" << agent.second.name
                           << "' reach is missing in reachability map of node '"
@@ -490,12 +511,13 @@ int IoXml::validate_config(config::Configuration &conf)
             }
         }
     }
-
+    // Check if costs are fully specified for all actions
     for (const auto &action : conf.actions)
     {
         for (const auto &agent : conf.agents)
         {
-            if (action.second.costs.find(agent.second.name) == action.second.costs.end())
+            if (action.second.costs.find(agent.second.name) 
+                                        == action.second.costs.end())
             {
                 std::cerr << "ERROR: Cost of '" << action.second.name
                           << "' for agent '" << agent.second.name
@@ -504,40 +526,52 @@ int IoXml::validate_config(config::Configuration &conf)
             }
         }
     }
-
     return 0;
 }
 
+// Check whether graph is AO graph. 
+// In a AND/OR graph, AND nodes can be only adjacent to OR nodes, and vice-verse.
+// It should be therefore impossible to reach an OR [AND] node,
+// directly from another OR [AND] node.
+//
 int IoXml::validate_graph(Graph<AssemblyData, EdgeData> &graph)
 {
     for (auto &node : graph.nodes())
     {
         for (auto &pred : graph.getPredecessorNodes(node->id))
         {
-            if (node->data.type == NodeType::ACTION && pred->data.type != NodeType::SUBASSEMBLY)
+            if (node->data.type == NodeType::ACTION && 
+                        pred->data.type != NodeType::SUBASSEMBLY)
             {
-                std::cerr << "ERROR: Provided graph is not an AND/OR graph (AND-AND edge detected)!" << std::endl;
+                std::cerr << "ERROR: Provided graph is not an AND/OR graph" 
+                            << " (AND-AND edge detected)!" << std::endl;
                 return -1;
             }
 
-            if (node->data.type == NodeType::SUBASSEMBLY && pred->data.type != NodeType::ACTION)
+            if (node->data.type == NodeType::SUBASSEMBLY && 
+                                pred->data.type != NodeType::ACTION)
             {
-                std::cerr << "ERROR: Provided graph is not an AND/OR graph (OR-OR edge detected)!" << std::endl;
+                std::cerr << "ERROR: Provided graph is not an AND/OR graph"
+                            << " (OR-OR edge detected)!" << std::endl;
                 return -1;
             }
         }
 
         for (auto &succ : graph.getSuccessorNodes(node->id))
         {
-            if (node->data.type == NodeType::ACTION && succ->data.type != NodeType::SUBASSEMBLY)
+            if (node->data.type == NodeType::ACTION && 
+                                 succ->data.type != NodeType::SUBASSEMBLY)
             {
-                std::cerr << "ERROR: Provided graph is not an AND/OR graph (AND-AND edge detected)!" << std::endl;
+                std::cerr << "ERROR: Provided graph is not an AND/OR graph"
+                            << "(AND-AND edge detected)!" << std::endl;
                 return -1;
             }
 
-            if (node->data.type == NodeType::SUBASSEMBLY && succ->data.type != NodeType::ACTION)
+            if (node->data.type == NodeType::SUBASSEMBLY && 
+                                succ->data.type != NodeType::ACTION)
             {
-                std::cerr << "ERROR: Provided graph is not an AND/OR graph (OR-OR edge detected)!" << std::endl;
+                std::cerr << "ERROR: Provided graph is not an AND/OR graph"
+                            << " (OR-OR edge detected)!" << std::endl;
 
                 return -1;
             }

@@ -6,7 +6,7 @@
 #include "types.hpp"
 #include "graph.hpp"
 
-// Implements the writing of .dot files for a given graph
+// Implements the writing of .dot files for graphs
 struct DotWriter
 {    
     template <typename N>

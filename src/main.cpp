@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
 {
     // Input handling
     argparse::ArgumentParser program("Assembly Planner");
-
     program.add_argument("input")
         .help("Path to the XML assembly description ")
         .required();
@@ -25,7 +24,6 @@ int main(int argc, char *argv[])
         .help("Print debug output")
         .default_value(false)
         .implicit_value(true);  
-
     try
     {
         program.parse_args(argc, argv);
@@ -39,49 +37,42 @@ int main(int argc, char *argv[])
     auto input_path = program.get<std::string>("input");
     auto output_path = program.get<std::string>("output");
 
-    // Assembly Planning Block.
     std::cout << "+---------------------------------------------------+\n";
     std::cout << "|                 ASSEMBLY PLANNER                  |\n";
     std::cout << "+---------------------------------------------------+\n\n";
-    auto t1 = std::chrono::high_resolution_clock::now();
 
+    // Assembly Planning Block.
+    // Planning data structures
     Graph<AssemblyData,EdgeData> assembly;
-    IoXml rdr;
+    IoXml xml;
     config::Configuration config;
     bool result;
 
-    std::tie(assembly, config, result) = rdr.read(input_path);
-
-    DotWriter b;
-    b.write(assembly, "test.dot");
-
+    // Read input XML
+    std::tie(assembly, config, result) = xml.read(input_path);
     if (!result)
     {
         std::cout << "ERROR: Could not read " << input_path << std::endl;
         return false;
     }
-    
     if(program.get<bool>("--verbose"))
         std::cout << config << std::endl;
 
+    // Run planner
     Planner planner;
     auto assembly_plan = planner(assembly, config);
-    
+
+    // Output result
     if(program.get<bool>("--dot"))
     {
-        DotWriter a;
-        a.write(assembly_plan, output_path);
+        DotWriter dot;
+        dot.write(assembly_plan, output_path);
     }
     else
     {
-        rdr.write(assembly_plan, output_path);
+        xml.write(assembly_plan, output_path);
     }
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    // std::cout << "Duration: "<< duration << "ms." << std::endl;
-
     std::cout << "+---------------------------------------------------+" << std::endl;
-
     return 0;
 }

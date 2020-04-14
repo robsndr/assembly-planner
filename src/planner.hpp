@@ -49,26 +49,32 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
 
     // Track the retrieved optimal assebly sequence
     Graph<AssemblyData,EdgeData> assembly_plan;
-
-    // Backtrack the found optimum assembly-sequence
+    
+    // Count the number of rounds in the final schedule
+    int ctr = 1;
     double cost = 0;
 
-    int ctr = 1;
+    // Track mapping of indexes between graph used for search and the final plan 
     std::unordered_map<NodeIndex, NodeIndex> idxs;
 
+    // Backtrack the optimal solution using the search graph
+    // Based on the optimal assignments, construct the final assembly plan
     while (search_graph.hasPredecessor(result->id))
     {
         std::cout << " " << std::to_string(ctr) << ". ";
 
-
+        // Go over all assignements that are part of given state in the search graph
         for (auto &assignment : search_graph.getPredecessorEdges(result->id).front()->data.planned_assignments)
         {
-            double cur_cost = config.actions[assignment.action].costs[assignment.agent];
             std::cout << " [" << assignment.action << " - " << assignment.agent << "]" << "";
-
+            
             auto action_data = graph.getNodeData(assignment.action_node_id);
             action_data.assigned_agent = assignment.agent;
 
+            // If an interaction is found in the optimal assignment, its predecessor must be connected to it
+            // This is necessary, as potential interaction are inserted into the input graph during the search,
+            // and referenced by the supernodes of the search graph. 
+            // Full reachability to a gieven interaction is only established when it is selected as part of the solution. 
             if(action_data.type == NodeType::INTERACTION)
             {
                 auto x = graph.getNode(assignment.action_node_id);
@@ -76,8 +82,10 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
                 graph.insertEdge(EdgeData(), x->data.interaction_prev, x->data.interaction_or);
             }
 
+            // Insert nodes that contribute to the optimum solution to the assembly plan graph
+            // Action node
             auto action_id = assembly_plan.insertNode(action_data);
-
+            // Predecessor subassemblies of the given action
             for(auto &x: graph.getPredecessorNodes(assignment.action_node_id))
             {
                 if(!idxs.count(x->id))
@@ -87,7 +95,7 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
                 }
                 assembly_plan.insertEdge(EdgeData(), idxs.at(x->id), action_id);
             }
-
+            // Successor subassemblies of the given action
             for(auto &x: graph.getSuccessorNodes(assignment.action_node_id))
             {
                 if(!idxs.count(x->id))
@@ -98,6 +106,7 @@ Planner::operator()(Graph<AssemblyData,EdgeData> graph, config::Configuration& c
                 assembly_plan.insertEdge(EdgeData(), action_id, idxs.at(x->id));
             }
 
+            double cur_cost = config.actions[assignment.action].costs[assignment.agent];
             cost += cur_cost;
         }
         ctr++;
