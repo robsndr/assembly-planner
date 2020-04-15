@@ -1,6 +1,6 @@
-[submodule "assemblyPlanner/lib/tinyxml2"]
+[submodule "assembly-planner/lib/tinyxml2"]
 	path = lib/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
-[submodule "assemblyPlanner/lib/argparse"]
+[submodule "assembly-planner/lib/argparse"]
 	path = lib/argparse
 	url = https://github.com/p-ranav/argparse.git
