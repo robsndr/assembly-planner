@@ -1,0 +1,25 @@
+# Project Files unneeded by docker
+.git
+.gitignore
+.gitmodules
+.clang-format
+
+example/*
+
+AUTHORS
+CONTRIBUTING.md
+CONTRIBUTORS
+LICENSE
+README.md
+doc
+
+# Native cmake build
+build/
+build*/
+*.cmake
+Makefile
+CMakeCache.txt
+CMakeFiles
+
+# Editor directories and files
+*.vscode
