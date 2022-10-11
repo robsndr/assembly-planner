@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+  <agents>
+      <agent name="r1" host="localhost" port="9000"/>
+      <agent name="r2" host="localhost" port="9001"/>
+      <agent name="h"  host="localhost" port="9002"/>
+  </agents>
+  <graph root="ABCDEFGH">
+    <nodes>
+      <node name="ABCDEFGH" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="ABCDEF" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="CDEFGH" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="ABCD" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="CDEF" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="EFGH" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="AB" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>   
+      </node>
+      <node name="CD" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="EF" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="GH" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="A" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="B" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="C" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="D" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="E" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="F" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="G" type="OR">
+        <reach agent="r1" reachable="True"/>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="H" type="OR">
+        <reach agent="r1" reachable="False">
+          <interaction name="i0">
+            <cost agent="r1" value="inf"/>
+            <cost agent="r2" value="12"/>
+            <cost agent="h"  value="10"/>
+          </interaction>
+        </reach>
+        <reach agent="r2" reachable="True"/>
+        <reach agent="h"  reachable="True"/>
+      </node>
+      <node name="a1" type="AND">
+        <cost agent="r1" value="inf"/>
+        <cost agent="r2" value="inf"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a2" type="AND">
+        <cost agent="r1" value="inf"/>
+        <cost agent="r2" value="inf"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a3" type="AND">
+        <cost agent="r1" value="inf"/>
+        <cost agent="r2" value="inf"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a4" type="AND">
+        <cost agent="r1" value="10"/>
+        <cost agent="r2" value="10"/>
+        <cost agent="h"  value="200"/>
+      </node>
+      <node name="a5" type="AND">
+        <cost agent="r1" value="15"/>
+        <cost agent="r2" value="5"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a6" type="AND">
+        <cost agent="r1" value="20"/>
+        <cost agent="r2" value="10"/>
+        <cost agent="h"  value="30"/>
+      </node>
+      <node name="a7" type="AND">
+        <cost agent="r1" value="10"/>
+        <cost agent="r2" value="5"/>
+        <cost agent="h"  value="40"/>
+      </node>
+      <node name="a8" type="AND">
+        <cost agent="r1" value="inf"/>
+        <cost agent="r2" value="5"/>
+        <cost agent="h"  value="100"/>
+      </node>
+      <node name="a9" type="AND">
+        <cost agent="r1" value="20"/>
+        <cost agent="r2" value="20"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a10" type="AND">
+        <cost agent="r1" value="10"/>
+        <cost agent="r2" value="10"/>
+        <cost agent="h"  value="50"/>
+      </node>
+      <node name="a11" type="AND">
+        <cost agent="r1" value="10"/>
+        <cost agent="r2" value="10"/>
+        <cost agent="h"  value="100"/>
+      </node>
+      <node name="a12" type="AND">
+        <cost agent="r1" value="10"/>
+        <cost agent="r2" value="10"/>
+        <cost agent="h"  value="100"/>
+      </node>
+    </nodes>
+    <edges>
+      <edge start="ABCDEFGH"  end="a1"/>
+      <edge start="ABCDEFGH"  end="a2"/>
+      <edge start="ABCDEFGH"  end="a3"/>
+      <edge start="a1"        end="ABCDEF"/>
+      <edge start="a1"        end="GH"/>
+      <edge start="a2"        end="ABCD"/>
+      <edge start="a2"        end="EFGH"/>
+      <edge start="a3"        end="AB"/>
+      <edge start="a3"        end="CDEFGH"/>
+      <edge start="ABCDEF"    end="a4"/>
+      <edge start="CDEFGH"    end="a5"/>
+      <edge start="a4"        end="AB"/>
+      <edge start="a4"        end="CDEF"/>
+      <edge start="a5"        end="CDEF"/>
+      <edge start="a5"        end="GH"/>
+      <edge start="ABCD"      end="a6"/>
+      <edge start="CDEF"      end="a7"/>
+      <edge start="EFGH"      end="a8"/>
+      <edge start="a6"        end="AB"/>
+      <edge start="a6"        end="CD"/>
+      <edge start="a7"        end="CD"/>
+      <edge start="a7"        end="EF"/>    
+      <edge start="a8"        end="EF"/>
+      <edge start="a8"        end="GH"/>      
+      <edge start="AB"        end="a9"/>
+      <edge start="CD"        end="a10"/>
+      <edge start="EF"        end="a11"/>
+      <edge start="GH"        end="a12"/>
+      <edge start="a9"        end="A"/>
+      <edge start="a9"        end="B"/>
+      <edge start="a10"       end="C"/>
+      <edge start="a10"       end="D"/>  
+      <edge start="a11"       end="E"/>
+      <edge start="a11"       end="F"/>
+      <edge start="a12"       end="G"/>
+      <edge start="a12"       end="H"/>                                    
+    </edges>
+  </graph>                                     
+</assembly>

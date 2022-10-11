@@ -1,0 +1,68 @@
+<graph root="ABCDEFGH">
+    <nodes>
+        <node name="A" type="OR"/>
+        <node name="B" type="OR"/>
+        <node name="AB" type="OR"/>
+        <node name="H" type="OR"/>
+        <node name="E" type="OR"/>
+        <node name="F" type="OR"/>
+        <node name="CD" type="OR"/>
+        <node name="D" type="OR"/>
+        <node name="C" type="OR"/>
+        <node name="EF" type="OR"/>
+        <node name="CDEF" type="OR"/>
+        <node name="GH" type="OR"/>
+        <node name="G" type="OR"/>
+        <node name="ABCDEF" type="OR"/>
+        <node name="ABCDEFGH" type="OR"/>
+        <node name="a7" type="AND">
+            <agent name="r2"/>
+        </node>
+        <node name="a9" type="AND">
+            <agent name="r1"/>
+        </node>
+        <node name="i0" type="AND">
+            <agent name="h"/>
+        </node>
+        <node name="a10" type="AND">
+            <agent name="r1"/>
+        </node>
+        <node name="a11" type="AND">
+            <agent name="r2"/>
+        </node>
+        <node name="a12" type="AND">
+            <agent name="r1"/>
+        </node>
+        <node name="a4" type="AND">
+            <agent name="r2"/>
+        </node>
+        <node name="a1" type="AND">
+            <agent name="h"/>
+        </node>
+    </nodes>
+    <edges>
+        <edge from="H′" to="a12"/>
+        <edge from="a12" to="GH"/>
+        <edge from="CD" to="a7"/>
+        <edge from="EF" to="a7"/>
+        <edge from="a7" to="CDEF"/>
+        <edge from="A" to="a9"/>
+        <edge from="B" to="a9"/>
+        <edge from="a9" to="AB"/>
+        <edge from="H" to="i0"/>
+        <edge from="i0" to="H′"/>
+        <edge from="D" to="a10"/>
+        <edge from="a10" to="CD"/>
+        <edge from="C" to="a10"/>
+        <edge from="a11" to="EF"/>
+        <edge from="F" to="a11"/>
+        <edge from="E" to="a11"/>
+        <edge from="G" to="a12"/>
+        <edge from="a4" to="ABCDEF"/>
+        <edge from="CDEF" to="a4"/>
+        <edge from="AB" to="a4"/>
+        <edge from="a1" to="ABCDEFGH"/>
+        <edge from="GH" to="a1"/>
+        <edge from="ABCDEF" to="a1"/>
+    </edges>
+</graph>
